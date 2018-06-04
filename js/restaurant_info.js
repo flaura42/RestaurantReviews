@@ -10,7 +10,7 @@ window.initMap = () => {
       console.error(error);
     } else {
       self.map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 16,
+        zoom: 17,
         center: restaurant.latlng,
         scrollwheel: false
       });
@@ -95,9 +95,9 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  */
 fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
-  const title = document.createElement('h2');
-  title.innerHTML = 'Reviews';
-  container.appendChild(title);
+  // const title = document.createElement('h2');
+  // title.innerHTML = 'Reviews';
+  // container.appendChild(title);
 
   if (!reviews) {
     const noReviews = document.createElement('p');
