@@ -1,0 +1,112 @@
+@charset "utf-8";
+
+@media screen and (max-width: 550px) {
+  nav h1 {
+    font-size: 1.75em;
+    letter-spacing: .15em;
+  }
+
+  .filter-options select {
+    padding-right: 0;
+    width: 190px;
+  }
+
+  #restaurants-list p {
+  	font-size: 1.25em;
+  }
+
+  #restaurants-list li h1 {
+    font-size: 1.4em;
+  }
+
+  #breadcrumb {
+    padding: 16px 20px;
+    font-size: 1.4em;
+    width: calc(100% - 40px);
+  }
+
+  .inside #map-container, .inside #map-container #map {
+    height: 300px;
+  }
+
+  #restaurant-container, #reviews-container {
+  	padding: 30px;
+  }
+
+  #restaurant-name {
+    font-size: 1.75em;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  #restaurant-address {
+    font-size: 1.25em;
+  }
+
+  #restaurant-hours td {
+  	padding: 5px 10px;
+  	font-size: 1.15em;
+  }
+
+  #restaurant-hours td:nth-child(2) {
+    width: 165px;
+  }
+
+  #reviews-list {
+  	font-size: 1.15em;
+  }
+
+  #reviews-list li {
+    padding-bottom: 20px;
+  }
+
+  #reviews-list li p {
+    margin: 20px 20px 0;
+  }
+
+  #reviews-list li .review-top p:first-child {
+  	font-size: 1.25em;
+  }
+
+  #reviews-list li .review-top p:nth-child(2) {
+  	margin-top: 5px;
+  }
+
+}
+
+@media screen and (min-width: 750px) {
+  #footer {
+    font-size: 1em;
+    letter-spacing: .2em;
+    padding: 30px;
+  }
+
+  #restaurants-list {
+    padding: 20px;
+  }
+
+  #restaurants-list li {
+    margin: 20px;
+  	width: calc(50% - 40px);
+    display: inline-block;
+  }
+
+  #restaurants-list li .restaurant-info {
+    height: 120px;
+  }
+
+  #restaurants-list li h1 {
+    font-size: 1.35em;
+  }
+
+  #restaurants-list p {
+    font-size: 1.25em;
+  }
+}
+
+@media screen and (min-width: 1000px) {
+  body {
+    width: 1000px;
+    margin: auto;
+  }
+}

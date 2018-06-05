@@ -20,7 +20,7 @@ a:hover, a:focus, #footer a:hover, #footer a:focus, #restaurants-list li a:hover
 
 #footer {
   background-color: #444;
-  color: #ccc;
+  color: #bbb;
   font-size: .75em;
   letter-spacing: .15em;
   padding: 25px;
@@ -132,7 +132,6 @@ nav h1 a {
 #breadcrumb {
     padding: 16px 40px;
     list-style: none;
-    background-color: #eee;
     font-size: 1.75em;
     margin: 0;
     width: calc(100% - 80px);
@@ -163,9 +162,9 @@ nav h1 a {
     text-decoration: underline;
 }
 
-.inside {
+/* .inside {
   width: 100%;
-}
+} */
 
 .inside #map-container {
   height: 400px;
@@ -190,9 +189,9 @@ nav h1 a {
 
 #restaurant-cuisine {
   background-color: #333;
-  color: #ddd;
+  color: #bbb;
   font-size: 1.5em;
-  letter-spacing: .5em;
+  letter-spacing: .25em;
   margin: 0 0 20px;
   text-align: center;
   text-transform: uppercase;
@@ -204,6 +203,7 @@ nav h1 a {
 }
 
 #restaurant-hours {
+	width: 100%;
 	border-spacing: 0;
 }
 
