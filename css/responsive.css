@@ -102,11 +102,15 @@
   #restaurants-list p {
     font-size: 1.25em;
   }
+
+  #reviews-list li p {
+    margin: 30px 50px 0;
+  }
 }
 
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 950px) {
   body {
-    width: 1000px;
+    width: 950px;
     margin: auto;
   }
 }
