@@ -7,7 +7,7 @@ body {
 	line-height: 1.5;
 	letter-spacing: .03em;
 	color: #444;
-	background-color: #f3f3f3;
+	background-color: #f6f6f6;
 	margin: 0;
 }
 
@@ -15,8 +15,8 @@ a, a:hover, a:focus {
 	text-decoration: none;
 }
 
-a:hover, a:focus, #footer a:hover, #footer a:focus, #restaurants-list li a:hover, #restaurants-list li a:focus {
-	color: #3397db;
+a:hover, a:focus, #footer a:hover, #footer a:focus, #restaurants-list li a:hover, #restaurants-list li a:focus, #breadcrumb li a:hover, #breadcrumb li a:focus {
+	color: #ff0044;
 }
 
 #footer {
@@ -30,17 +30,13 @@ a:hover, a:focus, #footer a:hover, #footer a:focus, #restaurants-list li a:hover
 }
 
 #footer a {
-	color: orange;
+	color: #fff;
 }
-
-/* .skip-link {
-	position:absolute;
-	left:-1000px;
-} */
 
 /* ====================== Navigation ====================== */
 nav {
   width: 100%;
+	background-color: #eee;
 }
 
 nav h1 {
@@ -58,6 +54,12 @@ nav h1 a {
 		color: #fff;
 }
 
+/* .skip-link {
+	position:absolute;
+	left:-1000px;
+} */
+
+/* ====================== Breadcrumb Navigation ====================== */
 #breadcrumb {
     padding: 16px 40px;
     margin: 0;
@@ -90,7 +92,7 @@ nav h1 a {
 
 /* Add a color on mouse-over */
 #breadcrumb li a:hover {
-    color: #01447e;
+    /* color: #01447e; */
     text-decoration: underline;
 }
 
@@ -103,7 +105,7 @@ nav h1 a {
 /* ====================== Restaurant Filtering ====================== */
 .filter-options {
   width: 100%;
-  background-color: #3397DB;
+  background-color: #33c;
 }
 
 .filter-options h2 {
@@ -147,7 +149,7 @@ nav h1 a {
 }
 
 #restaurants-list li h1 {
-  color: #f18200;
+  color: #33c;
   font-size: 1.75em;
   font-weight: 100;
 	line-height: 1;
@@ -158,10 +160,11 @@ nav h1 a {
 #restaurants-list p {
   margin: 0;
 	font-size: 1.5em;
+
 }
 
 #restaurants-list li a {
-  background-color: orange;
+  background-color: #33c;
   color: #fff;
   display: inline-block;
   margin: 20px;
@@ -171,17 +174,21 @@ nav h1 a {
 }
 
 /* ====================== Restaurant Details Page ====================== */
+#maincontent {
+	background-color: #eee;
+}
 
 .inside #map-container {
   height: 400px;
 }
 
+/* ====================== Results Section ====================== */
 #restaurant-container, #reviews-container {
 	padding: 40px 40px 30px;
 }
 
 #restaurant-name {
-  color: #f18200;
+  color: #33c;
   font-size: 2em;
   font-weight: 100;
   margin-bottom: 30px;
@@ -218,7 +225,7 @@ nav h1 a {
 }
 
 #restaurant-hours td {
-  color: #666;
+  color: #555;
 	font-size: 1.25em;
 	padding: 10px;
 }
@@ -242,7 +249,7 @@ nav h1 a {
 }
 
 #reviews-list li div+p {
-	background-color: orange;
+	background-color: #33c;
 	border-radius: 5px;
 	padding: 5px 10px;
 	display: inline-block;
