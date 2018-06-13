@@ -14,6 +14,9 @@ window.initMap = () => {
         center: restaurant.latlng,
         scrollwheel: false
       });
+      google.maps.event.addListenerOnce(self.map, 'idle', () => {
+        document.getElementsByTagName('iframe')[0].title = "Google Maps";
+      });
       fillBreadcrumb();
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
     }
@@ -144,8 +147,6 @@ createReviewHTML = (review) => {
 fillBreadcrumb = (restaurant = self.restaurant) => {
   const breadcrumb = document.getElementById('breadcrumb');
   const li = document.createElement('li');
-  li.setAttribute('aria-label', `${restaurant.name}, current location`);
-  li.setAttribute('tabindex', '0');
   li.innerHTML = restaurant.name;
   breadcrumb.appendChild(li);
 }
