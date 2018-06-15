@@ -11,17 +11,24 @@
     width: 190px;
   }
 
+  #restaurants-list li {
+    background-color: #fff;
+    width: calc(100% - 40px);
+  	border-radius: 30px 0;
+    margin: 20px;
+  }
+
   #restaurants-list p {
   	font-size: 1.25em;
   }
 
-  #restaurants-list li h1 {
+  #restaurants-list li h2 {
     font-size: 1.4em;
   }
 
   #breadcrumb {
     padding: 16px 20px;
-    font-size: 1.4em;
+    font-size: 1.15em;
     width: calc(100% - 40px);
   }
 
@@ -29,8 +36,9 @@
     height: 300px;
   }
 
-  #restaurant-container, #reviews-container {
-  	padding: 30px;
+  #restaurant-info {
+  	width: 100%;
+  	display: block;
   }
 
   #restaurant-name {
@@ -43,13 +51,15 @@
     font-size: 1.25em;
   }
 
+  #restaurant-hours {
+  	width: 100%;
+  	display: block;
+  	margin: 0;
+  }
+
   #restaurant-hours td {
   	padding: 5px 10px;
   	font-size: 1.15em;
-  }
-
-  #restaurant-hours td:nth-child(2) {
-    width: 165px;
   }
 
   #reviews-list {
@@ -81,26 +91,20 @@
     padding: 30px;
   }
 
-  #restaurants-list {
-    padding: 20px;
-  }
-
   #restaurants-list li {
     margin: 20px;
   	width: calc(50% - 40px);
     display: inline-block;
   }
 
-  #restaurants-list li .restaurant-info {
-    height: 120px;
-  }
-
-  #restaurants-list li h1 {
-    font-size: 1.35em;
+  #restaurants-list li h2 {
+    font-size: 1.5em;
   }
 
   #restaurants-list p {
-    font-size: 1.25em;
+    margin: 0;
+  	font-size: 1.25em;
+
   }
 
   #reviews-list li p {
