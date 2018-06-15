@@ -1,4 +1,18 @@
 /**
+ * Register serviceWorker
+ */
+if (navigator.serviceWorker) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js')
+      .then(function(registration) {
+        console.log("ServiceWorker registered:", registration);
+      }, function(error) {
+        console.error("ServiceWorker registration failed:", error);
+      });
+  });
+}
+
+/**
  * Common database helper functions.
  */
 class DBHelper {
