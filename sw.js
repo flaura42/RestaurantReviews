@@ -5,7 +5,7 @@
 */
 
 /**
-* Set up caching info with very creative variable cacheNames
+* Set up caching info with very creative variable names
 * so they can be used in multiple event listeners.
 //  */
 const cache_name = 'reviews-v1';

@@ -1,6 +1,3 @@
-let restaurant;
-var map;
-
 /**
  * Initialize map as soon as the page is loaded.
  */

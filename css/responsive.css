@@ -3,7 +3,7 @@
 @media screen and (max-width: 550px) {
   nav h1 {
     font-size: 1.75em;
-    letter-spacing: .15em;
+    letter-spacing: 0.15em;
   }
 
   .filter-options select {
@@ -32,7 +32,8 @@
     width: calc(100% - 40px);
   }
 
-  .inside #map-container, .inside #map-container #map {
+  .inside #map-container,
+  .inside #map-container #map {
     height: 300px;
   }
 
@@ -87,7 +88,7 @@
 @media screen and (min-width: 750px) {
   #footer {
     font-size: 1em;
-    letter-spacing: .2em;
+    letter-spacing: 0.2em;
     padding: 30px;
   }
 
