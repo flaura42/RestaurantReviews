@@ -95,7 +95,6 @@
   #restaurants-list li {
     margin: 20px;
   	width: calc(50% - 40px);
-    display: inline-block;
   }
 
   #restaurants-list li h2 {
@@ -113,9 +112,39 @@
   }
 }
 
-@media screen and (min-width: 950px) {
-  body {
-    width: 950px;
-    margin: auto;
+@media screen and (min-width: 900px) {
+  nav h1 {
+    font-size: 2.4em;
+  }
+
+  #breadcrumb li {
+  		font-size: 1.75em;
+  }
+
+  #restaurants-list li {
+  	width: calc(33% - 30px);
+    margin: 16px;
+  }
+
+  #restaurants-list li .restaurant-info {
+    height: 130px;
+  	margin: 16px;
+  }
+
+  #restaurants-list li h2 {
+    font-size: 1.3em;
+  }
+
+  #restaurants-list li a {
+    margin: 16px;
+    padding: 10px 16px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+
+  #restaurant-container,
+  #reviews-container {
+  	padding: 40px;
   }
 }
