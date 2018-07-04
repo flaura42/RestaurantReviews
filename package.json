@@ -1,0 +1,23 @@
+{
+  "name": "restaurant_reviews",
+  "version": "1.0.0",
+  "description": "App created for MWS Nanodegree",
+  "main": "main.js",
+  "dependencies": {
+    "sails": "^1.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flaura42/restaurant.git"
+  },
+  "author": "Laura Franklin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/flaura42/restaurant/issues"
+  },
+  "homepage": "https://github.com/flaura42/restaurant#readme"
+}
