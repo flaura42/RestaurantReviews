@@ -1,0 +1,39 @@
+{
+  "name": "restaurant",
+  "version": "1.0.0",
+  "description": "--- #### _This is a project being completed as part of Udacity's Mobile Web Specialist Nanodegree program.  It is being completed in three stages and this is the first stage._",
+  "main": "sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flaura42/restaurant.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/flaura42/restaurant/issues"
+  },
+  "homepage": "https://github.com/flaura42/restaurant#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "browser-sync": "^2.24.5",
+    "clean-css": "^4.1.11",
+    "eslint": "^5.0.1",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.1",
+    "gulp-clean-css": "^3.9.4",
+    "gulp-imagemin": "^4.1.0",
+    "gulp-uglify": "^3.0.0",
+    "gulp-webp": "^3.0.0"
+  },
+  "dependencies": {
+    "del": "^3.0.0",
+    "gulp-autoprefixer": "^5.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-htmlmin": "^4.0.0",
+    "gulp-sourcemaps": "^2.6.4"
+  }
+}
