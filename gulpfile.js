@@ -4,7 +4,7 @@ const gulp = require('gulp');
 const browserSync = require('browser-sync').create();  // Auto-reload browser
 const reload = browserSync.reload;
 
-// For all processes
+// For (nearly) all processes
 const sourcemaps = require('gulp-sourcemaps');  // Write source map file
 const concat = require('gulp-concat'); // Concat files
 
@@ -16,18 +16,15 @@ const uglify = require('gulp-uglify');  // Minify js
 const autoprefixer = require('gulp-autoprefixer');  // Adds browser-specific prefixes
 const cleanCSS = require('gulp-clean-css');  // Minify css
 
-// For minifying HTML
-const htmlmin = require('gulp-htmlmin');  // Minify html
-
 // For minifying images
-const webp = require('gulp-webp');  // Convert images to webp TODO Keep??
 const imagemin = require('gulp-imagemin');  // Minify images
+const imageminWebp = require('imagemin-webp');  // webp compression as jpeg
 
 // For starting over
 const del = require('del');  // Delete files and folders
 
 
-// Development  TODO Finalize task organization and make requires match
+// Development  TODO Finalize task organization
 
 // Gulp recommends always keeping a 'default task'
 gulp.task('default', ['clean', 'build']);
@@ -39,8 +36,8 @@ gulp.task('clean', () =>
 
 // Start tasks for producing build folder
 gulp.task('build', [
-  'clean',
   'scripts',
+  'sw',
   'styles',
   'html',
   'images'
@@ -48,13 +45,26 @@ gulp.task('build', [
 
 // Start browserSync server
 // Reload works now!!!
-gulp.task('serve', ['styles', 'scripts', 'html'], () => {
+gulp.task('serve', ['styles', 'scripts', 'sw', 'html'], () => {
   browserSync.init({
     server: './src',
     port: 8000,
   });
   gulp.watch('src/css/*.css', ['styles']).on('change', reload);
   gulp.watch('src/js/*.js', ['scripts']).on('change', reload);
+  gulp.watch('src/*.js', ['sw']).on('change', reload);
+  gulp.watch('src/*.html', ['html']).on('change', reload);
+});
+
+// Start serving Build folder
+gulp.task('serve-build', ['styles', 'scripts', 'sw', 'html'], () => {
+  browserSync.init({
+    server: './build',
+    port: 8000,
+  });
+  gulp.watch('src/css/*.css', ['styles']).on('change', reload);
+  gulp.watch('src/js/*.js', ['scripts']).on('change', reload);
+  gulp.watch('src/*.js', ['sw']).on('change', reload);
   gulp.watch('src/*.html', ['html']).on('change', reload);
 });
 
@@ -70,14 +80,15 @@ gulp.task('styles', () =>
       browsers: ['last 2 versions'],
       cascade: false
     }))
-    .pipe(concat('app.css'))
+    // .pipe(concat('app.css'))
     .pipe(cleanCSS())
     .pipe(sourcemaps.write('./maps'))
-    .pipe(gulp.dest('build'))
+    // .pipe(gulp.dest('build'))
+    .pipe(gulp.dest('build/css'))
 );
 
 // Process and uglify js, copy to build folder
-// TODO Check pipe order. Decide if using concat
+// TODO Update: Pipe order matches NPM (except not uglify)
 gulp.task('scripts', () =>
   gulp.src('src/js/*.js')
     .pipe(sourcemaps.init())
@@ -85,29 +96,34 @@ gulp.task('scripts', () =>
       presets: ['env']
     }))
     .pipe(uglify())
-    .pipe(concat('app.js'))
+    // .pipe(concat('app.js'))
     .pipe(sourcemaps.write('./maps'))
+    .pipe(gulp.dest('build'))
+    .pipe(gulp.dest('build/js'))
+);
+
+// Copy SW to build folder TODO: add pipes?
+gulp.task('sw', () =>
+  gulp.src('src/*.js')
     .pipe(gulp.dest('build'))
 );
 
-// Minify html and copy to build folder
+// Copy html to build folder
 gulp.task('html', () =>
   gulp.src('src/*.html')
-    .pipe(sourcemaps.init())
-    .pipe(htmlmin())
-    .pipe(sourcemaps.write('./maps'))
     .pipe(gulp.dest('build'))
 );
 
-// Clean up and minify images
-// TODO Check pipe order. Decide if using webp.  Consider imagemin-webp
+// Minify images and copy to build folder
 gulp.task('images', () =>
   gulp.src('src/img/*')
-    .pipe(webp())
     .pipe(imagemin([
-      imagemin.jpegtran({progressive: true})  // TODO: Decide whether to keep
-    ]))
+      imageminWebp({
+        quality: 70,  // default 75
+        progressive: true
+      })]))
     .pipe(gulp.dest('build/img'))
 );
+
 
 // TODO Determine if need addl error handling beyond default
