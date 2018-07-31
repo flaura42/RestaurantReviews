@@ -3,6 +3,7 @@
  */
 document.addEventListener('DOMContentLoaded', (event) => {
   initMap();
+  // fetchRestaurantFromURL();
 });
 
 /**

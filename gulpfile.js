@@ -114,6 +114,14 @@ gulp.task('html', () =>
     .pipe(gulp.dest('build'))
 );
 
+gulp.task('copy', () =>
+  gulp.src([
+    'src/*.js',
+    'src/*.html'
+  ])
+    .pipe(gulp.dest('build'))
+);
+
 // Minify images and copy to build folder
 gulp.task('images', () =>
   gulp.src('src/img/*')

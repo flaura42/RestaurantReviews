@@ -3,6 +3,7 @@
  */
 document.addEventListener('DOMContentLoaded', (event) => {
   initMap();
+  updateRestaurants();
   fetchNeighborhoods();
   fetchCuisines();
 });
@@ -80,8 +81,6 @@ let initMap = () => {
       'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     id: 'mapbox.streets'
   }).addTo(newMap);
-
-  updateRestaurants();
 };
 
 /**
