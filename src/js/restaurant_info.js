@@ -10,9 +10,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
  * Initialize leaflet map
  */
 let initMap = () => {
+
+
   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
       console.error(error);
+    } else if (!navigator.onLine) {
+      console.log("Map offline");
+      fillBreadcrumb();
+      const div = document.getElementById('map');
+      const image = document.createElement('img');
+      image.src = 'img/nomap.jpg';
+      image.className = 'map-img';
+      image.alt = 'no map available';
+      div.append(image);
+      return div;
+
     } else {
       self.newMap = L.map('map', {
         center: [restaurant.latlng.lat, restaurant.latlng.lng],

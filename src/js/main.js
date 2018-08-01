@@ -68,6 +68,19 @@ let fillCuisinesHTML = (cuisines = self.cuisines) => {
  * Initialize leaflet map, called from HTML.
  */
 let initMap = () => {
+  if (!navigator.onLine) {
+    console.log("Map offline");
+    const div = document.getElementById('map');
+    const image = document.createElement('img');
+    image.src = 'img/nomap.jpg';
+    image.className = 'map-img';
+    image.alt = 'no map available';
+    div.append(image);
+    return div;
+  }
+
+
+
   self.newMap = L.map('map', {
     center: [40.722216, -73.987501],
     zoom: 11.5,
@@ -131,7 +144,10 @@ let fillRestaurantsHTML = (restaurants = self.restaurants) => {
   restaurants.forEach(restaurant => {
     ul.append(createRestaurantHTML(restaurant));
   });
-  addMarkersToMap();
+  if (navigator.onLine) {
+    addMarkersToMap();
+  }
+
 };
 
 /**
@@ -177,6 +193,9 @@ let createRestaurantHTML = (restaurant) => {
  * Add markers for current restaurants to the map.
  */
 let addMarkersToMap = (restaurants = self.restaurants) => {
+  if (!navigator.onLine) {
+    return;
+  }
   restaurants.forEach(restaurant => {
     // Add marker to the map
     const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.newMap);

@@ -102,6 +102,13 @@ nav h1 a {
   width: 100%;
 }
 
+#map .map-img {
+	height: 400px;
+  max-width: 100%;
+	vertical-align: middle;
+	object-fit: cover;
+}
+
 /* ====================== Filter Results ====================== */
 .filter-options {
   width: 100%;

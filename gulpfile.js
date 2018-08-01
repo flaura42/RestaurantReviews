@@ -36,16 +36,15 @@ gulp.task('clean', () =>
 
 // Start tasks for producing build folder
 gulp.task('build', [
-  'scripts',
-  'sw',
   'styles',
-  'html',
+  'scripts',
+  'copy',
   'images'
 ]);
 
 // Start browserSync server
 // Reload works now!!!
-gulp.task('serve', ['styles', 'scripts', 'sw', 'html'], () => {
+gulp.task('serve', ['styles', 'scripts', 'copy'], () => {
   browserSync.init({
     server: './src',
     port: 8000,
@@ -57,7 +56,7 @@ gulp.task('serve', ['styles', 'scripts', 'sw', 'html'], () => {
 });
 
 // Start serving Build folder
-gulp.task('serve-build', ['styles', 'scripts', 'sw', 'html'], () => {
+gulp.task('serve-build', ['styles', 'scripts', 'copy'], () => {
   browserSync.init({
     server: './build',
     port: 8000,
@@ -108,12 +107,15 @@ gulp.task('sw', () =>
     .pipe(gulp.dest('build'))
 );
 
+
+
 // Copy html to build folder
 gulp.task('html', () =>
   gulp.src('src/*.html')
     .pipe(gulp.dest('build'))
 );
 
+// Copy files to build folder
 gulp.task('copy', () =>
   gulp.src([
     'src/*.js',

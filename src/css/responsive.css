@@ -11,6 +11,13 @@
     width: 190px;
   }
 
+  #map .map-img {
+  	height: 300px;
+    max-width: 100%;
+  	vertical-align: middle;
+  	object-fit: cover;
+  }
+
   #restaurants-list li {
     background-color: #fff;
     width: calc(100% - 40px);
@@ -147,4 +154,12 @@
   #reviews-container {
   	padding: 40px;
   }
+}
+
+@media screen and (min-width: 1200px) {
+  body {
+    width: 1200px;
+    margin:auto;
+  }
+
 }
