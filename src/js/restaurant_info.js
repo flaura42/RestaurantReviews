@@ -3,7 +3,6 @@
  */
 document.addEventListener('DOMContentLoaded', (event) => {
   initMap();
-  // fetchRestaurantFromURL();
 });
 
 /**
@@ -15,17 +14,17 @@ let initMap = () => {
   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
       console.error(error);
+      // Checks if online and send image map if not.
     } else if (!navigator.onLine) {
-      console.log("Map offline");
       fillBreadcrumb();
       const div = document.getElementById('map');
       const image = document.createElement('img');
       image.src = 'img/nomap.jpg';
       image.className = 'map-img';
-      image.alt = 'no map available';
+      image.alt = 'No map is available.';
       div.append(image);
       return div;
-
+    // If online, prodeces map.
     } else {
       self.newMap = L.map('map', {
         center: [restaurant.latlng.lat, restaurant.latlng.lng],

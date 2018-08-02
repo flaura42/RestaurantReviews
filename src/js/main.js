@@ -68,19 +68,17 @@ let fillCuisinesHTML = (cuisines = self.cuisines) => {
  * Initialize leaflet map, called from HTML.
  */
 let initMap = () => {
+  // Checks if online and send image map if not.
   if (!navigator.onLine) {
-    console.log("Map offline");
     const div = document.getElementById('map');
     const image = document.createElement('img');
     image.src = 'img/nomap.jpg';
     image.className = 'map-img';
-    image.alt = 'no map available';
+    image.alt = 'No map is available.';
     div.append(image);
     return div;
   }
-
-
-
+  // If online, produces map.
   self.newMap = L.map('map', {
     center: [40.722216, -73.987501],
     zoom: 11.5,
@@ -144,6 +142,7 @@ let fillRestaurantsHTML = (restaurants = self.restaurants) => {
   restaurants.forEach(restaurant => {
     ul.append(createRestaurantHTML(restaurant));
   });
+  // Only add markers if currently online.
   if (navigator.onLine) {
     addMarkersToMap();
   }
@@ -193,6 +192,7 @@ let createRestaurantHTML = (restaurant) => {
  * Add markers for current restaurants to the map.
  */
 let addMarkersToMap = (restaurants = self.restaurants) => {
+  // Only add markers if currently online.
   if (!navigator.onLine) {
     return;
   }

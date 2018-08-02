@@ -6,7 +6,6 @@ const reload = browserSync.reload;
 
 // For (nearly) all processes
 const sourcemaps = require('gulp-sourcemaps');  // Write source map file
-const concat = require('gulp-concat'); // Concat files
 
 // For handling scripts
 const babel = require('gulp-babel');  // Allows older browsers to use app
@@ -24,7 +23,7 @@ const imageminWebp = require('imagemin-webp');  // webp compression as jpeg
 const del = require('del');  // Delete files and folders
 
 
-// Development  TODO Finalize task organization
+// Development
 
 // Gulp recommends always keeping a 'default task'
 gulp.task('default', ['clean', 'build']);
@@ -38,56 +37,52 @@ gulp.task('clean', () =>
 gulp.task('build', [
   'styles',
   'scripts',
+  'scripts-sw',
   'copy',
   'images'
 ]);
 
 // Start browserSync server
-// Reload works now!!!
-gulp.task('serve', ['styles', 'scripts', 'copy'], () => {
+gulp.task('serve', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
   browserSync.init({
     server: './src',
     port: 8000,
   });
   gulp.watch('src/css/*.css', ['styles']).on('change', reload);
   gulp.watch('src/js/*.js', ['scripts']).on('change', reload);
-  gulp.watch('src/*.js', ['sw']).on('change', reload);
-  gulp.watch('src/*.html', ['html']).on('change', reload);
+  gulp.watch('src/*.js', ['scripts-sw']).on('change', reload);
+  gulp.watch('src/*.html', ['copy']).on('change', reload);
 });
 
 // Start serving Build folder
-gulp.task('serve-build', ['styles', 'scripts', 'copy'], () => {
+gulp.task('serve-build', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
   browserSync.init({
     server: './build',
     port: 8000,
   });
   gulp.watch('src/css/*.css', ['styles']).on('change', reload);
   gulp.watch('src/js/*.js', ['scripts']).on('change', reload);
-  gulp.watch('src/*.js', ['sw']).on('change', reload);
-  gulp.watch('src/*.html', ['html']).on('change', reload);
+  gulp.watch('src/*.js', ['scripts-sw']).on('change', reload);
+  gulp.watch('src/*.html', ['copy']).on('change', reload);
 });
 
 
 // Build tasks
 
 // Process and minify css, copy to build folder
-// TODO Check pipe order. Decide if using concat
 gulp.task('styles', () =>
   gulp.src('src/css/*.css')
     .pipe(sourcemaps.init())
-    .pipe(autoprefixer({  // TODO Double-check if ok w/SM
+    .pipe(autoprefixer({
       browsers: ['last 2 versions'],
       cascade: false
     }))
-    // .pipe(concat('app.css'))
     .pipe(cleanCSS())
     .pipe(sourcemaps.write('./maps'))
-    // .pipe(gulp.dest('build'))
     .pipe(gulp.dest('build/css'))
 );
 
 // Process and uglify js, copy to build folder
-// TODO Update: Pipe order matches NPM (except not uglify)
 gulp.task('scripts', () =>
   gulp.src('src/js/*.js')
     .pipe(sourcemaps.init())
@@ -95,31 +90,27 @@ gulp.task('scripts', () =>
       presets: ['env']
     }))
     .pipe(uglify())
-    // .pipe(concat('app.js'))
     .pipe(sourcemaps.write('./maps'))
-    .pipe(gulp.dest('build'))
     .pipe(gulp.dest('build/js'))
 );
 
-// Copy SW to build folder TODO: add pipes?
-gulp.task('sw', () =>
+// Process and uglify sw, copy to build folder
+gulp.task('scripts-sw', () =>
   gulp.src('src/*.js')
-    .pipe(gulp.dest('build'))
-);
-
-
-
-// Copy html to build folder
-gulp.task('html', () =>
-  gulp.src('src/*.html')
+    .pipe(sourcemaps.init())
+    .pipe(babel({
+      presets: ['env']
+    }))
+    .pipe(uglify())
+    .pipe(sourcemaps.write('./maps'))
     .pipe(gulp.dest('build'))
 );
 
 // Copy files to build folder
 gulp.task('copy', () =>
   gulp.src([
-    'src/*.js',
-    'src/*.html'
+    'src/*.html',
+    'src/manifest.json'
   ])
     .pipe(gulp.dest('build'))
 );
@@ -134,6 +125,3 @@ gulp.task('images', () =>
       })]))
     .pipe(gulp.dest('build/img'))
 );
-
-
-// TODO Determine if need addl error handling beyond default

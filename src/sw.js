@@ -12,12 +12,15 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/restaurant.html',
+  '/manifest.json',
   '/css/styles.css',
   '/css/responsive.css',
   '/js/main.js',
   '/js/restaurant_info.js',
   '/js/dbhelper.js',
-  '/img/nomap.jpg'
+  '/img/nomap.jpg',
+  '/img/icons-512.jpg',
+  '/img/icons-512.jpg'
 ];
 
 /**
@@ -26,7 +29,6 @@ const urlsToCache = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(cache_name).then(cache => {
-      // console.log("Caches opened");
       return cache.addAll(urlsToCache);
     })
   );
@@ -37,40 +39,34 @@ self.addEventListener('install', event => {
 */
 self.addEventListener('fetch', event => {
 
-  // Adding if statement to get rid of most of the annoying errors
+  // If statement used to get rid of most of the annoying errors
   const requestUrl = event.request.url;
   if (requestUrl.includes('unpkg') || requestUrl.includes('browser-sync') || requestUrl.includes('mapbox')) {
     return;
   }
-  // console.log('Fetched:', event.request);
 
   // Check for match in cache
   event.respondWith(
     caches.match(event.request).then(response => {
       if (response) {
-        // console.log("Returning response:", response);
         return response;
       }
       // Fetch request and clone it
       let fetchRequest = event.request.clone();
-      // console.log("Returning fetch:", fetchRequest);
-      // Ensure valid/status ok/correct type (not 3rd party)
+      // Ensure valid/status ok/correct type
       return fetch(fetchRequest).then(response => {
-        if (!response || response.status !== 200 || response.type !== 'basic' || event.request.method === 'POST') {
-          // console.log("Returning response:", response, response.status, response.type);
+        if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
         // Clone response to send one to cache and return other
         let responseToCache = response.clone();
-
         caches.open(cache_name).then(cache => {
           cache.put(event.request, responseToCache);
         });
-        // console.log("Response cloned");
         return response;
       });
     }).catch(error => {
-      // console.log("Fetch event failed", error);
+      console.log("Fetch event failed", error);
     })
   );
 });

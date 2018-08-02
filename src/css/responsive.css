@@ -11,6 +11,10 @@
     width: 190px;
   }
 
+  #map {
+    height: 300px;
+  }
+
   #map .map-img {
   	height: 300px;
     max-width: 100%;

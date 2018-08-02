@@ -2,11 +2,10 @@
  * Register serviceWorker
  */
 if (navigator.serviceWorker) {
-  window.addEventListener('load', function() {
+  window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then(function(registration) {
-        console.log("ServiceWorker registered:", registration);
-      }, function(error) {
+      }, error => {
         console.error("ServiceWorker registration failed:", error);
       });
   });
@@ -31,17 +30,16 @@ class DBHelper {
   static fetchRestaurants(callback) {
     // Create database: idb.open(name, version, upgradeCallback)
     const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
-      console.log("Making new object store");
       if (!upgradeDB.objectStoreNames.contains('restaurants-store')) {
         const store = upgradeDB.createObjectStore('restaurants-store', {
           keyPath: 'id'
         });
+        // (placeholder for future use)
         // Note: Create indexes for key value pairs here:
-        // store.createIndex('name', 'key');  (placeholder for future use)
+        // store.createIndex('name', 'key');
       }
     });
-
-    // Create transaction to get from db
+    // Create transaction to get restaurants from db
     dbPromise.then(db => {
       const tx = db.transaction('restaurants-store', 'readonly');
       const store = tx.objectStore('restaurants-store');
@@ -49,7 +47,6 @@ class DBHelper {
       return store.getAll();
     }).then(restaurants => {
       if (restaurants.length !== 0) {
-        console.log("Returning from DB: ", restaurants.length);
         callback(null, restaurants);
       } else {
         // Fetch from server
@@ -67,7 +64,6 @@ class DBHelper {
   static serveRestaurants(callback) {
     // Open database: idb.open(name, version, upgradeCallback)
     const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
-      console.log("Making new object store");
       if (!upgradeDB.objectStoreNames.contains('restaurants-store')) {
         const store = upgradeDB.createObjectStore('restaurants-store', {
           keyPath: 'id'
@@ -96,10 +92,8 @@ class DBHelper {
             store.put(restaurant);
             return tx.complete;
           });
-          console.log("Added restaurants to DB");
         });
         callback(null, restaurants);
-        console.log("First restaurant is: ", restaurants[0].name);
       })
       .catch(error => {
         callback(error, null);
