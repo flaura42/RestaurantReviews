@@ -37,6 +37,7 @@ gulp.task('clean', () =>
 
 // Start tasks for producing build folder
 gulp.task('build', [
+  'clean',
   'styles',
   'scripts',
   'scripts-sw',
@@ -45,7 +46,8 @@ gulp.task('build', [
 ]);
 
 // Start browserSync server
-gulp.task('serve', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
+// Start serving src folder
+gulp.task('serve-src', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
   browserSync.init({
     server: './src',
     port: 8000,
@@ -56,8 +58,8 @@ gulp.task('serve', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
   gulp.watch('src/*.html', ['copy']).on('change', reload);
 });
 
-// Start serving Build folder
-gulp.task('serve-build', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
+// Start serving build folder
+gulp.task('serve', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
   browserSync.init({
     server: './build',
     port: 8000,
