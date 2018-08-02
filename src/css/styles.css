@@ -40,12 +40,12 @@ nav {
 
 nav h1 {
   margin: auto;
-  font-size: 2em;
+  font-size: 1.75em;
   font-weight: 100;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
 	background-color: #222;
-	padding: 50px 0;
+	padding: 50px 10px;
 	text-align: center;
 }
 
@@ -60,9 +60,9 @@ nav h1 a {
 
 /* ====================== Breadcrumb Navigation ====================== */
 #breadcrumb {
-    padding: 16px 40px;
+    padding: 15px 20px;
     margin: 0;
-    width: calc(100% - 80px);
+    width: calc(100% - 40px);
 }
 
 #breadcrumb ul {
@@ -79,7 +79,7 @@ nav h1 a {
 #breadcrumb li+li:before {
     padding: 8px;
 		font-size: 0.75em;
-    color: black;
+    color: #444;
     content: "/\00a0";
 }
 
@@ -98,12 +98,12 @@ nav h1 a {
 
 /* ========================== Map ========================== */
 #map {
-  height: 400px;
+  height: 300px;
   width: 100%;
 }
 
 #map .map-img {
-	height: 400px;
+	height: 300px;
   max-width: 100%;
 	vertical-align: middle;
 	object-fit: cover;
@@ -125,26 +125,25 @@ nav h1 a {
 
 .filter-options select {
   background-color: #fff;
-	color: inherit;
   font-size: 1.15em;
   margin: 10px 0 10px 10px;
-  padding: 10px;
-  width: 220px;
+  padding: 10px 0 10px 10px;;
+  width: 185px;
 }
 
 /* ====================== Restaurant List ====================== */
 #restaurants-list {
   list-style: outside none none;
-  margin: 0;
-  padding: 20px;
+  margin: 20px 0 0;
+  padding: 0;
 }
 
 #restaurants-list li {
   background-color: #fff;
-	width: calc(50% - 30px);
+	width: calc(100% - 40px);
 	display: inline-block;
 	border-radius: 30px 0;
-  margin: 15px;
+  margin: 0 20px 20px;
 }
 
 #restaurants-list .restaurant-img {
@@ -153,13 +152,12 @@ nav h1 a {
 }
 
 #restaurants-list li .restaurant-info {
-	height: 120px;
-	margin: 20px;
+	margin: 15px;
 }
 
 #restaurants-list li h2 {
   color: #33c;
-  font-size: 1.35em;
+  font-size: 1.5em;
   font-weight: 100;
 	line-height: 1.25;
 	margin: 0 0 10px;
@@ -168,7 +166,7 @@ nav h1 a {
 
 #restaurants-list p {
   margin: 0;
-	font-size: 1.15em;
+	font-size: 1.35em;
 
 }
 
@@ -187,28 +185,25 @@ nav h1 a {
 	background-color: #eee;
 }
 
-.inside #map-container {
-  height: 400px;
-}
-
 #restaurant-container,
 #reviews-container {
-	padding: 30px;
+	padding: 20px;
 }
 
 /* ==================== Restaurant Info Section ==================== */
-#restaurant-info {
-	width: calc(40% - 15px);
-	display: inline-block;
-	vertical-align: top;
-}
-
 #restaurant-name {
   color: #33c;
-  font-size: 2em;
+  font-size: 1.75em;
   font-weight: 100;
-  margin-bottom: 30px;
+	text-align: center;
+  margin: 10px 0 30px 0;
   text-transform: uppercase;
+}
+
+#restaurant-info {
+	width: 100%;
+	display: block;
+	vertical-align: top;
 }
 
 #restaurant-img {
@@ -217,8 +212,8 @@ nav h1 a {
 }
 
 #restaurant-cuisine {
-  background-color: #333;
-  color: #bbb;
+  background-color: #444;
+  color: #eee;
   font-size: 1.5em;
   letter-spacing: 0.25em;
   margin: 0 0 20px;
@@ -227,15 +222,14 @@ nav h1 a {
 }
 
 #restaurant-address {
-  font-size: 1.5em;
+  font-size: 1.25em;
   margin: 10px 0px;
 }
 
 #restaurant-hours {
-	width: calc(60% - 15px);
-	display: inline-block;
+	width: 100%;
+	display: block;
 	border-spacing: 0;
-	margin-left: 20px;
 }
 
 #restaurant-hours tr:nth-child(odd) {
@@ -243,16 +237,17 @@ nav h1 a {
 }
 
 #restaurant-hours td {
+	padding: 5px 10px;
   color: #555;
 	font-size: 1.15em;
-	padding: 8px;
+	line-height: 1.25;
 }
 
 /* ====================== Reviews Section ====================== */
 #reviews-list {
   margin: 0;
   padding: 0;
-	font-size: 1.25em;
+	font-size: 1.15em;
 }
 
 #reviews-list li {
@@ -260,21 +255,7 @@ nav h1 a {
 	border-radius: 30px 0;
   list-style-type: none;
   margin: 0 0 40px;
-	padding-bottom: 30px;
-}
-
-#reviews-list li p {
-  margin: 30px 30px 0;
-}
-
-#reviews-list li div+p {
-	background-color: #33c;
-	border-radius: 5px;
-	padding: 5px 10px;
-	display: inline-block;
-	color: #fff;
-	text-transform: uppercase;
-	letter-spacing: 0.1em;
+	padding-bottom: 20px;
 }
 
 #reviews-list li .review-top {
@@ -285,16 +266,33 @@ nav h1 a {
 
 #reviews-list li .review-top p:first-child {
 	display: inline;
+	margin: 0 10px;
 	color: #fff;
-	font-size: 1.5em;
+	font-size: 1.25em;
 	font-weight: 100;
 }
 
 #reviews-list li .review-top p:nth-child(2) {
 	display: inline;
 	float: right;
-	margin-top: 10px;
+	margin: 5px 10px 0 0;
 	color: #ccc;
+	text-align: right;
+	vertical-align: bottom;
+}
+
+#reviews-list li div+p {
+	background-color: #33c;
+	border-radius: 7px;
+	padding: 5px 10px;
+	display: inline-block;
+	color: #fff;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+}
+
+#reviews-list li p {
+  margin: 20px 20px 0;
 }
 
 /* ====================== Footer ====================== */

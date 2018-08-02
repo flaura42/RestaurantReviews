@@ -81,7 +81,7 @@ let initMap = () => {
   // If online, produces map.
   self.newMap = L.map('map', {
     center: [40.722216, -73.987501],
-    zoom: 11.5,
+    zoom: 11,
     scrollWheelZoom: false
   });
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
@@ -156,9 +156,18 @@ let createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
   const image = document.createElement('img');
-  image.className = 'restaurant-img';
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.className = 'restaurant-img lazyload';
   image.alt = `View of ${restaurant.name}`;
+  // image.src = DBHelper.imageUrlForRestaurant(restaurant);
+
+  // Added for lazy loading
+  image.setAttribute('data-sizes', 'auto');
+  image.setAttribute('data-src', DBHelper.imageUrlForRestaurant(restaurant));
+  image.setAttribute('data-srcset', DBHelper.imageSrcsetForRestaurant(restaurant));
+
+
+
+  // Add image
   li.append(image);
 
   const div = document.createElement('div');

@@ -1,62 +1,57 @@
 @charset "utf-8";
 
-@media screen and (max-width: 550px) {
+@media screen and (min-width: 500px) {
   nav h1 {
-    font-size: 1.75em;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
   }
 
+/* ====================== Main Page ====================== */
   .filter-options select {
-    padding-right: 0;
-    width: 190px;
-  }
-
-  #map {
-    height: 300px;
-  }
-
-  #map .map-img {
-  	height: 300px;
-    max-width: 100%;
-  	vertical-align: middle;
-  	object-fit: cover;
+    font-size: 1.25em;
+    width: 200px;
   }
 
   #restaurants-list li {
-    background-color: #fff;
-    width: calc(100% - 40px);
-  	border-radius: 30px 0;
-    margin: 20px;
+  	width: calc(50% - 30px);
+  	display: inline-block;
+    margin: 15px;
   }
 
-  #restaurants-list p {
-  	font-size: 1.25em;
+  #restaurants-list li .restaurant-info {
+  	height: 120px;
   }
 
   #restaurants-list li h2 {
-    font-size: 1.4em;
+    font-size: 1.35em;
   }
 
-  #breadcrumb {
-    padding: 16px 20px;
-    font-size: 1.15em;
-    width: calc(100% - 40px);
+  #restaurants-list p {
+  	font-size: 1.15em;
   }
 
-  .inside #map-container,
-  .inside #map-container #map {
-    height: 300px;
-  }
-
-  #restaurant-info {
-  	width: 100%;
-  	display: block;
-  }
-
+/* ====================== Restaurant Details Page ====================== */
   #restaurant-name {
-    font-size: 1.75em;
-    text-align: center;
-    margin-top: 10px;
+    font-size: 2em;
+  }
+
+  #reviews-list {
+  	font-size: 1.25em;
+  }
+
+  #reviews-list li .review-top p:first-child {
+  	font-size: 1.5em;
+  }
+
+  #reviews-list li .review-top p:nth-child(2) {
+  	font-size: 1.15em;
+  }
+}
+
+@media screen and (min-width: 600px) {
+  /* ====================== Restaurant Details Page ====================== */
+  #restaurant-info {
+  	width: calc(40% - 15px);
+  	display: inline-block;
   }
 
   #restaurant-address {
@@ -64,106 +59,66 @@
   }
 
   #restaurant-hours {
-  	width: 100%;
-  	display: block;
-  	margin: 0;
+  	width: calc(60% - 15px);
+  	display: inline-block;
+  	margin-left: 20px;
   }
-
-  #restaurant-hours td {
-  	padding: 5px 10px;
-  	font-size: 1.15em;
-  }
-
-  #reviews-list {
-  	font-size: 1.15em;
-  }
-
-  #reviews-list li {
-    padding-bottom: 20px;
-  }
-
-  #reviews-list li p {
-    margin: 20px 20px 0;
-  }
-
-  #reviews-list li .review-top p:first-child {
-  	font-size: 1.25em;
-  }
-
-  #reviews-list li .review-top p:nth-child(2) {
-  	margin-top: 5px;
-  }
-
 }
 
+
 @media screen and (min-width: 750px) {
-  #footer {
-    font-size: 1em;
-    letter-spacing: 0.2em;
-    padding: 30px;
+  nav h1 {
+    font-size: 2.25em;
+  }
+
+/* ====================== Main Page ====================== */
+  #restaurants-list {
+    margin: 0;
+    padding: 10px;
   }
 
   #restaurants-list li {
-    margin: 20px;
-  	width: calc(50% - 40px);
+    width: calc(33% - 20px);
+    margin: 10px;
+
   }
 
   #restaurants-list li h2 {
-    font-size: 1.5em;
+    font-size: 1.25em;
+  	margin: 0 0 10px;
   }
 
   #restaurants-list p {
     margin: 0;
-  	font-size: 1.25em;
+  	font-size: 1.15em;
 
   }
 
-  #reviews-list li p {
-    margin: 30px 50px 0;
+  #restaurants-list li a {
+    margin: 20px;
+    padding: 10px 20px;
+  }
+
+  #footer {
+    font-size: 1em;
   }
 }
 
-@media screen and (min-width: 900px) {
-  nav h1 {
-    font-size: 2.4em;
+@media screen and (min-width: 850px) {
+  #map, #map .map-img {
+    height: 400px;
   }
 
   #breadcrumb li {
   		font-size: 1.75em;
   }
 
-  #restaurants-list li {
-  	width: calc(33% - 30px);
-    margin: 16px;
-  }
-
-  #restaurants-list li .restaurant-info {
-    height: 130px;
-  	margin: 16px;
-  }
-
-  #restaurants-list li h2 {
-    font-size: 1.3em;
-  }
-
-  #restaurants-list li a {
-    margin: 16px;
-    padding: 10px 16px;
-    text-align: center;
-    text-transform: uppercase;
-  }
-
-
-  #restaurant-container,
-  #reviews-container {
-  	padding: 40px;
-  }
 }
 
 @media screen and (min-width: 1200px) {
   body {
     width: 1200px;
-    margin:auto;
+    margin: auto;
   }
 
 }

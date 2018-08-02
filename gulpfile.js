@@ -4,8 +4,9 @@ const gulp = require('gulp');
 const browserSync = require('browser-sync').create();  // Auto-reload browser
 const reload = browserSync.reload;
 
-// For (nearly) all processes
+// For some processes
 const sourcemaps = require('gulp-sourcemaps');  // Write source map file
+const rename = require('gulp-rename');
 
 // For handling scripts
 const babel = require('gulp-babel');  // Allows older browsers to use app
@@ -15,7 +16,8 @@ const uglify = require('gulp-uglify');  // Minify js
 const autoprefixer = require('gulp-autoprefixer');  // Adds browser-specific prefixes
 const cleanCSS = require('gulp-clean-css');  // Minify css
 
-// For minifying images
+// For resizing and minifying images
+const imageResize = require('gulp-image-resize');
 const imagemin = require('gulp-imagemin');  // Minify images
 const imageminWebp = require('imagemin-webp');  // webp compression as jpeg
 
@@ -120,8 +122,38 @@ gulp.task('images', () =>
   gulp.src('src/img/*')
     .pipe(imagemin([
       imageminWebp({
-        quality: 70,  // default 75
-        progressive: true
+        quality: 70  // default 75
       })]))
     .pipe(gulp.dest('build/img'))
+);
+
+// Delete Imgs folder
+gulp.task('clean-imgs', () =>
+  del.sync('src/imgs')
+);
+
+// Resize images for better loading
+gulp.task('image-resize', [
+  'image-resize-255',
+  'image-resize-490'
+]);
+
+gulp.task('image-resize-255', () =>
+  gulp.src('src/img-src/*')
+    .pipe(imageResize({
+      width: 255,
+      imageMagick: true
+    }))
+    .pipe(rename(path => { path.basename += '-255'; }))
+    .pipe(gulp.dest('src/img'))
+);
+
+gulp.task('image-resize-490', () =>
+  gulp.src('src/img-src/*')
+    .pipe(imageResize({
+      width: 490,
+      imageMagick: true
+    }))
+    .pipe(rename(path => { path.basename += '-490'; }))
+    .pipe(gulp.dest('src/img'))
 );

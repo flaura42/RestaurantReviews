@@ -195,6 +195,17 @@ class DBHelper {
   }
 
   /**
+   * Restaurant image srccset.
+   */
+  static imageSrcsetForRestaurant(restaurant) {
+    if (restaurant.photograph) {
+      return (`/img/${restaurant.photograph}-255.jpg 255w, /img/${restaurant.photograph}-490.jpg 490w, /img/${restaurant.photograph}.jpg 800w`);
+    } else {
+      return ('/img/noimage-255.jpg 255w, /img/noimage-490.jpg 490w, /img/noimage.jpg 800w ');
+    }
+  }
+
+  /**
    * Map marker for a restaurant.
    */
   static mapMarkerForRestaurant(restaurant, map) {
