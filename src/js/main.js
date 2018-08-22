@@ -1,6 +1,4 @@
-/**
- * Fetch neighborhoods and cuisines as soon as the page is loaded.
- */
+/**********    Fetch restaurants as soon as the page is loaded    **********/
 document.addEventListener('DOMContentLoaded', (event) => {
   initMap();
   updateRestaurants();
@@ -8,9 +6,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   fetchCuisines();
 });
 
-/**
- * Fetch all neighborhoods and set their HTML.
- */
+/**********    Fetch all neighborhoods and set their HTML    **********/
 let fetchNeighborhoods = () => {
   DBHelper.fetchNeighborhoods((error, neighborhoods) => {
     if (error) { // Got an error
@@ -22,9 +18,7 @@ let fetchNeighborhoods = () => {
   });
 };
 
-/**
- * Set neighborhoods HTML.
- */
+/**********    Set neighborhoods HTML    **********/
 let fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
   const select = document.getElementById('neighborhoods-select');
   select.setAttribute('aria-label', 'filter by neighborhood');
@@ -36,9 +30,7 @@ let fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
   });
 };
 
-/**
- * Fetch all cuisines and set their HTML.
- */
+/**********    Fetch all cuisines and set their HTML    **********/
 let fetchCuisines = () => {
   DBHelper.fetchCuisines((error, cuisines) => {
     if (error) { // Got an error!
@@ -50,9 +42,7 @@ let fetchCuisines = () => {
   });
 };
 
-/**
- * Set cuisines HTML.
- */
+/**********    Set cuisines HTML    **********/
 let fillCuisinesHTML = (cuisines = self.cuisines) => {
   const select = document.getElementById('cuisines-select');
   select.setAttribute('aria-label', 'filter by cuisine');
@@ -64,9 +54,7 @@ let fillCuisinesHTML = (cuisines = self.cuisines) => {
   });
 };
 
-/**
- * Initialize leaflet map, called from HTML.
- */
+/**********    Initialize leaflet map, called from HTML    **********/
 let initMap = () => {
   // Checks if online and send image map if not.
   if (!navigator.onLine) {
@@ -94,9 +82,7 @@ let initMap = () => {
   }).addTo(newMap);
 };
 
-/**
- * Update page and map for current restaurants.
- */
+/**********    Update page and map for current restaurants    **********/
 let updateRestaurants = () => {
   const cSelect = document.getElementById('cuisines-select');
   const nSelect = document.getElementById('neighborhoods-select');
@@ -108,7 +94,7 @@ let updateRestaurants = () => {
   const neighborhood = nSelect[nIndex].value;
 
   DBHelper.fetchRestaurantsByFilter(cuisine, neighborhood, (error, restaurants) => {
-    if (error) { // Got an error!
+    if (error) {
       console.error(error);
     } else {
       resetRestaurants(restaurants);
@@ -117,9 +103,7 @@ let updateRestaurants = () => {
   });
 };
 
-/**
- * Clear current restaurants, their HTML and remove their map markers.
- */
+/**********    Clear current restaurants, HTML and map markers    **********/
 let resetRestaurants = (restaurants) => {
   // Remove all restaurants
   self.restaurants = [];
@@ -134,9 +118,7 @@ let resetRestaurants = (restaurants) => {
   self.restaurants = restaurants;
 };
 
-/**
- * Create all restaurants HTML and add them to the webpage.
- */
+/**********    Create and add all restaurants HTML    **********/
 let fillRestaurantsHTML = (restaurants = self.restaurants) => {
   const ul = document.getElementById('restaurants-list');
   restaurants.forEach(restaurant => {
@@ -149,9 +131,7 @@ let fillRestaurantsHTML = (restaurants = self.restaurants) => {
 
 };
 
-/**
- * Create restaurant HTML.
- */
+/**********    Create restaurant HTML    **********/
 let createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
@@ -160,13 +140,14 @@ let createRestaurantHTML = (restaurant) => {
   image.alt = `View of ${restaurant.name}`;
   // image.src = DBHelper.imageUrlForRestaurant(restaurant);
 
+  // TODO Figure out why image changes size too soon
+  // EX: from 255 to 490 when img width is 180 and
+  // from 490 to 800 when img width is 319
+  // Doesn't appear to be related to window size
   // Added for lazy loading
   image.setAttribute('data-sizes', 'auto');
   image.setAttribute('data-src', DBHelper.imageUrlForRestaurant(restaurant));
   image.setAttribute('data-srcset', DBHelper.imageSrcsetForRestaurant(restaurant));
-
-
-
   // Add image
   li.append(image);
 
@@ -197,9 +178,7 @@ let createRestaurantHTML = (restaurant) => {
   return li;
 };
 
-/**
- * Add markers for current restaurants to the map.
- */
+/**********    Add markers for current restaurants to the map    **********/
 let addMarkersToMap = (restaurants = self.restaurants) => {
   // Only add markers if currently online.
   if (!navigator.onLine) {

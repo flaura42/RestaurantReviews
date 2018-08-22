@@ -1,12 +1,4 @@
-/**
- * sw.js written using lessons and info from:
- * https://jakearchibald.com/2014/offline-cookbook/
- * https://developers.google.com/web/fundamentals/primers/service-workers/?hl=en#register_a_service_worker
-*/
-
-/**
-* Set up caching info as variables for use in multiple event listeners.
-  */
+/**********    Set up cache name/URL variables    **********/
 const cache_name = 'reviews-v1';
 const urlsToCache = [
   '/',
@@ -19,13 +11,11 @@ const urlsToCache = [
   '/js/restaurant_info.js',
   '/js/dbhelper.js',
   '/img/nomap.jpg',
-  '/img/icons-512.jpg',
+  '/img/icons-192.jpg',
   '/img/icons-512.jpg'
 ];
 
-/**
- * Open a cache, add URLs to cache, and confirm assets are cached.
- */
+/**********    Open cache, add URLs, confirm assets are cached    **********/
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(cache_name).then(cache => {
@@ -34,11 +24,8 @@ self.addEventListener('install', event => {
   );
 });
 
-/**
-* Fetch returned cache responses cumulatively.
-*/
+/**********    Fetch returned cache responses cumulatively    **********/
 self.addEventListener('fetch', event => {
-
   // If statement used to get rid of most of the annoying errors
   const requestUrl = event.request.url;
   if (requestUrl.includes('unpkg') || requestUrl.includes('browser-sync') || requestUrl.includes('mapbox')) {
@@ -71,11 +58,9 @@ self.addEventListener('fetch', event => {
   );
 });
 
-/**
- * Tidy up the ServiceWorker cache storage with loop deleting old caches.
+/**********    Tidy up the SW cache storage with loop deleting old caches.
  * Filter cacheNames to only select ones with same start ('reviews-')
- * that aren't the current cacheName (cache_name).
- */
+ * that aren't the current cacheName (cache_name)    **********/
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -90,3 +75,7 @@ self.addEventListener('activate', event => {
     })
   );
 });
+
+// NOTE: For using IDB here:
+// self.importScripts('js/idb.js');
+// self.importScripts('js/dbhelper.min.js');

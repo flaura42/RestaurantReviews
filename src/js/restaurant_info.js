@@ -1,18 +1,12 @@
-/**
- * Initialize map as soon as the page is loaded.
- */
+/**********    Initialize map as soon as the page is loaded    **********/
 document.addEventListener('DOMContentLoaded', (event) => {
   initMap();
 });
 
-/**
- * Initialize leaflet map
- */
+/**********    Initialize leaflet map    **********/
 let initMap = () => {
-
-
   fetchRestaurantFromURL((error, restaurant) => {
-    if (error) { // Got an error!
+    if (error) {
       console.error(error);
       // Checks if online and send image map if not.
     } else if (!navigator.onLine) {
@@ -24,7 +18,7 @@ let initMap = () => {
       image.alt = 'No map is available.';
       div.append(image);
       return div;
-    // If online, prodeces map.
+    // If online, produces map.
     } else {
       self.newMap = L.map('map', {
         center: [restaurant.latlng.lat, restaurant.latlng.lng],
@@ -45,9 +39,7 @@ let initMap = () => {
   });
 };
 
-/**
- * Get current restaurant from page URL.
- */
+/**********    Get current restaurant from page URL    **********/
 let fetchRestaurantFromURL = (callback) => {
   if (self.restaurant) { // restaurant already fetched!
     callback(null, self.restaurant);
@@ -70,9 +62,7 @@ let fetchRestaurantFromURL = (callback) => {
   }
 };
 
-/**
- * Create restaurant HTML and add it to the webpage
- */
+/**********    Create restaurant HTML and add it to the webpage    **********/
 let fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
@@ -81,6 +71,11 @@ let fillRestaurantHTML = (restaurant = self.restaurant) => {
   image.className = 'restaurant-img lazyload';
   image.alt = `View of ${restaurant.name}`;
   // image.src = DBHelper.imageUrlForRestaurant(restaurant);
+
+  // TODO Figure out why image changes size too soon
+  // EX: from 255 to 490 when img width is 180 and
+  // from 490 to 800 when img width is 319
+  // Doesn't appear to be related to window size
   // Added for lazy loading
   image.setAttribute('data-sizes', 'auto');
   image.setAttribute('data-src', DBHelper.imageUrlForRestaurant(restaurant));
@@ -101,9 +96,7 @@ let fillRestaurantHTML = (restaurant = self.restaurant) => {
   fillReviewsHTML();
 };
 
-/**
- * Create restaurant operating hours HTML table and add it to the webpage.
- */
+/**********    Create and add operating hours HTML table    **********/
 let fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
   const hours = document.getElementById('restaurant-hours');
   for (let key in operatingHours) {
@@ -121,9 +114,7 @@ let fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours)
   }
 };
 
-/**
- * Create all reviews HTML and add them to the webpage.
- */
+/**********    Create and add all reviews HTML    **********/
 let fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
   if (!reviews) {
@@ -139,9 +130,7 @@ let fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   container.appendChild(ul);
 };
 
-/**
- * Create review HTML and add it to the webpage.
- */
+/**********    Create and add review HTML    **********/
 let createReviewHTML = (review) => {
   const li = document.createElement('li');
 
@@ -168,9 +157,7 @@ let createReviewHTML = (review) => {
   return li;
 };
 
-/**
- * Add restaurant name to the breadcrumb navigation menu
- */
+/**********    Add restaurant name to the breadcrumb nav menu    **********/
 let fillBreadcrumb = (restaurant = self.restaurant) => {
   const breadcrumb = document.getElementById('breadcrumb');
   const li = document.createElement('li');
@@ -178,9 +165,7 @@ let fillBreadcrumb = (restaurant = self.restaurant) => {
   breadcrumb.appendChild(li);
 };
 
-/**
- * Get a parameter by name from page URL.
- */
+/**********    Get a parameter by name from page URL    **********/
 let getParameterByName = (name, url) => {
   if (!url)
     url = window.location.href;

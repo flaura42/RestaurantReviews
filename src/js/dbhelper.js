@@ -1,32 +1,25 @@
-/**
- * Register serviceWorker
- */
+/**********    Register serviceWorker    **********/
 if (navigator.serviceWorker) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
-      .then(function(registration) {
+      .then(registration => {
+        console.log("ServiceWorker registered:", registration);
       }, error => {
         console.error("ServiceWorker registration failed:", error);
       });
   });
 }
 
-/**
- * Common database helper functions.
- */
+/**********    Common database helper functions    **********/
 class DBHelper {
 
-  /**
-   * Database URL.
-   */
+  /**********    Database URL    **********/
   static get DATABASE_URL() {
     const port = 1337; // Change this to your server port
     return `http://localhost:${port}/restaurants`;
   }
 
-  /**
-   * Fetch all restaurants.
-   */
+  /**********    Fetch all restaurants    **********/
   static fetchRestaurants(callback) {
     // Create database: idb.open(name, version, upgradeCallback)
     const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
@@ -58,9 +51,7 @@ class DBHelper {
       });
   }
 
-  /**
-   * Serve all restaurants.
-   */
+  /**********    Serve all restaurants    **********/
   static serveRestaurants(callback) {
     // Open database: idb.open(name, version, upgradeCallback)
     const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
@@ -100,9 +91,7 @@ class DBHelper {
       });
   }
 
-  /**
-   * Fetch restaurants by filtered value with proper error handling.
-   */
+  /**********    Fetch restaurants by filtered value    **********/
   static fetchRestaurantsByFilter(cuisine, neighborhood, callback) {
     // Fetch all restaurants
     DBHelper.fetchRestaurants((error, restaurants) => {
@@ -121,9 +110,7 @@ class DBHelper {
     });
   }
 
-  /**
-   * Fetch a restaurant by its ID.
-   */
+  /**********    Fetch a restaurant by its ID    **********/
   static fetchRestaurantById(id, callback) {
     // fetch all restaurants with proper error handling.
     DBHelper.fetchRestaurants((error, restaurants) => {
@@ -140,9 +127,7 @@ class DBHelper {
     });
   }
 
-  /**
-   * Fetch all neighborhoods with proper error handling.
-   */
+  /**********    Fetch all neighborhoods    **********/
   static fetchNeighborhoods(callback) {
     // Fetch all restaurants
     DBHelper.fetchRestaurants((error, restaurants) => {
@@ -158,9 +143,7 @@ class DBHelper {
     });
   }
 
-  /**
-   * Fetch all cuisines with proper error handling.
-   */
+  /**********    Fetch all cuisines    **********/
   static fetchCuisines(callback) {
     // Fetch all restaurants
     DBHelper.fetchRestaurants((error, restaurants) => {
@@ -176,16 +159,12 @@ class DBHelper {
     });
   }
 
-  /**
-   * Restaurant page URL.
-   */
+  /**********    Restaurant page URL    **********/
   static urlForRestaurant(restaurant) {
     return (`./restaurant.html?id=${restaurant.id}`);
   }
 
-  /**
-   * Restaurant image URL.
-   */
+  /**********    Restaurant image URL    **********/
   static imageUrlForRestaurant(restaurant) {
     if (restaurant.photograph) {
       return (`/img/${restaurant.photograph}.jpg`);
@@ -194,9 +173,11 @@ class DBHelper {
     }
   }
 
-  /**
-   * Restaurant image srccset.
-   */
+  /**********    Restaurant image srccset    **********/
+  // TODO Figure out why image changes size too soon
+  // EX: from 255 to 490 when img width is 180 and
+  // from 490 to 800 when img width is 319
+  // Doesn't appear to be related to window size
   static imageSrcsetForRestaurant(restaurant) {
     if (restaurant.photograph) {
       return (`/img/${restaurant.photograph}-255.jpg 255w, /img/${restaurant.photograph}-490.jpg 490w, /img/${restaurant.photograph}.jpg 800w`);
@@ -205,9 +186,7 @@ class DBHelper {
     }
   }
 
-  /**
-   * Map marker for a restaurant.
-   */
+  /**********    Map marker for a restaurant    **********/
   static mapMarkerForRestaurant(restaurant, map) {
     const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
       {title: restaurant.name,
