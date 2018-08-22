@@ -1,3 +1,4 @@
+/**********    Requires for Gulp dependencies    **********/
 const gulp = require('gulp');
 
 // For syncing browser
@@ -25,7 +26,7 @@ const imageminWebp = require('imagemin-webp');  // webp compression as jpeg
 const del = require('del');  // Delete files and folders
 
 
-// Development
+/**********    Development    **********/
 
 // Gulp recommends always keeping a 'default task'
 gulp.task('default', ['clean', 'build']);
@@ -45,9 +46,10 @@ gulp.task('build', [
   'images'
 ]);
 
-// Start browserSync server
+/**********    Start browserSync server    **********/
+
 // Start serving src folder
-gulp.task('serve-src', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
+gulp.task('serve', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
   browserSync.init({
     server: './src',
     port: 8000,
@@ -59,7 +61,7 @@ gulp.task('serve-src', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
 });
 
 // Start serving build folder
-gulp.task('serve', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
+gulp.task('serve-build', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
   browserSync.init({
     server: './build',
     port: 8000,
@@ -71,7 +73,7 @@ gulp.task('serve', ['styles', 'scripts', 'scripts-sw', 'copy'], () => {
 });
 
 
-// Build tasks
+/**********    Build tasks    **********/
 
 // Process and minify css, copy to build folder
 gulp.task('styles', () =>
@@ -119,6 +121,8 @@ gulp.task('copy', () =>
     .pipe(gulp.dest('build'))
 );
 
+/**********    Image Handling    **********/
+
 // Minify images and copy to build folder
 gulp.task('images', () =>
   gulp.src('src/img/*')
@@ -130,14 +134,15 @@ gulp.task('images', () =>
 );
 
 // Delete Imgs folder
-gulp.task('clean-imgs', () =>
-  del.sync('src/imgs')
+gulp.task('clean-img', () =>
+  del.sync('src/img')
 );
 
-// Resize images for better loading
-gulp.task('image-resize', [
+// Preprocess images and move to src/img folder
+gulp.task('image-pre', [
   'image-resize-255',
-  'image-resize-490'
+  'image-resize-490',
+  'image-static'
 ]);
 
 gulp.task('image-resize-255', () =>
@@ -157,5 +162,14 @@ gulp.task('image-resize-490', () =>
       imageMagick: true
     }))
     .pipe(rename(path => { path.basename += '-490'; }))
+    .pipe(gulp.dest('src/img'))
+);
+
+// Copy static images to src/img folder
+gulp.task('image-static', () =>
+  gulp.src([
+    'src/img-static/*.jpg',
+    'src/img-src'
+  ])
     .pipe(gulp.dest('src/img'))
 );
