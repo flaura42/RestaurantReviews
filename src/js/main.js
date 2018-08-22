@@ -2,8 +2,6 @@
 document.addEventListener('DOMContentLoaded', (event) => {
   initMap();
   updateRestaurants();
-  fetchNeighborhoods();
-  fetchCuisines();
 });
 
 /**********    Fetch all neighborhoods and set their HTML    **********/
@@ -99,6 +97,8 @@ let updateRestaurants = () => {
     } else {
       resetRestaurants(restaurants);
       fillRestaurantsHTML();
+      fetchNeighborhoods();
+      fetchCuisines();
     }
   });
 };
