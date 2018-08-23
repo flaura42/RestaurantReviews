@@ -7,7 +7,7 @@ const reload = browserSync.reload;
 
 // For some processes
 const sourcemaps = require('gulp-sourcemaps');  // Write source map file
-const rename = require('gulp-rename');
+const rename = require('gulp-rename');  // Change name as part of task
 
 // For handling scripts
 const babel = require('gulp-babel');  // Allows older browsers to use app
@@ -18,7 +18,7 @@ const autoprefixer = require('gulp-autoprefixer');  // Adds browser-specific pre
 const cleanCSS = require('gulp-clean-css');  // Minify css
 
 // For resizing and minifying images
-const imageResize = require('gulp-image-resize');
+const imageResize = require('gulp-image-resize');  // Batch image resize
 const imagemin = require('gulp-imagemin');  // Minify images
 const imageminWebp = require('imagemin-webp');  // webp compression as jpeg
 
@@ -169,7 +169,7 @@ gulp.task('image-resize-490', () =>
 gulp.task('image-static', () =>
   gulp.src([
     'src/img-static/*.jpg',
-    'src/img-src'
+    'src/img-src/*.jpg'
   ])
     .pipe(gulp.dest('src/img'))
 );

@@ -10,6 +10,8 @@ if (navigator.serviceWorker) {
   });
 }
 
+// TODO rework IDB stuff to not require multiple opens
+
 /**********    Common database helper functions    **********/
 class DBHelper {
 
@@ -19,19 +21,23 @@ class DBHelper {
     return `http://localhost:${port}/restaurants`;
   }
 
+  static createDB() {
+    return (
+      // Create database: idb.open(name, version, upgradeCallback)
+      idb.open('restaurants-db', 1, upgradeDB => {
+        if (!upgradeDB.objectStoreNames.contains('restaurants-store')) {
+          const store = upgradeDB.createObjectStore('restaurants-store', {
+            keyPath: 'id'
+          });
+        }
+      })
+    );
+  }
+
   /**********    Fetch all restaurants    **********/
   static fetchRestaurants(callback) {
-    // Create database: idb.open(name, version, upgradeCallback)
-    const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
-      if (!upgradeDB.objectStoreNames.contains('restaurants-store')) {
-        const store = upgradeDB.createObjectStore('restaurants-store', {
-          keyPath: 'id'
-        });
-        // (placeholder for future use)
-        // Note: Create indexes for key value pairs here:
-        // store.createIndex('name', 'key');
-      }
-    });
+    // Check for database, create if needed
+    const dbPromise = DBHelper.createDB();
     // Create transaction to get restaurants from db
     dbPromise.then(db => {
       const tx = db.transaction('restaurants-store', 'readonly');
@@ -53,14 +59,7 @@ class DBHelper {
 
   /**********    Serve all restaurants    **********/
   static serveRestaurants(callback) {
-    // Open database: idb.open(name, version, upgradeCallback)
-    const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
-      if (!upgradeDB.objectStoreNames.contains('restaurants-store')) {
-        const store = upgradeDB.createObjectStore('restaurants-store', {
-          keyPath: 'id'
-        });
-      }
-    });
+    const dbPromise = DBHelper.createDB();
     // Fetch restaurants from server
     const fetchAll = new Request(DBHelper.DATABASE_URL);
     return fetch(fetchAll)
