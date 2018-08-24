@@ -6,13 +6,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 /**********    Fetch all neighborhoods and set their HTML    **********/
 let fetchNeighborhoods = () => {
-  DBHelper.fetchNeighborhoods((error, neighborhoods) => {
-    if (error) { // Got an error
-      console.error(error);
-    } else {
-      self.neighborhoods = neighborhoods;
-      fillNeighborhoodsHTML();
-    }
+  DBHelper.fetchNeighborhoods(neighborhoods => {
+    self.neighborhoods = neighborhoods;
+    fillNeighborhoodsHTML();
   });
 };
 
@@ -30,13 +26,9 @@ let fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
 
 /**********    Fetch all cuisines and set their HTML    **********/
 let fetchCuisines = () => {
-  DBHelper.fetchCuisines((error, cuisines) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
-      self.cuisines = cuisines;
-      fillCuisinesHTML();
-    }
+  DBHelper.fetchCuisines(cuisines => {
+    self.cuisines = cuisines;
+    fillCuisinesHTML();
   });
 };
 
@@ -91,15 +83,11 @@ let updateRestaurants = () => {
   const cuisine = cSelect[cIndex].value;
   const neighborhood = nSelect[nIndex].value;
 
-  DBHelper.fetchRestaurantsByFilter(cuisine, neighborhood, (error, restaurants) => {
-    if (error) {
-      console.error(error);
-    } else {
-      resetRestaurants(restaurants);
-      fillRestaurantsHTML();
-      fetchNeighborhoods();
-      fetchCuisines();
-    }
+  DBHelper.fetchRestaurantsByFilter(cuisine, neighborhood, restaurants => {
+    resetRestaurants(restaurants);
+    fillRestaurantsHTML();
+    fetchNeighborhoods();
+    fetchCuisines();
   });
 };
 

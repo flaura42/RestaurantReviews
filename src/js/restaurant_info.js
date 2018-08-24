@@ -5,11 +5,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 /**********    Initialize leaflet map    **********/
 let initMap = () => {
-  fetchRestaurantFromURL((error, restaurant) => {
-    if (error) {
-      console.error(error);
-      // Checks if online and send image map if not.
-    } else if (!navigator.onLine) {
+  fetchRestaurantFromURL(restaurant => {
+    // Checks if online and send image map if not.
+    if (!navigator.onLine) {
       fillBreadcrumb();
       const div = document.getElementById('map');
       const image = document.createElement('img');
@@ -42,22 +40,20 @@ let initMap = () => {
 /**********    Get current restaurant from page URL    **********/
 let fetchRestaurantFromURL = (callback) => {
   if (self.restaurant) { // restaurant already fetched!
-    callback(null, self.restaurant);
-    return;
+    callback(self.restaurant);
   }
   const id = getParameterByName('id');
   if (!id) { // no id found in URL
-    error = 'No restaurant id in URL';
-    callback(error, null);
+    console.error("No restaurant ID in URL");
   } else {
-    DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+    DBHelper.fetchRestaurantById(id, restaurant => {
       self.restaurant = restaurant;
       if (!restaurant) {
-        console.error(error);
+        console.error("Restaurant not found");
         return;
       }
       fillRestaurantHTML();
-      callback(null, restaurant);
+      callback(restaurant);
     });
   }
 };
