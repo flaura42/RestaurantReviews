@@ -184,114 +184,97 @@ class DBHelper {
   /*                           Favorites Functions                          */
   /**************************************************************************/
 
-/**********    Favorites Icon    **********/
-
-  // NOTE: Works. Called from icon listener. Doesn't want catch
-/**********    Check if favorite is true/false    **********/
-  static checkForFavorite(id, callback) {
-    DBHelper.fetchFavoriteById(id, restaurant => {
-      if (restaurant.is_favorite == true) {
-        console.log("Sending check");
-        callback('/img/bookmark-check.png');
-      } else {
-        console.log("Sending plus");
-        callback('/img/bookmark-plus.png');
-      }
-    });
-  }
-
-  // NOTE: Works. Called from icon listener. Doesn't want catch
-  /**********    Find restaurant by ID    **********/
-  static fetchFavoriteById(id, callback) {
-    // fetch all restaurants with proper error handling.
-    DBHelper.fetchDB(restaurants => {
-      const restaurant = restaurants.find(r => r.id == id);
-      if (restaurant) { // Got the restaurant
-        console.log("Restaurant is: ", restaurant.id);
-        callback(restaurant);
-      } else { // Restaurant does not exist in the database
-        console.error("Restaurant doesn't exist");
-      }
-    });
-  }
-
-  // NOTE: Works. Called from icon listener
-  /**********    Fetch restaurants from DB   **********/
-  static fetchDB(callback) {
-    dbPromise.then(db => {
+  // TODO: Once fetchRestaurants() is async, have if statement run it.
+  // // NOTE: Called from a lot of other functions
+  // /**********    Fetch restaurants from DB   **********/
+  static async fetchDB() {
+    try {
+      const db = await dbPromise;
       const tx = db.transaction('restaurants-store', 'readonly');
       const store = tx.objectStore('restaurants-store');
-      return store.getAll();
-    }).then(restaurants => {
-      if (restaurants.length !== 0) {
-        callback(restaurants);
-      } else {
-        // TODO: Decide if just return plus, since it should mean no bookmarks
-        const restaurants = DBHelper.fetchRestaurants(callback);
-        callback(restaurants);
+      const restaurants =  await store.getAll();
+      if (restaurants.length == 0) {
+        console.error("whoopsie! No DB yet");
       }
-    }).catch(error => {
-      console.error("Failed to fetch from DB. Fetching from server: ", error);
-    });
+      // console.log("record: ", restaurants);
+      return restaurants;
+    }
+    catch(error) {
+      console.error("Failed to fetch db: ", error);
+    }
   }
 
-  // NOTE: Works. Called from icon listener
+  // NOTE: Called from handleClick() (ri.js).
+  /**********    Check if favorited and send icon url    **********/
+  static async checkFavoriteIcon(id) {
+    try {
+      const restaurant = await DBHelper.fetchFavoriteById(id);
+      console.log("State is" , restaurant.is_favorite);
+      return restaurant.is_favorite ? '/img/bookmark-check.png' : '/img/bookmark-plus.png';
+    }
+    catch(error) {
+      console.error("Error while checking for favorite:", error);
+    }
+  }
+
+  // NOTE: Called from checkFavoriteIcon(id)
+  /**********    Find restaurant by ID    **********/
+  static async fetchFavoriteById(id) {
+    try {
+      const restaurants = await DBHelper.fetchDB();
+      // console.log(restaurants);
+      const restaurant = restaurants.find(r => r.id == id);
+      if (restaurant) {
+        console.log("Restaurant is: ", restaurant.id);
+        return restaurant;
+      } else {
+        console.error("Restaurant doesn't exist");
+      }
+    }
+    catch(error) {
+      console.error("Failed to find restaurant: ", error);
+    }
+  }
+
+
+  // TODO: Still not working right
+  // NOTE: Called from handleClick() (ri.js)
   /**********    Add/remove favorited restaurant from DB   **********/
-  static toggleFavorite(id) {
-    dbPromise.then(db => {
+  static async toggleFavorite(id) {
+    try {
+      const db = await dbPromise;
       const tx = db.transaction('restaurants-store', 'readwrite');
       const store = tx.objectStore('restaurants-store');
-      return store.openCursor();
-    }).then(function logItems(cursor) {
-      if (!cursor) {
-        return;
-      }
-      if (cursor.value.id == id) {
-        console.log("Updating #", id);
-        const updateFavorite = cursor.value;
-        (updateFavorite.is_favorite == false) ? updateFavorite.is_favorite = true : updateFavorite.is_favorite = false;
-        console.log("Favorited = ", updateFavorite.is_favorite);
-        cursor.update(updateFavorite);
-      }
-      return cursor.continue().then(logItems);
-    }).then(() => {
-      console.log("finished cursoring");
-    }).catch(error => {
-      console.error("Failed to fetch from DB: ", error);
-    });
-  }
-
-  // NOTE: Works. Called from icon listener
-  /**********    Change favorite icon    **********/
-  static setFavorite(imgVersion) {
-    const mark = document.getElementById('favorite');
-    const check = document.createElement('img');
-    check.setAttribute('id', 'favorite-img');
-    if (imgVersion === 'check') {
-      console.log("Changing to check");
-      check.setAttribute('src', '/img/bookmark-check.png');
-    } else {
-      console.log("Changing to plus");
-      check.setAttribute('src', '/img/bookmark-plus.png');
+      const cursor =  await store.openCursor(id);
+      const current = await cursor.value.is_favorite;
+      console.log("Current =  ", current);
+      (cursor.value.is_favorite == false) ? cursor.value.is_favorite = true : cursor.value.is_favorite = false;
+      console.log("Changed to = ", cursor.value.is_favorite);
+      cursor.update(cursor.value);
+      return cursor.continue();
     }
-    mark.replaceChild(check, mark.childNodes[0]);
+    catch(error) {
+      console.error("Error toggling favorite icon", error);
+    }
   }
 
-  // NOTE: Works. Called from updateFavorites()
+  // NOTE: Called from updateFavorites() (main.js)
   /**********    Collect restaurants that are favorites    **********/
-  static getFavorites(callback) {
-    DBHelper.fetchDB(restaurants => {
-      let results = restaurants;
-      results = results.filter(r => r.is_favorite == true);
-      console.log("Results: ", results);
-      // (results.length == 0) ? console.log('empty') : callback(results);
-      if (results.length == 0) {
+  static async getFavorites() {
+    try {
+      let restaurants = await DBHelper.fetchDB();
+      restaurants = restaurants.filter(r => r.is_favorite == true);
+      console.log(restaurants);
+      if (restaurants.length == 0) {
         alert('No restaurants have been favorited.  Please click the favorite icon for a restaurant to do so.');
         document.getElementById('faves-checkbox').checked = false;
       } else {
-        callback(results);
+        return restaurants;
       }
-    });
+    }
+    catch(error) {
+      return; // Since error is handled above.
+    }
   }
 
   // The very end

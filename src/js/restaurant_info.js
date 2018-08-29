@@ -5,7 +5,7 @@
 /**********    Initialize map as soon as the page is loaded    **********/
 document.addEventListener('DOMContentLoaded', () => {
   initMap();
-  checkForFavorite();
+  setFavoriteIcon();
 });
 
 /**********    Listen for clicks on favorite icon    **********/
@@ -20,7 +20,7 @@ document.getElementById('favorite').addEventListener('click', () => {
 /**********    Initialize leaflet map    **********/
 let initMap = () => {
   fetchRestaurantFromURL(restaurant => {
-    let nomap = false;
+    let nomap = true;
     if (nomap == true) {
       fillBreadcrumb();
       const div = document.getElementById('map');
@@ -205,26 +205,29 @@ let getParameterByName = (name, url) => {
 
 /**********    Handle click event for favorite icon    **********/
 // TODO: Find better way of doing this
-let handleClick = () => {
-  console.log("favorite icon clicked");
-  const id = getParameterByName('id');
-  DBHelper.checkForFavorite(id, status => {
+async function handleClick() {
+  try {
+    console.log("favorite icon clicked");
+    const id = getParameterByName('id');
+    const status = await DBHelper.checkFavoriteIcon(id);
     console.log("favorite version: ", status);
     switch (status) {
     case '/img/bookmark-plus.png':
       if (confirm('Add this restaurant to favorites?')) {
-        let imgVersion = 'check';
+        // let imgVersion = 'check';
         DBHelper.toggleFavorite(id);
-        DBHelper.setFavorite(imgVersion);
+        setFavoriteIcon();
+        // DBHelper.setFavoriteIcon(imgVersion);
       } else {
         console.log("favorite cancelled");
       }
       break;
     case '/img/bookmark-check.png':
       if (confirm('Remove favorite?')) {
-        let imgVersion = 'plus';
+        // let imgVersion = 'plus';
+        // DBHelper.setFavoriteIcon(imgVersion);
         DBHelper.toggleFavorite(id);
-        DBHelper.setFavorite(imgVersion);
+        setFavoriteIcon();
       } else {
         console.log("favorite cancelled");
       }
@@ -232,18 +235,26 @@ let handleClick = () => {
     default:
       alert('Sorry, error saving favorite.  Please try again.');
     }
-  });
-};
+  }
+  catch(error) {
+    console.error("Error while handling the click: ", error);
+  }
+}
 
-/**********    Determine which Favorites icon to display    **********/
-let checkForFavorite = () => {
-  const id = getParameterByName('id');
-  DBHelper.checkForFavorite(id, status => {
-    console.log("Setting favorite version to ", status);
+/**********    Set favorites icon (on page load)    **********/
+async function setFavoriteIcon() {
+  try {
+    const id = getParameterByName('id');
     const favorite = document.getElementById('favorite');
+    const check = (favorite.childNodes.length == 0);
+    const status = await DBHelper.checkFavoriteIcon(id);
     const img = document.createElement('img');
     img.id = 'favorite-img';
+    console.log("setting to: ", status);
     img.src = status;
-    favorite.appendChild(img);
-  });
-};
+    (check == true) ? favorite.appendChild(img) : favorite.replaceChild(img, favorite.childNodes[0]);
+  }
+  catch(error) {
+    console.error("Error while checking for favorite: ", error);
+  }
+}

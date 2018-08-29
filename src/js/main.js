@@ -59,7 +59,7 @@ let fillCuisinesHTML = (cuisines = self.cuisines) => {
 
 /**********    Initialize leaflet map, called from HTML    **********/
 let initMap = () => {
-  let nomap = false;
+  let nomap = true;
   if (nomap == true) {
     const div = document.getElementById('map');
     const image = document.createElement('img');
@@ -210,7 +210,7 @@ let addMarkersToMap = (restaurants = self.restaurants) => {
 /*                            Favorites Functions                             */
 /******************************************************************************/
 
-let handleChange = () => {
+function handleChange() {
   let checkbox = document.getElementById('faves-checkbox');
   if (checkbox.checked == true) {
     console.log("checkbox checked");
@@ -219,14 +219,18 @@ let handleChange = () => {
     console.log("checkbox not checked");
     updateRestaurants();
   }
-};
+}
 
 /**********    Update page and map for favorite restaurants    **********/
-let updateFavorites = () => {
-  DBHelper.getFavorites(restaurants => {
+async function updateFavorites() {
+  try {
+    const restaurants = await DBHelper.getFavorites();
     resetRestaurants(restaurants);
     fillRestaurantsHTML();
     fetchNeighborhoods();
     fetchCuisines();
-  });
-};
+  }
+  catch(error) {
+    console.error("Error while updating favorites: ", error);
+  } 
+}
