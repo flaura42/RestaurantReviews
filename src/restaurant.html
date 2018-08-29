@@ -30,11 +30,13 @@
     <!-- Begin nav -->
     <nav>
       <h1><a href="/">Restaurant Reviews</a></h1>
-    <!-- Begin breadcrumb -->
-      <ul  aria-label="breadcrumb" role="navigation" id="breadcrumb">
-        <li><a href="/">Home</a></li>
-      </ul>
-    <!-- End breadcrumb -->
+      <!-- Begin breadcrumb -->
+      <div id="breadcrumb">
+        <ul  aria-label="breadcrumb" role="navigation" id="breadcrumb-list">
+          <li><a  href="/">Home</a></li>
+        </ul>
+      </div>
+      <!-- End breadcrumb -->
     </nav>
     <!-- End nav -->
   </header>
@@ -50,7 +52,10 @@
     <!-- End map -->
     <!-- Begin restaurant -->
     <section id="restaurant-container">
-      <h2 id="restaurant-name" tabindex="-1"></h1>
+      <div id="restaurant-header">
+        <h2 id="restaurant-name" tabindex="-1"></h1>
+        <div id="favorite"></div>
+      </div>
       <div id="restaurant-info">
         <img id="restaurant-img">
         <p id="restaurant-cuisine"></p>

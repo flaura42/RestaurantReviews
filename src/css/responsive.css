@@ -108,11 +108,6 @@
   #map, #map .map-img {
     height: 400px;
   }
-
-  #breadcrumb li {
-  		font-size: 1.75em;
-  }
-
 }
 
 @media screen and (min-width: 1200px) {

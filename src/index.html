@@ -38,12 +38,20 @@
     <section>
       <div class="filter-options" id="filter" tabindex="-1">
         <h2>Filter Results</h2>
-        <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
-          <option value="all">All Neighborhoods</option>
-        </select>
-        <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
-          <option value="all">All Cuisines</option>
-        </select>
+        <div id="filter-content">
+          <div id = "filter-selects">
+            <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
+              <option value="all">All Neighborhoods</option>
+            </select>
+            <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
+              <option value="all">All Cuisines</option>
+            </select>
+        </div>
+          <div id="favorite-checkbox">
+            <input type="checkbox" id="faves-checkbox" name="Favorites Checkbox" value="Favorites Only" />
+            <label for="faves-checkbox">Favorites Only</label>
+          </div>
+        </div>
       </div>
       <ul id="restaurants-list"></ul>
     </section>

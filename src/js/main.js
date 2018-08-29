@@ -1,8 +1,21 @@
+/******************************************************************************/
+/*                               Event Listeners                              */
+/******************************************************************************/
+
 /**********    Fetch restaurants as soon as the page is loaded    **********/
 document.addEventListener('DOMContentLoaded', (event) => {
   initMap();
   updateRestaurants();
 });
+
+/**********    Listen for change on favorites checkbox    **********/
+document.getElementById('faves-checkbox').addEventListener('change', () => {
+  handleChange();
+});
+
+/******************************************************************************/
+/*                             Pagewide Functions                             */
+/******************************************************************************/
 
 /**********    Fetch all neighborhoods and set their HTML    **********/
 let fetchNeighborhoods = () => {
@@ -46,6 +59,16 @@ let fillCuisinesHTML = (cuisines = self.cuisines) => {
 
 /**********    Initialize leaflet map, called from HTML    **********/
 let initMap = () => {
+  let nomap = false;
+  if (nomap == true) {
+    const div = document.getElementById('map');
+    const image = document.createElement('img');
+    image.src = 'img/nomap.jpg';
+    image.className = 'map-img';
+    image.alt = 'No map is available.';
+    div.append(image);
+    return div;
+  }
   // Checks if online and send image map if not.
   if (!navigator.onLine) {
     const div = document.getElementById('map');
@@ -180,5 +203,30 @@ let addMarkersToMap = (restaurants = self.restaurants) => {
       window.location.href = marker.options.url;
     }
     self.markers.push(marker);
+  });
+};
+
+/******************************************************************************/
+/*                            Favorites Functions                             */
+/******************************************************************************/
+
+let handleChange = () => {
+  let checkbox = document.getElementById('faves-checkbox');
+  if (checkbox.checked == true) {
+    console.log("checkbox checked");
+    updateFavorites();
+  } else {
+    console.log("checkbox not checked");
+    updateRestaurants();
+  }
+};
+
+/**********    Update page and map for favorite restaurants    **********/
+let updateFavorites = () => {
+  DBHelper.getFavorites(restaurants => {
+    resetRestaurants(restaurants);
+    fillRestaurantsHTML();
+    fetchNeighborhoods();
+    fetchCuisines();
   });
 };

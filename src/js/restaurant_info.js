@@ -1,11 +1,36 @@
+/******************************************************************************/
+/*                               Event Listeners                              */
+/******************************************************************************/
+
 /**********    Initialize map as soon as the page is loaded    **********/
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', () => {
   initMap();
+  checkForFavorite();
 });
+
+/**********    Listen for clicks on favorite icon    **********/
+document.getElementById('favorite').addEventListener('click', () => {
+  handleClick();
+});
+
+/******************************************************************************/
+/*                             Pagewide Functions                             */
+/******************************************************************************/
 
 /**********    Initialize leaflet map    **********/
 let initMap = () => {
   fetchRestaurantFromURL(restaurant => {
+    let nomap = false;
+    if (nomap == true) {
+      fillBreadcrumb();
+      const div = document.getElementById('map');
+      const image = document.createElement('img');
+      image.src = 'img/nomap.jpg';
+      image.className = 'map-img';
+      image.alt = 'No map is available.';
+      div.append(image);
+      return div;
+    }
     // Checks if online and send image map if not.
     if (!navigator.onLine) {
       fillBreadcrumb();
@@ -76,7 +101,6 @@ let fillRestaurantHTML = (restaurant = self.restaurant) => {
   image.setAttribute('data-sizes', 'auto');
   image.setAttribute('data-src', DBHelper.imageUrlForRestaurant(restaurant));
   image.setAttribute('data-srcset', DBHelper.imageSrcsetForRestaurant(restaurant));
-
 
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;
@@ -153,9 +177,9 @@ let createReviewHTML = (review) => {
   return li;
 };
 
-/**********    Add restaurant name to the breadcrumb nav menu    **********/
+/**********    Add restaurant name to breadcrumb nav   **********/
 let fillBreadcrumb = (restaurant = self.restaurant) => {
-  const breadcrumb = document.getElementById('breadcrumb');
+  const breadcrumb = document.getElementById('breadcrumb-list');
   const li = document.createElement('li');
   li.innerHTML = restaurant.name;
   breadcrumb.appendChild(li);
@@ -173,4 +197,53 @@ let getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+};
+
+/******************************************************************************/
+/*                            Favorites Functions                             */
+/******************************************************************************/
+
+/**********    Handle click event for favorite icon    **********/
+// TODO: Find better way of doing this
+let handleClick = () => {
+  console.log("favorite icon clicked");
+  const id = getParameterByName('id');
+  DBHelper.checkForFavorite(id, status => {
+    console.log("favorite version: ", status);
+    switch (status) {
+    case '/img/bookmark-plus.png':
+      if (confirm('Add this restaurant to favorites?')) {
+        let imgVersion = 'check';
+        DBHelper.toggleFavorite(id);
+        DBHelper.setFavorite(imgVersion);
+      } else {
+        console.log("favorite cancelled");
+      }
+      break;
+    case '/img/bookmark-check.png':
+      if (confirm('Remove favorite?')) {
+        let imgVersion = 'plus';
+        DBHelper.toggleFavorite(id);
+        DBHelper.setFavorite(imgVersion);
+      } else {
+        console.log("favorite cancelled");
+      }
+      break;
+    default:
+      alert('Sorry, error saving favorite.  Please try again.');
+    }
+  });
+};
+
+/**********    Determine which Favorites icon to display    **********/
+let checkForFavorite = () => {
+  const id = getParameterByName('id');
+  DBHelper.checkForFavorite(id, status => {
+    console.log("Setting favorite version to ", status);
+    const favorite = document.getElementById('favorite');
+    const img = document.createElement('img');
+    img.id = 'favorite-img';
+    img.src = status;
+    favorite.appendChild(img);
+  });
 };

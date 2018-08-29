@@ -35,7 +35,6 @@ a:focus,
 /* ====================== Main Navigation ====================== */
 nav {
   width: 100%;
-	background-color: #eee;
 }
 
 nav h1 {
@@ -123,12 +122,28 @@ nav h1 a {
 	padding-top: 10px;
 }
 
+#filter-content {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+
 .filter-options select {
   background-color: #fff;
   font-size: 1.15em;
   margin: 10px 0 10px 10px;
   padding: 10px 0 10px 10px;;
   width: 185px;
+}
+
+#favorite-checkbox {
+	padding-right: 15px;
+	color: #eee;
+}
+
+#faves-checkbox {
+	color: #111;
 }
 
 /* ====================== Restaurant List ====================== */
@@ -190,14 +205,32 @@ nav h1 a {
 	padding: 20px;
 }
 
+#restaurant-container {
+	/* display: block; */
+}
+
 /* ==================== Restaurant Info Section ==================== */
+#restaurant-header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+
 #restaurant-name {
   color: #33c;
   font-size: 1.75em;
   font-weight: 100;
-	text-align: center;
   margin: 10px 0 30px 0;
   text-transform: uppercase;
+}
+
+#favorite {
+	padding: 5px 10px 0 0;
+}
+
+#favorite-img:hover {
+	background-color: #269f62;
 }
 
 #restaurant-info {

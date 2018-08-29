@@ -10,8 +10,20 @@ if (navigator.serviceWorker) {
   });
 }
 
+/**********    global variable for opening idb    **********/
+const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
+  if (!upgradeDB.objectStoreNames.contains('restaurants-store')) {
+    const store = upgradeDB.createObjectStore('restaurants-store', {
+      keyPath: 'id'
+    });
+  }
+});
+
 /**********    Common database helper functions    **********/
 class DBHelper {
+  /**************************************************************************/
+  /*                           Pagewide Functions                           */
+  /**************************************************************************/
 
   /**********    Database URL    **********/
   static get DATABASE_URL() {
@@ -19,23 +31,8 @@ class DBHelper {
     return `http://localhost:${port}/restaurants`;
   }
 
-  /**********    Open idb and create objectStore if needed    **********/
-  static openDB() {
-    return (
-      idb.open('restaurants-db', 1, upgradeDB => {
-        if (!upgradeDB.objectStoreNames.contains('restaurants-store')) {
-          const store = upgradeDB.createObjectStore('restaurants-store', {
-            keyPath: 'id'
-          });
-        }
-      })
-    );
-  }
-
   /**********    Fetch all restaurants    **********/
   static fetchRestaurants(callback) {
-    // Check for database, create if needed
-    const dbPromise = DBHelper.openDB();
     // Create transaction to get restaurants from db
     dbPromise.then(db => {
       const tx = db.transaction('restaurants-store', 'readonly');
@@ -67,7 +64,6 @@ class DBHelper {
       }).then(response => {
         const restaurants = response;
         // Create transaction to add restaurants to db
-        const dbPromise = DBHelper.openDB();
         dbPromise.then(db => {
           if (!db) {
             console.log("Missing DB!");
@@ -99,7 +95,6 @@ class DBHelper {
       }
       callback(results);
     });
-
   }
 
   /**********    Fetch a restaurant by its ID    **********/
@@ -184,4 +179,120 @@ class DBHelper {
     marker.addTo(newMap);
     return marker;
   }
+
+  /**************************************************************************/
+  /*                           Favorites Functions                          */
+  /**************************************************************************/
+
+/**********    Favorites Icon    **********/
+
+  // NOTE: Works. Called from icon listener. Doesn't want catch
+/**********    Check if favorite is true/false    **********/
+  static checkForFavorite(id, callback) {
+    DBHelper.fetchFavoriteById(id, restaurant => {
+      if (restaurant.is_favorite == true) {
+        console.log("Sending check");
+        callback('/img/bookmark-check.png');
+      } else {
+        console.log("Sending plus");
+        callback('/img/bookmark-plus.png');
+      }
+    });
+  }
+
+  // NOTE: Works. Called from icon listener. Doesn't want catch
+  /**********    Find restaurant by ID    **********/
+  static fetchFavoriteById(id, callback) {
+    // fetch all restaurants with proper error handling.
+    DBHelper.fetchDB(restaurants => {
+      const restaurant = restaurants.find(r => r.id == id);
+      if (restaurant) { // Got the restaurant
+        console.log("Restaurant is: ", restaurant.id);
+        callback(restaurant);
+      } else { // Restaurant does not exist in the database
+        console.error("Restaurant doesn't exist");
+      }
+    });
+  }
+
+  // NOTE: Works. Called from icon listener
+  /**********    Fetch restaurants from DB   **********/
+  static fetchDB(callback) {
+    dbPromise.then(db => {
+      const tx = db.transaction('restaurants-store', 'readonly');
+      const store = tx.objectStore('restaurants-store');
+      return store.getAll();
+    }).then(restaurants => {
+      if (restaurants.length !== 0) {
+        callback(restaurants);
+      } else {
+        // TODO: Decide if just return plus, since it should mean no bookmarks
+        const restaurants = DBHelper.fetchRestaurants(callback);
+        callback(restaurants);
+      }
+    }).catch(error => {
+      console.error("Failed to fetch from DB. Fetching from server: ", error);
+    });
+  }
+
+  // NOTE: Works. Called from icon listener
+  /**********    Add/remove favorited restaurant from DB   **********/
+  static toggleFavorite(id) {
+    dbPromise.then(db => {
+      const tx = db.transaction('restaurants-store', 'readwrite');
+      const store = tx.objectStore('restaurants-store');
+      return store.openCursor();
+    }).then(function logItems(cursor) {
+      if (!cursor) {
+        return;
+      }
+      if (cursor.value.id == id) {
+        console.log("Updating #", id);
+        const updateFavorite = cursor.value;
+        (updateFavorite.is_favorite == false) ? updateFavorite.is_favorite = true : updateFavorite.is_favorite = false;
+        console.log("Favorited = ", updateFavorite.is_favorite);
+        cursor.update(updateFavorite);
+      }
+      return cursor.continue().then(logItems);
+    }).then(() => {
+      console.log("finished cursoring");
+    }).catch(error => {
+      console.error("Failed to fetch from DB: ", error);
+    });
+  }
+
+  // NOTE: Works. Called from icon listener
+  /**********    Change favorite icon    **********/
+  static setFavorite(imgVersion) {
+    const mark = document.getElementById('favorite');
+    const check = document.createElement('img');
+    check.setAttribute('id', 'favorite-img');
+    if (imgVersion === 'check') {
+      console.log("Changing to check");
+      check.setAttribute('src', '/img/bookmark-check.png');
+    } else {
+      console.log("Changing to plus");
+      check.setAttribute('src', '/img/bookmark-plus.png');
+    }
+    mark.replaceChild(check, mark.childNodes[0]);
+  }
+
+  // NOTE: Works. Called from updateFavorites()
+  /**********    Collect restaurants that are favorites    **********/
+  static getFavorites(callback) {
+    DBHelper.fetchDB(restaurants => {
+      let results = restaurants;
+      results = results.filter(r => r.is_favorite == true);
+      console.log("Results: ", results);
+      // (results.length == 0) ? console.log('empty') : callback(results);
+      if (results.length == 0) {
+        alert('No restaurants have been favorited.  Please click the favorite icon for a restaurant to do so.');
+        document.getElementById('faves-checkbox').checked = false;
+      } else {
+        callback(results);
+      }
+    });
+  }
+
+  // The very end
 }
