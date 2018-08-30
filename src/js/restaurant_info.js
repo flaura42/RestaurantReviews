@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**********    Listen for clicks on favorite icon    **********/
-document.getElementById('favorite').addEventListener('click', () => {
+document.getElementById('favorite-icon').addEventListener('click', () => {
   handleClick();
 });
 
@@ -22,7 +22,7 @@ async function initMap() {
   try {
     const restaurant = await fetchRestaurantFromURL();
 
-    let nomap = false;
+    let nomap = true;
     if (nomap == true) {
       fillBreadcrumb();
       const div = document.getElementById('map');
@@ -71,7 +71,7 @@ async function initMap() {
 async function fetchRestaurantFromURL() {
   try {
     if (self.restaurant) {
-      console.log("Already fetched restaurant");
+      // console.log("Already fetched restaurant");
       return self.restaurant;
     }
     const id = getParameterByName('id');
@@ -79,7 +79,7 @@ async function fetchRestaurantFromURL() {
       console.error("No restaurant ID in URL");
     } else {
       const restaurant = await DBHelper.fetchRestaurantById(id);
-      console.log("fetched from url: ", restaurant);
+      // console.log("fetched from url: ", restaurant);
       self.restaurant = restaurant;
       if (!restaurant) {
         console.error("Restaurant not found");
@@ -150,7 +150,7 @@ function fillReviewsHTML(reviews = self.restaurant.reviews) {
   const container = document.getElementById('reviews-container');
   if (!reviews) {
     const noReviews = document.createElement('p');
-    noReviews.innerHTML = 'No reviews yet!';
+    noReviews.innerHTML = `Be the first to review ${restaurant.name}!`;
     container.appendChild(noReviews);
     return;
   }
@@ -218,10 +218,10 @@ function getParameterByName(name, url) {
 // TODO: Find better way of doing this
 async function handleClick() {
   try {
-    console.log("favorite icon clicked");
+    // console.log("favorite icon clicked");
     const id = getParameterByName('id');
     const status = await DBHelper.checkFavoriteIcon(id);
-    console.log("favorite version: ", status);
+    // console.log("favorite version: ", status);
     switch (status) {
     case '/img/bookmark-plus.png':
       if (confirm('Add this restaurant to favorites?')) {
@@ -256,12 +256,13 @@ async function handleClick() {
 async function setFavoriteIcon() {
   try {
     const id = getParameterByName('id');
-    const favorite = document.getElementById('favorite');
+    const favorite = document.getElementById('favorite-icon');
     const check = (favorite.childNodes.length == 0);
     const status = await DBHelper.checkFavoriteIcon(id);
     const img = document.createElement('img');
     img.id = 'favorite-img';
-    console.log("setting to: ", status);
+    img.alt = 'Favorite this restaurant';
+    // console.log("setting to: ", status);
     img.src = status;
     (check == true) ? favorite.appendChild(img) : favorite.replaceChild(img, favorite.childNodes[0]);
   }

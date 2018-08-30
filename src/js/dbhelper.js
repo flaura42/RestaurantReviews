@@ -45,7 +45,7 @@ class DBHelper {
         return restaurants;
       } else {
         // Fetch from server
-        console.log("fetching from server");
+        // console.log("fetching from server");
         DBHelper.serveRestaurants();
       }
     }
@@ -61,7 +61,7 @@ class DBHelper {
       const response = await fetch(fetchAll);
       if (response.ok) {
         const restaurants = await response.json();
-        console.log("restaurants served: ", restaurants);
+        // console.log("restaurants served: ", restaurants);
         DBHelper.addRestaurants(restaurants);
         return restaurants;
       }
@@ -75,16 +75,16 @@ class DBHelper {
   /**********    Add served restaurants to DB    **********/
   static async addRestaurants(restaurants) {
     try {
-      console.log("running addR");
+      // console.log("running addR");
       // Create transaction to put restaurants into db
       const db = await dbPromise;
-      console.log("db is: ", db);
+      // console.log("db is: ", db);
       // TODO: the error is here.  figure out why.
       const tx = db.transaction('restaurants-store', 'readwrite');
       const store = tx.objectStore('restaurants-store');
-      console.log("restaurants to add: ", restaurants);
+      // console.log("restaurants to add: ", restaurants);
       restaurants.forEach(restaurant => {
-        console.log("adding to DB: ", restaurant.id);
+        // console.log("adding to DB: ", restaurant.id);
         store.put(restaurant);
         return tx.complete;
       });
@@ -119,7 +119,7 @@ class DBHelper {
       const restaurants = await DBHelper.fetchRestaurants();
       const restaurant = restaurants.find(r => r.id == id);
       if (restaurant) {
-        console.log("found restaurant by id: ", restaurant);
+        // console.log("found restaurant by id: ", restaurant);
         return restaurant;
       } else {
         console.error("Restaurant doesn't exist");
@@ -236,7 +236,7 @@ class DBHelper {
   static async checkFavoriteIcon(id) {
     try {
       const restaurant = await DBHelper.fetchFavoriteById(id);
-      console.log("State is" , restaurant.is_favorite);
+      // console.log("State is" , restaurant.is_favorite);
       return restaurant.is_favorite ? '/img/bookmark-check.png' : '/img/bookmark-plus.png';
     }
     catch(error) {
@@ -252,7 +252,7 @@ class DBHelper {
       // console.log(restaurants);
       const restaurant = restaurants.find(r => r.id == id);
       if (restaurant) {
-        console.log("Restaurant is: ", restaurant.id);
+        // console.log("Restaurant is: ", restaurant.id);
         return restaurant;
       } else {
         console.error("Restaurant doesn't exist");
@@ -274,9 +274,9 @@ class DBHelper {
       const store = tx.objectStore('restaurants-store');
       const cursor =  await store.openCursor(id);
       const current = await cursor.value.is_favorite;
-      console.log("Current =  ", current);
+      // console.log("Current =  ", current);
       (cursor.value.is_favorite == false) ? cursor.value.is_favorite = true : cursor.value.is_favorite = false;
-      console.log("Changed to = ", cursor.value.is_favorite);
+      // console.log("Changed to = ", cursor.value.is_favorite);
       cursor.update(cursor.value);
       return cursor.continue();
     }

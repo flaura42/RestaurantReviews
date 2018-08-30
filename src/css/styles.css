@@ -49,7 +49,7 @@ nav h1 {
 }
 
 nav h1 a {
-		color: #fff;
+	color: #fff;
 }
 
 .skip-link {
@@ -59,38 +59,40 @@ nav h1 a {
 
 /* ====================== Breadcrumb Navigation ====================== */
 #breadcrumb {
-    padding: 15px 20px;
-    margin: 0;
-    width: calc(100% - 40px);
+  margin: 15px 20px;
+  padding: 0;
+  width: calc(100% - 40px);
 }
 
 #breadcrumb ul {
-	  list-style: none;
+	margin: 0;
+	padding: 0;
+	list-style: none;
 }
 
 /* Display list items side by side */
 #breadcrumb li {
-    display: inline;
-		font-size: 1.5em;
+  display: inline;
+	font-size: 1.5em;
 }
 
 /* Add a slash symbol (/) before/behind each list item */
 #breadcrumb li+li:before {
-    padding: 8px;
-		font-size: 0.75em;
-    color: #444;
-    content: "/\00a0";
+  padding: 8px;
+	font-size: 0.75em;
+  color: #444;
+  content: "/\00a0";
 }
 
 /* Add a color to all links inside the list */
 #breadcrumb li a {
-    color: #0275d8;
-    text-decoration: none;
+  color: #0275d8;
+  text-decoration: none;
 }
 
 /* Add a color on mouse-over */
 #breadcrumb li a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* ====================== Main Content ====================== */
@@ -205,17 +207,15 @@ nav h1 a {
 	padding: 20px;
 }
 
-#restaurant-container {
-	/* display: block; */
-}
-
-/* ==================== Restaurant Info Section ==================== */
-#restaurant-header {
+#restaurant-header, #reviews-header {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
 }
+
+/* ==================== Restaurant Info Section ==================== */
+
 
 #restaurant-name {
   color: #33c;
@@ -225,7 +225,7 @@ nav h1 a {
   text-transform: uppercase;
 }
 
-#favorite {
+#favorite-icon {
 	padding: 5px 10px 0 0;
 }
 
@@ -277,6 +277,24 @@ nav h1 a {
 }
 
 /* ====================== Reviews Section ====================== */
+#reviews-header {
+
+}
+
+#reviews-title {
+	color: #33c;
+  font-size: 1.6em;
+  font-weight: 100;
+}
+
+#review-icon {
+	padding: 5px 10px 0 0;
+}
+
+#review-img:hover {
+	background-color: #269f62;
+}
+
 #reviews-list {
   margin: 0;
   padding: 0;

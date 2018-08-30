@@ -21,7 +21,7 @@ document.getElementById('faves-checkbox').addEventListener('change', () => {
 async function fetchNeighborhoods() {
   try {
     const neighborhoods = await DBHelper.fetchNeighborhoods();
-    console.log("fetched neighborhoods: ", neighborhoods);
+    // console.log("fetched neighborhoods: ", neighborhoods);
     self.neighborhoods = neighborhoods;
     fillNeighborhoodsHTML();
   }
@@ -46,7 +46,7 @@ function fillNeighborhoodsHTML(neighborhoods = self.neighborhoods) {
 async function fetchCuisines() {
   try {
     const cuisines = await DBHelper.fetchCuisines();
-    console.log("fetched cuisines: ", cuisines);
+    // console.log("fetched cuisines: ", cuisines);
     self.cuisines = cuisines;
     fillCuisinesHTML();
   }
@@ -69,7 +69,7 @@ function fillCuisinesHTML(cuisines = self.cuisines) {
 
 /**********    Initialize leaflet map, called from HTML    **********/
 function initMap() {
-  let nomap = false;
+  let nomap = true;
   if (nomap == true) {
     const div = document.getElementById('map');
     const image = document.createElement('img');
@@ -105,26 +105,6 @@ function initMap() {
   }).addTo(newMap);
 }
 
-// /**********    Update page and map for current restaurants    **********/
-// function updateRestaurants() {
-//
-//     const cSelect = document.getElementById('cuisines-select');
-//     const nSelect = document.getElementById('neighborhoods-select');
-//
-//     const cIndex = cSelect.selectedIndex;
-//     const nIndex = nSelect.selectedIndex;
-//
-//     const cuisine = cSelect[cIndex].value;
-//     const neighborhood = nSelect[nIndex].value;
-//
-//     const restaurants = DBHelper.fetchRestaurantsByFilter(cuisine, neighborhood);
-//     console.log("restaurants being updated: ", restaurants);
-//     resetRestaurants(restaurants);
-//     fetchNeighborhoods();
-//     fetchCuisines();
-//     fillRestaurantsHTML();
-// }
-
 /**********    Update page and map for current restaurants    **********/
 async function updateRestaurants() {
   try {
@@ -138,7 +118,7 @@ async function updateRestaurants() {
     const neighborhood = nSelect[nIndex].value;
 
     const restaurants = await DBHelper.fetchRestaurantsByFilter(cuisine, neighborhood);
-    console.log("restaurants being updated: ", restaurants);
+    // console.log("restaurants being updated: ", restaurants);
     resetRestaurants(restaurants);
     fetchNeighborhoods();
     fetchCuisines();
@@ -165,7 +145,7 @@ function resetRestaurants(restaurants) {
   if (navigator.onLine) {
     self.markers = [];
   }
-  console.log("resetR complete");
+  // console.log("resetR complete");
 }
 
 
@@ -255,10 +235,10 @@ function addMarkersToMap(restaurants = self.restaurants) {
 function handleChange() {
   let checkbox = document.getElementById('faves-checkbox');
   if (checkbox.checked == true) {
-    console.log("checkbox checked");
+    // console.log("checkbox checked");
     updateFavorites();
   } else {
-    console.log("checkbox not checked");
+    // console.log("checkbox not checked");
     updateRestaurants();
   }
 }
