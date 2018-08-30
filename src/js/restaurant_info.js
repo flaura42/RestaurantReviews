@@ -18,9 +18,11 @@ document.getElementById('favorite').addEventListener('click', () => {
 /******************************************************************************/
 
 /**********    Initialize leaflet map    **********/
-let initMap = () => {
-  fetchRestaurantFromURL(restaurant => {
-    let nomap = true;
+async function initMap() {
+  try {
+    const restaurant = await fetchRestaurantFromURL();
+
+    let nomap = false;
     if (nomap == true) {
       fillBreadcrumb();
       const div = document.getElementById('map');
@@ -41,50 +43,59 @@ let initMap = () => {
       image.alt = 'No map is available.';
       div.append(image);
       return div;
-    // If online, produces map.
-    } else {
-      self.newMap = L.map('map', {
-        center: [restaurant.latlng.lat, restaurant.latlng.lng],
-        zoom: 16,
-        scrollWheelZoom: false
-      });
-      L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
-        mapboxToken: 'pk.eyJ1IjoiZmxhdXJhNDIiLCJhIjoiY2ppZjg5a2s4MHU1bjNrcWxwdW1zbzFiYyJ9.ZqYGMaSHFxiPjqBxxLYhyA',
-        maxZoom: 18,
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-          '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-          'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        id: 'mapbox.streets'
-      }).addTo(newMap);
-      fillBreadcrumb();
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
     }
-  });
-};
+
+    // If online, produces map.
+    self.newMap = L.map('map', {
+      center: [restaurant.latlng.lat, restaurant.latlng.lng],
+      zoom: 16,
+      scrollWheelZoom: false
+    });
+    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
+      mapboxToken: 'pk.eyJ1IjoiZmxhdXJhNDIiLCJhIjoiY2ppZjg5a2s4MHU1bjNrcWxwdW1zbzFiYyJ9.ZqYGMaSHFxiPjqBxxLYhyA',
+      maxZoom: 18,
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      id: 'mapbox.streets'
+    }).addTo(newMap);
+    fillBreadcrumb();
+    DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
+  }
+  catch(error) {
+    console.error("Error while running initMap:", error);
+  }
+}
 
 /**********    Get current restaurant from page URL    **********/
-let fetchRestaurantFromURL = (callback) => {
-  if (self.restaurant) { // restaurant already fetched!
-    callback(self.restaurant);
-  }
-  const id = getParameterByName('id');
-  if (!id) { // no id found in URL
-    console.error("No restaurant ID in URL");
-  } else {
-    DBHelper.fetchRestaurantById(id, restaurant => {
+async function fetchRestaurantFromURL() {
+  try {
+    if (self.restaurant) {
+      console.log("Already fetched restaurant");
+      return self.restaurant;
+    }
+    const id = getParameterByName('id');
+    if (!id) { // no id found in URL
+      console.error("No restaurant ID in URL");
+    } else {
+      const restaurant = await DBHelper.fetchRestaurantById(id);
+      console.log("fetched from url: ", restaurant);
       self.restaurant = restaurant;
       if (!restaurant) {
         console.error("Restaurant not found");
         return;
       }
       fillRestaurantHTML();
-      callback(restaurant);
-    });
+      return restaurant;
+    }
   }
-};
+  catch(error) {
+    console.error("Error while fetching restaurant from URL:", error);
+  }
+}
 
 /**********    Create restaurant HTML and add it to the webpage    **********/
-let fillRestaurantHTML = (restaurant = self.restaurant) => {
+function fillRestaurantHTML(restaurant = self.restaurant) {
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
 
@@ -114,10 +125,10 @@ let fillRestaurantHTML = (restaurant = self.restaurant) => {
   }
   // fill reviews
   fillReviewsHTML();
-};
+}
 
 /**********    Create and add operating hours HTML table    **********/
-let fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
+function fillRestaurantHoursHTML(operatingHours = self.restaurant.operating_hours) {
   const hours = document.getElementById('restaurant-hours');
   for (let key in operatingHours) {
     const row = document.createElement('tr');
@@ -132,10 +143,10 @@ let fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours)
 
     hours.appendChild(row);
   }
-};
+}
 
 /**********    Create and add all reviews HTML    **********/
-let fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+function fillReviewsHTML(reviews = self.restaurant.reviews) {
   const container = document.getElementById('reviews-container');
   if (!reviews) {
     const noReviews = document.createElement('p');
@@ -148,10 +159,10 @@ let fillReviewsHTML = (reviews = self.restaurant.reviews) => {
     ul.appendChild(createReviewHTML(review));
   });
   container.appendChild(ul);
-};
+}
 
 /**********    Create and add review HTML    **********/
-let createReviewHTML = (review) => {
+function createReviewHTML(review) {
   const li = document.createElement('li');
 
   const div = document.createElement('div');
@@ -175,18 +186,18 @@ let createReviewHTML = (review) => {
   li.appendChild(comments);
 
   return li;
-};
+}
 
 /**********    Add restaurant name to breadcrumb nav   **********/
-let fillBreadcrumb = (restaurant = self.restaurant) => {
+function fillBreadcrumb(restaurant = self.restaurant) {
   const breadcrumb = document.getElementById('breadcrumb-list');
   const li = document.createElement('li');
   li.innerHTML = restaurant.name;
   breadcrumb.appendChild(li);
-};
+}
 
 /**********    Get a parameter by name from page URL    **********/
-let getParameterByName = (name, url) => {
+function getParameterByName(name, url) {
   if (!url)
     url = window.location.href;
   name = name.replace(/[\[\]]/g, '\\$&');
@@ -197,7 +208,7 @@ let getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
-};
+}
 
 /******************************************************************************/
 /*                            Favorites Functions                             */

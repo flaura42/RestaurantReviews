@@ -32,60 +32,72 @@ class DBHelper {
   }
 
   /**********    Fetch all restaurants    **********/
-  static fetchRestaurants(callback) {
-    // Create transaction to get restaurants from db
-    dbPromise.then(db => {
+  static async fetchRestaurants() {
+    try {
+      // Create transaction to get restaurants from db
+      const db = await dbPromise;
       const tx = db.transaction('restaurants-store', 'readonly');
       const store = tx.objectStore('restaurants-store');
       // Use getAll method to return array of objects in store
-      return store.getAll();
-    }).then(restaurants => {
+      const restaurants = await store.getAll();
+      // console.log("fetchR restaurants: ", restaurants);
       if (restaurants.length !== 0) {
-        callback(restaurants);
+        return restaurants;
       } else {
         // Fetch from server
-        DBHelper.serveRestaurants(callback);
+        console.log("fetching from server");
+        DBHelper.serveRestaurants();
       }
-    }).catch(error => {
-      console.error("Failed to fetch restaurants: ", error);
-    });
+    }
+    catch(error) {
+      console.error("Error while fetching from DB: ", error);
+    }
   }
 
   /**********    Serve all restaurants    **********/
-  static serveRestaurants(callback) {
-    // Fetch restaurants from server
-    const fetchAll = new Request(DBHelper.DATABASE_URL);
-    return fetch(fetchAll)
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error(`Request failed. Returned status of: ${response.status}`);
-      }).then(response => {
-        const restaurants = response;
-        // Create transaction to add restaurants to db
-        dbPromise.then(db => {
-          if (!db) {
-            console.log("Missing DB!");
-            return;
-          }
-          const tx = db.transaction('restaurants-store', 'readwrite');
-          const store = tx.objectStore('restaurants-store');
-          restaurants.forEach(restaurant => {
-            store.put(restaurant);
-            return tx.complete;
-          });
-        });
-        callback(restaurants);
-      }).catch(error => {
-        console.error("Failed to serve restaurants: ", error);
+  static async serveRestaurants() {
+    try {
+      const fetchAll = new Request(DBHelper.DATABASE_URL);
+      const response = await fetch(fetchAll);
+      if (response.ok) {
+        const restaurants = await response.json();
+        console.log("restaurants served: ", restaurants);
+        DBHelper.addRestaurants(restaurants);
+        return restaurants;
+      }
+      throw new Error(`Request failed. Returned status of: ${response.status}`);
+    }
+    catch(error) {
+      console.error("Error while serving restaurants: ", error);
+    }
+  }
+
+  /**********    Add served restaurants to DB    **********/
+  static async addRestaurants(restaurants) {
+    try {
+      console.log("running addR");
+      // Create transaction to put restaurants into db
+      const db = await dbPromise;
+      console.log("db is: ", db);
+      // TODO: the error is here.  figure out why.
+      const tx = db.transaction('restaurants-store', 'readwrite');
+      const store = tx.objectStore('restaurants-store');
+      console.log("restaurants to add: ", restaurants);
+      restaurants.forEach(restaurant => {
+        console.log("adding to DB: ", restaurant.id);
+        store.put(restaurant);
+        return tx.complete;
       });
+    }
+    catch(error) {
+      console.error("Error while adding restaurants to DB:", error);
+    }
   }
 
   /**********    Fetch restaurants by filtered value    **********/
-  static fetchRestaurantsByFilter(cuisine, neighborhood, callback) {
-    // Fetch all restaurants
-    DBHelper.fetchRestaurants(restaurants => {
+  static async fetchRestaurantsByFilter(cuisine, neighborhood) {
+    try {
+      const restaurants = await DBHelper.fetchRestaurants();
       let results = restaurants;
       if (cuisine != 'all') { // filter by cuisine
         results = results.filter(r => r.cuisine_type == cuisine);
@@ -93,53 +105,67 @@ class DBHelper {
       if (neighborhood != 'all') { // filter by neighborhood
         results = results.filter(r => r.neighborhood == neighborhood);
       }
-      callback(results);
-    });
+      // console.log("fetchRBF results are: ", results);
+      return results;
+    }
+    catch(error) {
+      console.error("Error while fetching by filter: ", error);
+    }
   }
 
   /**********    Fetch a restaurant by its ID    **********/
-  static fetchRestaurantById(id, callback) {
-    // fetch all restaurants with proper error handling.
-    DBHelper.fetchRestaurants(restaurants => {
+  static async fetchRestaurantById(id) {
+    try {
+      const restaurants = await DBHelper.fetchRestaurants();
       const restaurant = restaurants.find(r => r.id == id);
-      if (restaurant) { // Got the restaurant
-        callback(restaurant);
-      } else { // Restaurant does not exist in the database
+      if (restaurant) {
+        console.log("found restaurant by id: ", restaurant);
+        return restaurant;
+      } else {
         console.error("Restaurant doesn't exist");
       }
-    });
+    }
+    catch(error) {
+      console.error("Error while fetching restaurant by id: ", error);
+    }
   }
 
   /**********    Fetch all neighborhoods    **********/
-  static fetchNeighborhoods(callback) {
-    // Fetch all restaurants
-    DBHelper.fetchRestaurants(restaurants => {
-      // Get all neighborhoods from all restaurants
+  static async fetchNeighborhoods() {
+    try {
+      const restaurants = await DBHelper.fetchRestaurants();
+      // console.log("restaurants for fetchN are: ", restaurants);
       const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood);
       // Remove duplicates from neighborhoods
       const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) == i);
       if (neighborhoods) {
-        callback(uniqueNeighborhoods);
+        return uniqueNeighborhoods;
       } else {
         console.error("Unable to find neighborhoods");
       }
-    });
+    }
+    catch(error) {
+      console.error("Error while fetching neighborhoods: ", error);
+    }
   }
 
   /**********    Fetch all cuisines    **********/
-  static fetchCuisines(callback) {
-    // Fetch all restaurants
-    DBHelper.fetchRestaurants(restaurants => {
-      // Get all cuisines from all restaurants
+  static async fetchCuisines() {
+    try {
+      const restaurants = await DBHelper.fetchRestaurants();
+      // console.log("restaurants for fetchC are: ", restaurants);
       const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type);
       // Remove duplicates from cuisines
       const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) == i);
       if (cuisines) {
-        callback(uniqueCuisines);
+        return uniqueCuisines;
       } else {
         console.error("Unable to find cuisines");
       }
-    });
+    }
+    catch(error) {
+      console.error("Error while fetching cuisines: ", error);
+    }
   }
 
   /**********    Restaurant page URL    **********/
@@ -171,10 +197,11 @@ class DBHelper {
 
   /**********    Map marker for a restaurant    **********/
   static mapMarkerForRestaurant(restaurant, map) {
+    const markerUrl = DBHelper.urlForRestaurant(restaurant);
     const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
       {title: restaurant.name,
         alt: restaurant.name,
-        url: DBHelper.urlForRestaurant(restaurant)
+        url: markerUrl
       });
     marker.addTo(newMap);
     return marker;
@@ -268,6 +295,7 @@ class DBHelper {
       if (restaurants.length == 0) {
         alert('No restaurants have been favorited.  Please click the favorite icon for a restaurant to do so.');
         document.getElementById('faves-checkbox').checked = false;
+        return null;
       } else {
         return restaurants;
       }
