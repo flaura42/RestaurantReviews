@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**********    Listen for clicks on favorite icon    **********/
 document.getElementById('favorite-icon').addEventListener('click', () => {
-  handleClick();
+  handleClickFavorite();
 });
 
 /******************************************************************************/
@@ -215,29 +215,24 @@ function getParameterByName(name, url) {
 /******************************************************************************/
 
 /**********    Handle click event for favorite icon    **********/
-// TODO: Find better way of doing this
-async function handleClick() {
+async function handleClickFavorite() {
   try {
-    // console.log("favorite icon clicked");
+    console.log("favorite icon clicked");
+    const status = await getFavoriteStatus();
     const id = getParameterByName('id');
-    const status = await DBHelper.checkFavoriteIcon(id);
-    // console.log("favorite version: ", status);
     switch (status) {
-    case '/img/bookmark-plus.png':
+    case false:
       if (confirm('Add this restaurant to favorites?')) {
-        // let imgVersion = 'check';
-        DBHelper.toggleFavorite(id);
+        await DBHelper.toggleFavorite(id);
         setFavoriteIcon();
-        // DBHelper.setFavoriteIcon(imgVersion);
+
       } else {
         console.log("favorite cancelled");
       }
       break;
-    case '/img/bookmark-check.png':
+    case true:
       if (confirm('Remove favorite?')) {
-        // let imgVersion = 'plus';
-        // DBHelper.setFavoriteIcon(imgVersion);
-        DBHelper.toggleFavorite(id);
+        await DBHelper.toggleFavorite(id);
         setFavoriteIcon();
       } else {
         console.log("favorite cancelled");
@@ -252,21 +247,34 @@ async function handleClick() {
   }
 }
 
-/**********    Set favorites icon (on page load)    **********/
-async function setFavoriteIcon() {
+/**********    Get the current favorite status    **********/
+async function getFavoriteStatus() {
   try {
     const id = getParameterByName('id');
+    const restaurant = await DBHelper.fetchRestaurantById(id);
+    const status = restaurant.is_favorite;
+    console.log("Status is: ", status);
+    return status;
+  }
+  catch(error) {
+    console.error("Error while getting favorite status: ", error);
+  }
+}
+
+/**********    Set favorite icon    **********/
+async function setFavoriteIcon() {
+  try {
+    const status = await getFavoriteStatus();
     const favorite = document.getElementById('favorite-icon');
     const check = (favorite.childNodes.length == 0);
-    const status = await DBHelper.checkFavoriteIcon(id);
     const img = document.createElement('img');
     img.id = 'favorite-img';
     img.alt = 'Favorite this restaurant';
-    // console.log("setting to: ", status);
-    img.src = status;
+    console.log("setting icon to: ", status);
+    img.src = (status == true) ? '/img/bookmark-check.png' : '/img/bookmark-plus.png';
     (check == true) ? favorite.appendChild(img) : favorite.replaceChild(img, favorite.childNodes[0]);
   }
   catch(error) {
-    console.error("Error while checking for favorite: ", error);
+    console.error("Error while setting favorite icon: ", error);
   }
 }

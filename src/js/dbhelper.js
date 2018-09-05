@@ -211,85 +211,34 @@ class DBHelper {
   /*                           Favorites Functions                          */
   /**************************************************************************/
 
-  // TODO: Once fetchRestaurants() is async, have if statement run it.
-  // // NOTE: Called from a lot of other functions
-  // /**********    Fetch restaurants from DB   **********/
-  static async fetchDB() {
-    try {
-      const db = await dbPromise;
-      const tx = db.transaction('restaurants-store', 'readonly');
-      const store = tx.objectStore('restaurants-store');
-      const restaurants =  await store.getAll();
-      if (restaurants.length == 0) {
-        console.error("whoopsie! No DB yet");
-      }
-      // console.log("record: ", restaurants);
-      return restaurants;
-    }
-    catch(error) {
-      console.error("Failed to fetch db: ", error);
-    }
-  }
-
-  // NOTE: Called from handleClick() (ri.js).
-  /**********    Check if favorited and send icon url    **********/
-  static async checkFavoriteIcon(id) {
-    try {
-      const restaurant = await DBHelper.fetchFavoriteById(id);
-      // console.log("State is" , restaurant.is_favorite);
-      return restaurant.is_favorite ? '/img/bookmark-check.png' : '/img/bookmark-plus.png';
-    }
-    catch(error) {
-      console.error("Error while checking for favorite:", error);
-    }
-  }
-
-  // NOTE: Called from checkFavoriteIcon(id)
-  /**********    Find restaurant by ID    **********/
-  static async fetchFavoriteById(id) {
-    try {
-      const restaurants = await DBHelper.fetchDB();
-      // console.log(restaurants);
-      const restaurant = restaurants.find(r => r.id == id);
-      if (restaurant) {
-        // console.log("Restaurant is: ", restaurant.id);
-        return restaurant;
-      } else {
-        console.error("Restaurant doesn't exist");
-      }
-    }
-    catch(error) {
-      console.error("Failed to find restaurant: ", error);
-    }
-  }
-
-
-  // TODO: Still not working right
-  // NOTE: Called from handleClick() (ri.js)
+  // NOTE: Called from handleClickFavorite() (ri.js)
   /**********    Add/remove favorited restaurant from DB   **********/
   static async toggleFavorite(id) {
     try {
+      // Determine current status of is_favorite
+      const restaurant = await DBHelper.fetchRestaurantById(id);
+      // Toggle status of is_favorite
+      let status = (restaurant.is_favorite == true) ? false : true;
+      console.log("Toggling status to: ", status);
+      restaurant.is_favorite = status;
+      // Update the DB with the current status
       const db = await dbPromise;
       const tx = db.transaction('restaurants-store', 'readwrite');
       const store = tx.objectStore('restaurants-store');
-      const cursor =  await store.openCursor(id);
-      const current = await cursor.value.is_favorite;
-      // console.log("Current =  ", current);
-      (cursor.value.is_favorite == false) ? cursor.value.is_favorite = true : cursor.value.is_favorite = false;
-      // console.log("Changed to = ", cursor.value.is_favorite);
-      cursor.update(cursor.value);
-      return cursor.continue();
+      store.put(restaurant);
+      return tx.complete;
     }
     catch(error) {
-      console.error("Error toggling favorite icon", error);
+      console.error("Error while toggling favorite: ", error);
     }
   }
 
+  // TODO: Fix filter results dropdowns so they don't display dupes
   // NOTE: Called from updateFavorites() (main.js)
   /**********    Collect restaurants that are favorites    **********/
   static async getFavorites() {
     try {
-      let restaurants = await DBHelper.fetchDB();
+      let restaurants = await DBHelper.fetchRestaurants();
       restaurants = restaurants.filter(r => r.is_favorite == true);
       console.log(restaurants);
       if (restaurants.length == 0) {
@@ -301,7 +250,7 @@ class DBHelper {
       }
     }
     catch(error) {
-      return; // Since error is handled above.
+      console.error("Error while getting favorites: ", error);
     }
   }
 
