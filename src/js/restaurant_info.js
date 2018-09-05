@@ -17,24 +17,15 @@ document.getElementById('favorite-icon').addEventListener('click', () => {
 /*                             Pagewide Functions                             */
 /******************************************************************************/
 
+const nomap = true;
+
 /**********    Initialize leaflet map    **********/
 async function initMap() {
   try {
     const restaurant = await fetchRestaurantFromURL();
 
-    let nomap = true;
-    if (nomap == true) {
-      fillBreadcrumb();
-      const div = document.getElementById('map');
-      const image = document.createElement('img');
-      image.src = 'img/nomap.jpg';
-      image.className = 'map-img';
-      image.alt = 'No map is available.';
-      div.append(image);
-      return div;
-    }
     // Checks if online and send image map if not.
-    if (!navigator.onLine) {
+    if (!navigator.onLine || (nomap == true)) {
       fillBreadcrumb();
       const div = document.getElementById('map');
       const image = document.createElement('img');
@@ -104,10 +95,6 @@ function fillRestaurantHTML(restaurant = self.restaurant) {
   image.alt = `View of ${restaurant.name}`;
   // image.src = DBHelper.imageUrlForRestaurant(restaurant);
 
-  // TODO Figure out why image changes size too soon
-  // EX: from 255 to 490 when img width is 180 and
-  // from 490 to 800 when img width is 319
-  // Doesn't appear to be related to window size
   // Added for lazy loading
   image.setAttribute('data-sizes', 'auto');
   image.setAttribute('data-src', DBHelper.imageUrlForRestaurant(restaurant));

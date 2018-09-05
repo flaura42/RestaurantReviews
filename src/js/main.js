@@ -17,6 +17,8 @@ document.getElementById('faves-checkbox').addEventListener('change', () => {
 /*                             Pagewide Functions                             */
 /******************************************************************************/
 
+const nomap = true;
+
 /**********    Fetch all neighborhoods and set their HTML    **********/
 async function fetchNeighborhoods() {
   try {
@@ -69,18 +71,9 @@ function fillCuisinesHTML(cuisines = self.cuisines) {
 
 /**********    Initialize leaflet map, called from HTML    **********/
 function initMap() {
-  let nomap = true;
-  if (nomap == true) {
-    const div = document.getElementById('map');
-    const image = document.createElement('img');
-    image.src = 'img/nomap.jpg';
-    image.className = 'map-img';
-    image.alt = 'No map is available.';
-    div.append(image);
-    return div;
-  }
+
   // Checks if online and send image map if not.
-  if (!navigator.onLine) {
+  if (!navigator.onLine || (nomap == true))  {
     const div = document.getElementById('map');
     const image = document.createElement('img');
     image.src = 'img/nomap.jpg';
@@ -118,7 +111,7 @@ async function updateRestaurants() {
     const neighborhood = nSelect[nIndex].value;
 
     const restaurants = await DBHelper.fetchRestaurantsByFilter(cuisine, neighborhood);
-    // console.log("restaurants being updated: ", restaurants);
+    console.log("Restaurants being updated: ", restaurants.length);
     resetRestaurants(restaurants);
     fetchNeighborhoods();
     fetchCuisines();
@@ -171,18 +164,10 @@ function createRestaurantHTML(restaurant) {
   image.alt = `View of ${restaurant.name}`;
   // image.src = DBHelper.imageUrlForRestaurant(restaurant);
 
-
-  // TODO Figure out why image changes size too soon
-  // EX: from 255 to 490 when img width is 180 and
-  // from 490 to 800 when img width is 319
-  // Doesn't appear to be related to window size
   // Added for lazy loading
   image.setAttribute('data-sizes', 'auto');
   image.setAttribute('data-src', DBHelper.imageUrlForRestaurant(restaurant));
   image.setAttribute('data-srcset', DBHelper.imageSrcsetForRestaurant(restaurant));
-
-
-
   // Add image
   li.append(image);
 
@@ -216,7 +201,7 @@ function createRestaurantHTML(restaurant) {
 /**********    Add markers for current restaurants to the map    **********/
 function addMarkersToMap(restaurants = self.restaurants) {
   // Only add markers if currently online.
-  if (!navigator.onLine) { return; }
+  if (!navigator.onLine || (nomap == true)) { return; }
   restaurants.forEach(restaurant => {
     // Add marker to the map
     const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.newMap);

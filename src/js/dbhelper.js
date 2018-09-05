@@ -39,14 +39,16 @@ class DBHelper {
       const tx = db.transaction('restaurants-store', 'readonly');
       const store = tx.objectStore('restaurants-store');
       // Use getAll method to return array of objects in store
-      const restaurants = await store.getAll();
+      let restaurants = await store.getAll();
       // console.log("fetchR restaurants: ", restaurants);
       if (restaurants.length !== 0) {
+        console.log("Fetched from DB: ", restaurants.length);
         return restaurants;
       } else {
         // Fetch from server
-        // console.log("fetching from server");
-        DBHelper.serveRestaurants();
+        restaurants = await DBHelper.serveRestaurants();
+        console.log("Fetched from server: ", restaurants.length);
+        return restaurants;
       }
     }
     catch(error) {
@@ -61,7 +63,7 @@ class DBHelper {
       const response = await fetch(fetchAll);
       if (response.ok) {
         const restaurants = await response.json();
-        // console.log("restaurants served: ", restaurants);
+        console.log("restaurants served: ", restaurants);
         DBHelper.addRestaurants(restaurants);
         return restaurants;
       }
@@ -82,7 +84,7 @@ class DBHelper {
       // TODO: the error is here.  figure out why.
       const tx = db.transaction('restaurants-store', 'readwrite');
       const store = tx.objectStore('restaurants-store');
-      // console.log("restaurants to add: ", restaurants);
+      console.log("restaurants to add: ", restaurants.length);
       restaurants.forEach(restaurant => {
         // console.log("adding to DB: ", restaurant.id);
         store.put(restaurant);
