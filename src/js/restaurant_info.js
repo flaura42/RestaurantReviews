@@ -17,6 +17,7 @@ document.getElementById('favorite-icon').addEventListener('click', () => {
 /*                             Pagewide Functions                             */
 /******************************************************************************/
 
+// Toggle map for easier testing with internet issues
 const nomap = true;
 
 /**********    Initialize leaflet map    **********/

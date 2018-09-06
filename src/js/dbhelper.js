@@ -235,10 +235,9 @@ class DBHelper {
     }
   }
 
-  // TODO: Fix filter results dropdowns so they don't display dupes
   // NOTE: Called from updateFavorites() (main.js)
   /**********    Collect restaurants that are favorites    **********/
-  static async getFavorites() {
+  static async fetchFavorites() {
     try {
       let restaurants = await DBHelper.fetchRestaurants();
       restaurants = restaurants.filter(r => r.is_favorite == true);

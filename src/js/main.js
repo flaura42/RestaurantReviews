@@ -6,6 +6,8 @@
 document.addEventListener('DOMContentLoaded', (event) => {
   initMap();
   updateRestaurants();
+  fetchNeighborhoods();
+  fetchCuisines();
 });
 
 /**********    Listen for change on favorites checkbox    **********/
@@ -17,7 +19,55 @@ document.getElementById('faves-checkbox').addEventListener('change', () => {
 /*                             Pagewide Functions                             */
 /******************************************************************************/
 
+// Toggle map for easier testing with internet issues
 const nomap = true;
+
+/**********    Update page and map for current restaurants    **********/
+async function updateRestaurants() {
+  try {
+    // (Hopefully) Temporary fix for filter results issues with favorites
+    let checkbox = document.getElementById('faves-checkbox');
+    if (checkbox.checked == true) {
+      document.getElementById('faves-checkbox').checked = false;
+    }
+
+    const cSelect = document.getElementById('cuisines-select');
+    const nSelect = document.getElementById('neighborhoods-select');
+
+    const cIndex = cSelect.selectedIndex;
+    const nIndex = nSelect.selectedIndex;
+
+    const cuisine = cSelect[cIndex].value;
+    const neighborhood = nSelect[nIndex].value;
+
+    const restaurants = await DBHelper.fetchRestaurantsByFilter(cuisine, neighborhood);
+    console.log("Restaurants being updated: ", restaurants.length);
+    resetRestaurants(restaurants);
+    fillRestaurantsHTML();
+
+  }
+  catch(error) {
+    console.error("Error while updating restaurants: ", error);
+  }
+}
+
+/**********    Clear current restaurants, HTML and map markers    **********/
+function resetRestaurants(restaurants) {
+  // Remove all restaurants
+  self.restaurants = [];
+  const ul = document.getElementById('restaurants-list');
+  ul.innerHTML = '';
+  self.restaurants = restaurants;
+
+  // Remove all map markers
+  if (self.markers) {
+    self.markers.forEach(marker => marker.remove());
+  }
+  if (navigator.onLine) {
+    self.markers = [];
+  }
+  // console.log("resetR complete");
+}
 
 /**********    Fetch all neighborhoods and set their HTML    **********/
 async function fetchNeighborhoods() {
@@ -25,23 +75,19 @@ async function fetchNeighborhoods() {
     const neighborhoods = await DBHelper.fetchNeighborhoods();
     // console.log("fetched neighborhoods: ", neighborhoods);
     self.neighborhoods = neighborhoods;
-    fillNeighborhoodsHTML();
+
+    const select = document.getElementById('neighborhoods-select');
+    select.setAttribute('aria-label', 'filter by neighborhood');
+    neighborhoods.forEach(neighborhood => {
+      const option = document.createElement('option');
+      option.innerHTML = neighborhood;
+      option.value = neighborhood;
+      select.append(option);
+    });
   }
   catch(error) {
     console.error("Error while fetching neighborhoods: ", error);
   }
-}
-
-/**********    Set neighborhoods HTML    **********/
-function fillNeighborhoodsHTML(neighborhoods = self.neighborhoods) {
-  const select = document.getElementById('neighborhoods-select');
-  select.setAttribute('aria-label', 'filter by neighborhood');
-  neighborhoods.forEach(neighborhood => {
-    const option = document.createElement('option');
-    option.innerHTML = neighborhood;
-    option.value = neighborhood;
-    select.append(option);
-  });
 }
 
 /**********    Fetch all cuisines and set their HTML    **********/
@@ -50,23 +96,19 @@ async function fetchCuisines() {
     const cuisines = await DBHelper.fetchCuisines();
     // console.log("fetched cuisines: ", cuisines);
     self.cuisines = cuisines;
-    fillCuisinesHTML();
+
+    const select = document.getElementById('cuisines-select');
+    select.setAttribute('aria-label', 'filter by cuisine');
+    cuisines.forEach(cuisine => {
+      const option = document.createElement('option');
+      option.innerHTML = cuisine;
+      option.value = cuisine;
+      select.append(option);
+    });
   }
   catch(error) {
     console.error("Error while fetching cuisines: ", error);
   }
-}
-
-/**********    Set cuisines HTML    **********/
-function fillCuisinesHTML(cuisines = self.cuisines) {
-  const select = document.getElementById('cuisines-select');
-  select.setAttribute('aria-label', 'filter by cuisine');
-  cuisines.forEach(cuisine => {
-    const option = document.createElement('option');
-    option.innerHTML = cuisine;
-    option.value = cuisine;
-    select.append(option);
-  });
 }
 
 /**********    Initialize leaflet map, called from HTML    **********/
@@ -98,50 +140,7 @@ function initMap() {
   }).addTo(newMap);
 }
 
-/**********    Update page and map for current restaurants    **********/
-async function updateRestaurants() {
-  try {
-    const cSelect = document.getElementById('cuisines-select');
-    const nSelect = document.getElementById('neighborhoods-select');
-
-    const cIndex = cSelect.selectedIndex;
-    const nIndex = nSelect.selectedIndex;
-
-    const cuisine = cSelect[cIndex].value;
-    const neighborhood = nSelect[nIndex].value;
-
-    const restaurants = await DBHelper.fetchRestaurantsByFilter(cuisine, neighborhood);
-    console.log("Restaurants being updated: ", restaurants.length);
-    resetRestaurants(restaurants);
-    fetchNeighborhoods();
-    fetchCuisines();
-    fillRestaurantsHTML();
-
-  }
-  catch(error) {
-    console.error("Error while updating restaurants: ", error);
-  }
-}
-
-/**********    Clear current restaurants, HTML and map markers    **********/
-function resetRestaurants(restaurants) {
-  // Remove all restaurants
-  self.restaurants = [];
-  const ul = document.getElementById('restaurants-list');
-  ul.innerHTML = '';
-  self.restaurants = restaurants;
-
-  // Remove all map markers
-  if (self.markers) {
-    self.markers.forEach(marker => marker.remove());
-  }
-  if (navigator.onLine) {
-    self.markers = [];
-  }
-  // console.log("resetR complete");
-}
-
-
+/**********    Add all restaurants HTML to the webpage    **********/
 function fillRestaurantsHTML(restaurants = self.restaurants) {
   const ul = document.getElementById('restaurants-list');
   restaurants.forEach(restaurant => {
@@ -153,9 +152,7 @@ function fillRestaurantsHTML(restaurants = self.restaurants) {
   }
 }
 
-/**
- * Create restaurant HTML.
- */
+/**********    Create all restaurants HTML    **********/
 function createRestaurantHTML(restaurant) {
   const li = document.createElement('li');
 
@@ -217,6 +214,9 @@ function addMarkersToMap(restaurants = self.restaurants) {
 /*                            Favorites Functions                             */
 /******************************************************************************/
 
+// TODO: Fix filter results dropdowns so they can be used to filter favorites
+
+/**********    Handle Favorites checkbox event     **********/
 function handleChange() {
   let checkbox = document.getElementById('faves-checkbox');
   if (checkbox.checked == true) {
@@ -231,11 +231,9 @@ function handleChange() {
 /**********    Update page and map for favorite restaurants    **********/
 async function updateFavorites() {
   try {
-    const restaurants = await DBHelper.getFavorites();
+    const restaurants = await DBHelper.fetchFavorites();
     if (restaurants == null) { return; }
     resetRestaurants(restaurants);
-    fetchNeighborhoods();
-    fetchCuisines();
     fillRestaurantsHTML();
   }
   catch(error) {
