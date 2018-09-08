@@ -63,15 +63,13 @@ async function initMap() {
 async function fetchRestaurantFromURL() {
   try {
     if (self.restaurant) {
-      // console.log("Already fetched restaurant");
       return self.restaurant;
     }
     const id = getParameterByName('id');
-    if (!id) { // no id found in URL
+    if (!id) {
       console.error("No restaurant ID in URL");
     } else {
       const restaurant = await DBHelper.fetchRestaurantById(id);
-      // console.log("fetched from url: ", restaurant);
       self.restaurant = restaurant;
       if (!restaurant) {
         console.error("Restaurant not found");
@@ -231,7 +229,7 @@ async function handleClickFavorite() {
     }
   }
   catch(error) {
-    console.error("Error while handling the click: ", error);
+    console.error("Error while handling the favorite click: ", error);
   }
 }
 
@@ -240,6 +238,12 @@ async function getFavoriteStatus() {
   try {
     const id = getParameterByName('id');
     const restaurant = await DBHelper.fetchRestaurantById(id);
+  
+    // Fix for restaurants without an is_favorite key
+    if (restaurant.is_favorite == undefined) {
+      Object.defineProperty(restaurant, 'is_favorite', { value: false });
+    }
+
     const status = restaurant.is_favorite;
     console.log("Status is: ", status);
     return status;
