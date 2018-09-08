@@ -1,14 +1,14 @@
 /**********    Register serviceWorker    **********/
-if (navigator.serviceWorker) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(registration => {
-        // console.log("ServiceWorker registered:", registration);
-      }, error => {
-        console.error("ServiceWorker registration failed:", error);
-      });
-  });
-}
+// if (navigator.serviceWorker) {
+//   window.addEventListener('load', () => {
+//     navigator.serviceWorker.register('/sw.js')
+//       .then(registration => {
+//         // console.log("ServiceWorker registered:", registration);
+//       }, error => {
+//         console.error("ServiceWorker registration failed:", error);
+//       });
+//   });
+// }
 
 /**********    global variable for opening idb    **********/
 const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
@@ -97,17 +97,18 @@ class DBHelper {
   }
 
   /**********    Fetch restaurants by filtered value    **********/
-  static async fetchRestaurantsByFilter(cuisine, neighborhood) {
+  static async fetchRestaurantsByFilter(neighborhood, cuisine) {
     try {
       const restaurants = await DBHelper.fetchRestaurants();
+      console.log("Filters by filter: ", neighborhood, cuisine);
+
       let results = restaurants;
-      if (cuisine != 'all') { // filter by cuisine
-        results = results.filter(r => r.cuisine_type == cuisine);
-      }
       if (neighborhood != 'all') { // filter by neighborhood
         results = results.filter(r => r.neighborhood == neighborhood);
       }
-      // console.log("fetchRBF results are: ", results);
+      if (cuisine != 'all') { // filter by cuisine
+        results = results.filter(r => r.cuisine_type == cuisine);
+      }
       return results;
     }
     catch(error) {
@@ -135,16 +136,18 @@ class DBHelper {
   /**********    Fetch all neighborhoods    **********/
   static async fetchNeighborhoods() {
     try {
-      const restaurants = await DBHelper.fetchRestaurants();
-      // console.log("restaurants for fetchN are: ", restaurants);
+      let checkbox = document.getElementById('faves-checkbox');
+      const restaurants = (checkbox.checked == true) ? await DBHelper.checkFavorites() : await DBHelper.fetchRestaurants();
+      if (restaurants == null) {
+        console.log("restaurants are empty");
+        return null;
+      }
+      console.log("Restaurants for fetchN are: ", restaurants.length);
+
       const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood);
       // Remove duplicates from neighborhoods
       const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) == i);
-      if (neighborhoods) {
-        return uniqueNeighborhoods;
-      } else {
-        console.error("Unable to find neighborhoods");
-      }
+      return uniqueNeighborhoods;
     }
     catch(error) {
       console.error("Error while fetching neighborhoods: ", error);
@@ -154,16 +157,18 @@ class DBHelper {
   /**********    Fetch all cuisines    **********/
   static async fetchCuisines() {
     try {
-      const restaurants = await DBHelper.fetchRestaurants();
-      // console.log("restaurants for fetchC are: ", restaurants);
+      let checkbox = document.getElementById('faves-checkbox');
+      const restaurants = (checkbox.checked == true) ? await DBHelper.checkFavorites() : await DBHelper.fetchRestaurants();
+      if (restaurants == null) {
+        console.log("restaurants are empty");
+        return null;
+      }
+      console.log("Restaurants for fetchC are: ", restaurants.length);
+
       const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type);
       // Remove duplicates from cuisines
       const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) == i);
-      if (cuisines) {
-        return uniqueCuisines;
-      } else {
-        console.error("Unable to find cuisines");
-      }
+      return uniqueCuisines;
     }
     catch(error) {
       console.error("Error while fetching cuisines: ", error);
@@ -217,8 +222,10 @@ class DBHelper {
   /**********    Add/remove favorited restaurant from DB   **********/
   static async toggleFavorite(id) {
     try {
+      console.log("toggling");
       // Determine current status of is_favorite
       const restaurant = await DBHelper.fetchRestaurantById(id);
+
       // Toggle status of is_favorite
       let status = (restaurant.is_favorite == true) ? false : true;
       console.log("Toggling status to: ", status);
@@ -237,23 +244,35 @@ class DBHelper {
 
   // NOTE: Called from updateFavorites() (main.js)
   /**********    Collect restaurants that are favorites    **********/
-  static async fetchFavorites() {
+  static async fetchFavorites(neighborhood, cuisine) {
     try {
       let restaurants = await DBHelper.fetchRestaurants();
-      restaurants = restaurants.filter(r => r.is_favorite == true);
-      console.log(restaurants);
-      if (restaurants.length == 0) {
-        alert('No restaurants have been favorited.  Please click the favorite icon for a restaurant to do so.');
-        document.getElementById('faves-checkbox').checked = false;
-        return null;
-      } else {
-        return restaurants;
+      let favorites = restaurants.filter(r => r.is_favorite == true);
+      if (neighborhood !== 'all') { // filter by neighborhood
+        favorites = favorites.filter(r => r.neighborhood == neighborhood);
       }
+      if (cuisine !== 'all') { // filter by cuisine
+        favorites = favorites.filter(r => r.cuisine_type == cuisine);
+      }
+      console.log("Favorites", favorites.length, neighborhood, cuisine);
+      if (favorites.length == 0) { return null; }
+      return favorites;
     }
     catch(error) {
       console.error("Error while getting favorites: ", error);
     }
   }
 
+  static async checkFavorites() {
+    try {
+      let restaurants = await DBHelper.fetchRestaurants();
+      let favorites = restaurants.filter(r => r.is_favorite == true);
+      console.log("Favorites check: ", favorites.length);
+      return favorites;
+    }
+    catch(error) {
+      console.error("Error while checking favorites", error);
+    }
+  }
   // The very end
 }

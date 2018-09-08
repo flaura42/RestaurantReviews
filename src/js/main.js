@@ -3,7 +3,7 @@
 /******************************************************************************/
 
 /**********    Fetch restaurants as soon as the page is loaded    **********/
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', () => {
   initMap();
   updateRestaurants();
   fetchNeighborhoods();
@@ -12,12 +12,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 /**********    Listen for change on favorites checkbox    **********/
 document.getElementById('faves-checkbox').addEventListener('change', () => {
-  handleChange();
+  handleChangeFavorites();
 });
 
 /******************************************************************************/
 /*                             Pagewide Functions                             */
 /******************************************************************************/
+
+// TODO: figure out what is wrong with Kang Ho Dong Baekjeong favoriting
 
 // Toggle map for easier testing with internet issues
 const nomap = true;
@@ -25,26 +27,29 @@ const nomap = true;
 /**********    Update page and map for current restaurants    **********/
 async function updateRestaurants() {
   try {
-    // (Hopefully) Temporary fix for filter results issues with favorites
+    const nSelect = document.getElementById('neighborhoods-select');
+    const cSelect = document.getElementById('cuisines-select');
+
+    const nIndex = nSelect.selectedIndex;
+    const cIndex = cSelect.selectedIndex;
+
+    const neighborhood = nSelect[nIndex].value;
+    const cuisine = cSelect[cIndex].value;
+
     let checkbox = document.getElementById('faves-checkbox');
     if (checkbox.checked == true) {
-      document.getElementById('faves-checkbox').checked = false;
+      console.log("Updating favorites:", neighborhood, cuisine);
+      const restaurants = await DBHelper.fetchFavorites(neighborhood, cuisine);
+      if (restaurants == null) { return; }
+      resetRestaurants(restaurants);
+      fillRestaurantsHTML();
+    } else {
+      console.log("Updating restaurants");
+      const restaurants = await DBHelper.fetchRestaurantsByFilter(neighborhood, cuisine);
+
+      resetRestaurants(restaurants);
+      fillRestaurantsHTML();
     }
-
-    const cSelect = document.getElementById('cuisines-select');
-    const nSelect = document.getElementById('neighborhoods-select');
-
-    const cIndex = cSelect.selectedIndex;
-    const nIndex = nSelect.selectedIndex;
-
-    const cuisine = cSelect[cIndex].value;
-    const neighborhood = nSelect[nIndex].value;
-
-    const restaurants = await DBHelper.fetchRestaurantsByFilter(cuisine, neighborhood);
-    console.log("Restaurants being updated: ", restaurants.length);
-    resetRestaurants(restaurants);
-    fillRestaurantsHTML();
-
   }
   catch(error) {
     console.error("Error while updating restaurants: ", error);
@@ -66,14 +71,15 @@ function resetRestaurants(restaurants) {
   if (navigator.onLine) {
     self.markers = [];
   }
-  // console.log("resetR complete");
 }
 
 /**********    Fetch all neighborhoods and set their HTML    **********/
 async function fetchNeighborhoods() {
   try {
     const neighborhoods = await DBHelper.fetchNeighborhoods();
-    // console.log("fetched neighborhoods: ", neighborhoods);
+    console.log("fetched neighborhoods: ", neighborhoods);
+    if (neighborhoods == null) { return; }
+
     self.neighborhoods = neighborhoods;
 
     const select = document.getElementById('neighborhoods-select');
@@ -94,7 +100,10 @@ async function fetchNeighborhoods() {
 async function fetchCuisines() {
   try {
     const cuisines = await DBHelper.fetchCuisines();
-    // console.log("fetched cuisines: ", cuisines);
+    console.log("fetched cuisines: ", cuisines);
+
+    if (cuisines == null) { return; }
+
     self.cuisines = cuisines;
 
     const select = document.getElementById('cuisines-select');
@@ -214,29 +223,38 @@ function addMarkersToMap(restaurants = self.restaurants) {
 /*                            Favorites Functions                             */
 /******************************************************************************/
 
-// TODO: Fix filter results dropdowns so they can be used to filter favorites
-
 /**********    Handle Favorites checkbox event     **********/
-function handleChange() {
-  let checkbox = document.getElementById('faves-checkbox');
-  if (checkbox.checked == true) {
-    // console.log("checkbox checked");
-    updateFavorites();
-  } else {
-    // console.log("checkbox not checked");
+async function handleChangeFavorites() {
+  try {
+    let checkbox = document.getElementById('faves-checkbox');
+    let checkFavorites = await DBHelper.checkFavorites();
+    if (checkbox.checked && checkFavorites.length == 0) {
+      console.log("Checkbox checked and empty: ", checkbox.checked, checkFavorites.length);
+      alert('No restaurants have been favorited.  Please click the favorite icon for a restaurant to do so.');
+      document.getElementById('faves-checkbox').checked = false;
+    }
+    resetSelects();
     updateRestaurants();
+    fetchNeighborhoods();
+    fetchCuisines();
+  }
+  catch(error) {
+    console.error("Error while handling favorites:", error);
   }
 }
 
-/**********    Update page and map for favorite restaurants    **********/
-async function updateFavorites() {
-  try {
-    const restaurants = await DBHelper.fetchFavorites();
-    if (restaurants == null) { return; }
-    resetRestaurants(restaurants);
-    fillRestaurantsHTML();
+/**********    Reset filter selects to avoid duplicates    **********/
+function resetSelects() {
+  // Reset cuisine filter selects (needed for favorites to work right)
+  const cSelect = document.getElementById('cuisines-select');
+  let cMax = cSelect.length;
+  for (let i = cMax; i > 0; i--) {
+    document.getElementById('cuisines-select').remove(i);
   }
-  catch(error) {
-    console.error("Error while updating favorites: ", error);
+  // Reset neighborhoods filter selects (needed for favorites to work right)
+  const nSelect = document.getElementById('neighborhoods-select');
+  let nMax = nSelect.length;
+  for (let i = nMax; i > 0; i--) {
+    document.getElementById('neighborhoods-select').remove(i);
   }
 }
