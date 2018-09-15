@@ -360,3 +360,101 @@ nav h1 a {
 #footer a {
 	color: #fff;
 }
+
+/* ====================== Form ====================== */
+form {
+  padding: 1em;
+  border: 1px solid #bbb;
+  border-radius: 1em;
+}
+
+.form-label {
+	width: 100%;
+	font-size: 1.15em;
+}
+
+#title h3 {
+	float: left;
+	width: 90%;
+	margin: 0;
+	padding: 0;
+	color: #33c;
+  font-size: 1.5em;
+  font-weight: 100;
+}
+
+#close {
+	float: right;
+	margin: 0;
+	padding: 0;
+	font-size: 1.5em;
+	font-weight: bolder;
+}
+
+.close-hover {
+	color: #ff0044;
+}
+
+#title p:nth-child(3) {
+	clear: both;
+	font-size: 1em;
+	margin: 0;
+	padding: 0;
+}
+
+
+input, textarea {
+	width: 100%;
+	box-sizing: border-box;
+  border: 2px groove threedface;
+}
+
+#rating-1, #rating-2, #rating-3, #rating-4, #rating-5 {
+	width: auto;
+	display: inline;
+}
+
+legend {
+	font-size: 1.15em;
+}
+
+.radio-label {
+	width: auto;
+	padding-left: 10px;
+}
+
+
+
+
+/* generic styles from MDN  TODO: completely redo */
+
+
+
+
+
+
+
+
+input:focus, textarea:focus {
+  /* To give a little highlight on active elements */
+  /* border-color: #000; */
+}
+
+textarea {
+  /* To properly align multiline text fields with their labels */
+  /* vertical-align: top; */
+
+  /* To give enough room to type some text */
+  /* height: 5em; */
+}
+
+.button {
+  /* To position the buttons to the same position of the text fields */
+  /* padding-left: 90px; /* same size as the label elements */
+}
+
+button {
+  /* This extra margin represent roughly the same space as the space
+     between the labels and their text fields */
+  /* margin-left: .5em; */
+}

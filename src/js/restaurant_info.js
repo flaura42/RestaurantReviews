@@ -13,6 +13,11 @@ document.getElementById('favorite-icon').addEventListener('click', () => {
   handleClickFavorite();
 });
 
+/**********    Listen for clicks on review icon    **********/
+document.getElementById('review-icon').addEventListener('click', () => {
+  handleClickReview();
+});
+
 /******************************************************************************/
 /*                             Pagewide Functions                             */
 /******************************************************************************/
@@ -76,6 +81,12 @@ async function fetchRestaurantFromURL() {
         return;
       }
       fillRestaurantHTML();
+
+      // fill reviews
+      const reviews = await DBHelper.serveReviewsById(id);
+      console.log("Reviews being sent: ", reviews.length);
+      fillReviewsHTML(reviews);
+
       return restaurant;
     }
   }
@@ -109,8 +120,7 @@ function fillRestaurantHTML(restaurant = self.restaurant) {
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
   }
-  // fill reviews
-  fillReviewsHTML();
+
 }
 
 /**********    Create and add operating hours HTML table    **********/
@@ -132,7 +142,7 @@ function fillRestaurantHoursHTML(operatingHours = self.restaurant.operating_hour
 }
 
 /**********    Create and add all reviews HTML    **********/
-function fillReviewsHTML(reviews = self.restaurant.reviews) {
+function fillReviewsHTML(reviews = self.reviews) {
   const container = document.getElementById('reviews-container');
   if (!reviews) {
     const noReviews = document.createElement('p');
@@ -157,8 +167,11 @@ function createReviewHTML(review) {
   name.innerHTML = review.name;
   div.appendChild(name);
 
+  // Change date from millisecond version to actual date and display it
+  const dateMilli = review.createdAt;
+  const dateValue = new Intl.DateTimeFormat('en-US').format(new Date(dateMilli));
   const date = document.createElement('p');
-  date.innerHTML = review.date;
+  date.innerHTML = dateValue;
   div.appendChild(date);
 
   li.appendChild(div);
@@ -203,7 +216,7 @@ function getParameterByName(name, url) {
 /**********    Handle click event for favorite icon    **********/
 async function handleClickFavorite() {
   try {
-    console.log("favorite icon clicked");
+    // console.log("favorite icon clicked");
     const status = await getFavoriteStatus();
     const id = getParameterByName('id');
     switch (status) {
@@ -238,14 +251,14 @@ async function getFavoriteStatus() {
   try {
     const id = getParameterByName('id');
     const restaurant = await DBHelper.fetchRestaurantById(id);
-  
+
     // Fix for restaurants without an is_favorite key
     if (restaurant.is_favorite == undefined) {
       Object.defineProperty(restaurant, 'is_favorite', { value: false });
     }
 
     const status = restaurant.is_favorite;
-    console.log("Status is: ", status);
+    // console.log("Status is: ", status);
     return status;
   }
   catch(error) {
@@ -262,11 +275,192 @@ async function setFavoriteIcon() {
     const img = document.createElement('img');
     img.id = 'favorite-img';
     img.alt = 'Favorite this restaurant';
-    console.log("setting icon to: ", status);
+    // console.log("setting icon to: ", status);
     img.src = (status == true) ? '/img/bookmark-check.png' : '/img/bookmark-plus.png';
     (check == true) ? favorite.appendChild(img) : favorite.replaceChild(img, favorite.childNodes[0]);
   }
   catch(error) {
     console.error("Error while setting favorite icon: ", error);
   }
+}
+
+/******************************************************************************/
+/*                            Reviews Functions                             */
+/******************************************************************************/
+
+/**********    Handle click on Reviews button    **********/
+async function handleClickReview() {
+  try {
+    const id = getParameterByName('id');
+    const restaurant = await DBHelper.fetchRestaurantById(id);
+    console.log("Review restaurant: ", restaurant.name);
+
+    // To prevent opening of multiple forms
+    const container = document.getElementById('reviews-container');
+    const form = document.getElementById('form');
+    if (container.contains(form)) { return; }
+
+    createForm(restaurant);
+    handleClickForm(restaurant);
+  }
+  catch(error) {
+    console.error("Error while handling review click: ", error);
+  }
+}
+
+/**********    Create the form when needed using JavaScript!    **********/
+function createForm(restaurant) {
+  const container = document.getElementById('reviews-container');
+  const header = document.getElementById('reviews-header');
+  const form = document.createElement('form');
+  form.id = 'form';
+
+  // Title section
+  const titleSection = document.createElement('div');
+  titleSection.id = 'title';
+  const title = document.createElement('h3');
+  title.innerHTML = `Review ${restaurant.name}`;
+  titleSection.append(title);
+
+  const close = document.createElement('p');
+  close.id = 'close';
+  close.innerHTML = '&times;';
+  titleSection.append(close);
+
+  // TODO: Decide if keep here or move to right of submit button
+  const subtitle = document.createElement('p');
+  subtitle.innerHTML = '(All fields are required)';
+  titleSection.append(subtitle);
+  form.append(titleSection);
+
+  // Name field
+  const name = document.createElement('div');
+  const label = document.createElement('label');
+  const input = document.createElement('input');
+  label.setAttribute('for', 'name');
+  label.setAttribute('class', 'form-label');
+  label.innerHTML = 'Name: ';
+  name.append(label);
+
+  input.type = 'text';
+  input.id = 'name';
+  input.name = 'name';
+  input.autofocus = true;
+  input.minlength = '2';
+  input.maxlength = '30';
+  input.required = true;
+  name.append(input);
+
+  form.append(name);
+
+  // Rating radio buttons
+  let radio = document.createElement('div');
+  let legend = document.createElement('legend');
+  legend.innerHTML = 'Rating:';
+  radio.append(legend);
+
+  for (let i = 1; i < 6; i++) {
+    let name = `rating-${i}`;
+    let label = document.createElement('label');
+    label.setAttribute('for', name);
+    label.className = 'radio-label';
+    radio.append(label);
+
+    let input = document.createElement('input');
+    input.type = 'radio';
+    input.id = name;
+    input.name = 'rating';
+    input.value = i;
+    input.required = true;
+    radio.append(input);
+  }
+  form.append(radio);
+
+  // Comments field
+  const comments = document.createElement('div');
+  const label1 = document.createElement('label');
+  label1.setAttribute('for', 'comments');
+  label1.className = 'form-label';
+  label1.innerHTML = 'Comments:';
+  comments.append(label1);
+
+  const text = document.createElement('textarea');
+  text.id = 'comments';
+  text.name = 'comments';
+  text.maxlength = '200';
+  text.cols = '10';
+  text.rows = '10';
+  input.required = true;
+  comments.append(text);
+  form.append(comments);
+
+  // Submit button
+  const submit = document.createElement('div');
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.id = 'submit';
+  submitButton.innerHTML = 'Submit Review';
+  submit.append(submitButton);
+  form.append(submit);
+
+  // Have form appear above Reviews title to ensure on top/review button below
+  container.insertBefore(form, header);
+}
+
+/**********    Handle actions on the close/submit buttons    **********/
+function handleClickForm(restaurant) {
+
+  const close = document.getElementById('close');
+  close.onmouseover = () => {  // TODO find right version
+    close.className = 'close-hover';
+    console.log("being hovered");
+  };
+  close.onmouseout = () => {  // TODO find right version
+    close.className = '';
+    console.log("not being hovered");
+  };
+  close.onclick = () => {
+    console.log("being clicked");
+    clearForm();
+  };
+
+  const submitButton = document.getElementById('submit');
+  submitButton.addEventListener('click', () => {
+    saveReview(restaurant.id);
+  });
+}
+
+/**********    Remove the form when reviewer finished/clicks X   **********/
+function clearForm() {
+  const form = document.getElementById('form');
+  form.remove();
+}
+
+/**********    Save review to the server    **********/
+function saveReview(id) {
+  const name = document.getElementById('name').value;
+  const rating = document.querySelector('input[name="rating"]:checked').value;
+  const comments = document.getElementById('comments').value;
+
+  const review = {
+    'restaurant_id': id,
+    'name': name,
+    'rating': rating,
+    'comments': comments,
+    'createdAt': Date.now(),
+    'updatedAt': Date.now()
+  };
+  DBHelper.addReview(review);
+
+  // const form = new FormData(document.getElementById('form'));
+  // const request = new XMLHttpRequest();
+  // request.open('POST', DBHelper.REVIEWS_URL);
+  // form.append('restaurant_id', id);
+  // request.send(form);
+
+  // DBHelper.addReview(form);
+  // Prevent window from changing location and reload page
+  event.preventDefault();
+  window.location.href = `/restaurant.html?id=${id}`;
+
 }

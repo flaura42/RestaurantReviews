@@ -38,13 +38,13 @@ async function updateRestaurants() {
 
     let checkbox = document.getElementById('faves-checkbox');
     if (checkbox.checked == true) {
-      console.log("Updating favorites:", neighborhood, cuisine);
+      // console.log("Updating favorites:", neighborhood, cuisine);
       const restaurants = await DBHelper.fetchFavorites(neighborhood, cuisine);
       if (restaurants == null) { return; }
       resetRestaurants(restaurants);
       fillRestaurantsHTML();
     } else {
-      console.log("Updating restaurants");
+      // console.log("Updating restaurants");
       const restaurants = await DBHelper.fetchRestaurantsByFilter(neighborhood, cuisine);
 
       resetRestaurants(restaurants);
@@ -77,7 +77,7 @@ function resetRestaurants(restaurants) {
 async function fetchNeighborhoods() {
   try {
     const neighborhoods = await DBHelper.fetchNeighborhoods();
-    console.log("fetched neighborhoods: ", neighborhoods);
+    // console.log("fetched neighborhoods: ", neighborhoods);
     if (neighborhoods == null) { return; }
 
     self.neighborhoods = neighborhoods;
@@ -100,7 +100,7 @@ async function fetchNeighborhoods() {
 async function fetchCuisines() {
   try {
     const cuisines = await DBHelper.fetchCuisines();
-    console.log("fetched cuisines: ", cuisines);
+    // console.log("fetched cuisines: ", cuisines);
 
     if (cuisines == null) { return; }
 
@@ -229,7 +229,7 @@ async function handleChangeFavorites() {
     let checkbox = document.getElementById('faves-checkbox');
     let checkFavorites = await DBHelper.checkFavorites();
     if (checkbox.checked && checkFavorites.length == 0) {
-      console.log("Checkbox checked and empty: ", checkbox.checked, checkFavorites.length);
+      // console.log("Checkbox checked and empty: ", checkbox.checked, checkFavorites.length);
       alert('No restaurants have been favorited.  Please click the favorite icon for a restaurant to do so.');
       document.getElementById('faves-checkbox').checked = false;
     }

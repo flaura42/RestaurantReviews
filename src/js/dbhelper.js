@@ -13,9 +13,10 @@
 /**********    global variable for opening idb    **********/
 const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
   if (!upgradeDB.objectStoreNames.contains('restaurants-store')) {
-    const store = upgradeDB.createObjectStore('restaurants-store', {
-      keyPath: 'id'
-    });
+    upgradeDB.createObjectStore('restaurants-store', { keyPath: 'id' });
+  }
+  if (!upgradeDB.objectStoreNames.contains('reviews-store')) {
+    upgradeDB.createObjectStore('reviews-store', { keyPath: 'id' });
   }
 });
 
@@ -31,6 +32,12 @@ class DBHelper {
     return `http://localhost:${port}/restaurants`;
   }
 
+  /**********    Reviews URL    **********/
+  static get REVIEWS_URL() {
+    const port = 1337; // Change this to your server port
+    return `http://localhost:${port}/reviews`;
+  }
+
   /**********    Fetch all restaurants    **********/
   static async fetchRestaurants() {
     try {
@@ -42,12 +49,12 @@ class DBHelper {
       let restaurants = await store.getAll();
       // console.log("fetchR restaurants: ", restaurants);
       if (restaurants.length !== 0) {
-        console.log("Fetched from DB: ", restaurants.length);
+        // console.log("Fetched from DB: ", restaurants.length);
         return restaurants;
       } else {
         // Fetch from server
         restaurants = await DBHelper.serveRestaurants();
-        console.log("Fetched from server: ", restaurants.length);
+        // console.log("Fetched from server: ", restaurants.length);
         return restaurants;
       }
     }
@@ -63,7 +70,7 @@ class DBHelper {
       const response = await fetch(fetchAll);
       if (response.ok) {
         const restaurants = await response.json();
-        console.log("restaurants served: ", restaurants);
+        // console.log("restaurants served: ", restaurants);
         DBHelper.addRestaurants(restaurants);
         return restaurants;
       }
@@ -84,7 +91,7 @@ class DBHelper {
       // TODO: the error is here.  figure out why.
       const tx = db.transaction('restaurants-store', 'readwrite');
       const store = tx.objectStore('restaurants-store');
-      console.log("restaurants to add: ", restaurants.length);
+      // console.log("restaurants to add: ", restaurants.length);
       restaurants.forEach(restaurant => {
         // console.log("adding to DB: ", restaurant.id);
         store.put(restaurant);
@@ -100,8 +107,6 @@ class DBHelper {
   static async fetchRestaurantsByFilter(neighborhood, cuisine) {
     try {
       const restaurants = await DBHelper.fetchRestaurants();
-      console.log("Filters by filter: ", neighborhood, cuisine);
-
       let results = restaurants;
       if (neighborhood != 'all') { // filter by neighborhood
         results = results.filter(r => r.neighborhood == neighborhood);
@@ -142,7 +147,7 @@ class DBHelper {
         console.log("restaurants are empty");
         return null;
       }
-      console.log("Restaurants for fetchN are: ", restaurants.length);
+      // console.log("Restaurants for fetchN are: ", restaurants.length);
 
       const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood);
       // Remove duplicates from neighborhoods
@@ -163,7 +168,7 @@ class DBHelper {
         console.log("restaurants are empty");
         return null;
       }
-      console.log("Restaurants for fetchC are: ", restaurants.length);
+      // console.log("Restaurants for fetchC are: ", restaurants.length);
 
       const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type);
       // Remove duplicates from cuisines
@@ -222,13 +227,13 @@ class DBHelper {
   /**********    Add/remove favorited restaurant from DB   **********/
   static async toggleFavorite(id) {
     try {
-      console.log("toggling");
+      // console.log("toggling");
       // Determine current status of is_favorite
       const restaurant = await DBHelper.fetchRestaurantById(id);
 
       // Toggle status of is_favorite
       let status = (restaurant.is_favorite == true) ? false : true;
-      console.log("Toggling status to: ", status);
+      // console.log("Toggling status to: ", status);
       restaurant.is_favorite = status;
       // Update the DB with the current status
       const db = await dbPromise;
@@ -254,7 +259,7 @@ class DBHelper {
       if (cuisine !== 'all') { // filter by cuisine
         favorites = favorites.filter(r => r.cuisine_type == cuisine);
       }
-      console.log("Favorites", favorites.length, neighborhood, cuisine);
+      // console.log("Favorites", favorites.length, neighborhood, cuisine);
       if (favorites.length == 0) { return null; }
       return favorites;
     }
@@ -263,16 +268,115 @@ class DBHelper {
     }
   }
 
+  /**********    Return list of favorited restaurants    **********/
   static async checkFavorites() {
     try {
       let restaurants = await DBHelper.fetchRestaurants();
       let favorites = restaurants.filter(r => r.is_favorite == true);
-      console.log("Favorites check: ", favorites.length);
+      // console.log("Favorites check: ", favorites.length);
       return favorites;
     }
     catch(error) {
       console.error("Error while checking favorites", error);
     }
   }
+
+  /**************************************************************************/
+  /*                            Reviews Functions                           */
+  /**************************************************************************/
+
+  /**********    Serve reviews by restaurant id    **********/
+  static async serveReviewsById(id) {
+    try {
+      const fetchReviews = new Request(`${DBHelper.REVIEWS_URL}?restaurant_id=${id}`);
+      const response = await fetch(fetchReviews);
+      if (response.ok) {
+        const reviews = await response.json();
+        DBHelper.addReviews(reviews);
+        return reviews;
+      } else {
+        console.error("Failed to fetch reviews from server");
+        let reviews = await DBHelper.fetchReviewsById(id);
+        return reviews;
+      }
+    }
+    catch(error) {
+      console.error("Error while fetching reviews by id: ", error);
+    }
+  }
+
+  /**********    Fetch reviews by restaurant id    **********/
+  static async fetchReviewsById(id) {
+    try {
+      // Create transaction to get restaurants from db
+      const db = await dbPromise;
+      const tx = db.transaction('reviews-store', 'readonly');
+      const store = tx.objectStore('reviews-store');
+      // Use getAll method to return array of objects in store
+      let reviewsAll = await store.getAll();
+      let reviews = reviewsAll.filter(r => r.restaurant_id == id);
+      // If find reviews, return them
+      if (reviews.length !== 0) {
+        return reviews;
+      }
+      // Otherwise serve them
+      // reviews = DBHelper.serveReviewsById(id)
+    }
+    catch(error) {
+      console.error("Error while fetching reviews from DB: ", error);
+    }
+  }
+
+
+
+  /**********    Add served restaurants to DB    **********/
+  static async addReviews(reviews) {
+    try {
+      // Create transaction to put reviews into db
+      const db = await dbPromise;
+      const tx = db.transaction('reviews-store', 'readwrite');
+      const store = tx.objectStore('reviews-store');
+      console.log("Reviews to add: ", reviews.length);
+      reviews.forEach(review => {
+        store.put(review);
+        return tx.complete;
+      });
+    }
+    catch(error) {
+      console.error("Error while adding reviews to DB:", error);
+    }
+  }
+
+  /**********    Add review to review store    **********/
+  static async addReview(review) {
+    try {
+      console.log("Adding review to server")
+      await fetch(DBHelper.REVIEWS_URL, {
+        method: 'POST',
+        body: JSON.stringify(review)
+      }).then(response => {
+        if (!response.ok) {
+          console.error("Failed to post to server");
+          return;
+        }
+      });
+    }
+    catch(error) {
+      console.error("Error while adding review", error);
+    }
+  }
+  // static async addReview(review) {
+  //   try {
+  //     const db = await dbPromise;
+  //     const tx = db.transaction('reviews-store', 'readwrite');
+  //     const store = tx.objectStore('reviews-store');
+  //     store.put(review);
+  //     return tx.complete;
+  //   }
+  //   catch(error) {
+  //     console.error("Error while adding review", error);
+  //   }
+  // }
+
   // The very end
 }
