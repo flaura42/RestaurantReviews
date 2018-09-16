@@ -18,6 +18,9 @@ const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
   if (!upgradeDB.objectStoreNames.contains('reviews-store')) {
     upgradeDB.createObjectStore('reviews-store', { keyPath: 'id' });
   }
+  if (!upgradeDB.objectStoreNames.contains('offline-store')) {
+    upgradeDB.createObjectStore('offline-store', { keyPath: 'num', autoIncrement: true });
+  }
 });
 
 /**********    Common database helper functions    **********/
@@ -92,11 +95,10 @@ class DBHelper {
       const tx = db.transaction('restaurants-store', 'readwrite');
       const store = tx.objectStore('restaurants-store');
       // console.log("restaurants to add: ", restaurants.length);
-      restaurants.forEach(restaurant => {
-        // console.log("adding to DB: ", restaurant.id);
-        store.put(restaurant);
-        return tx.complete;
-      });
+      for (let i = 0; i < restaurants.length; i++) {
+        store.put(restaurants[i]);
+      }
+      return tx.complete;
     }
     catch(error) {
       console.error("Error while adding restaurants to DB:", error);
@@ -316,20 +318,14 @@ class DBHelper {
       let reviewsAll = await store.getAll();
       let reviews = reviewsAll.filter(r => r.restaurant_id == id);
       // If find reviews, return them
-      if (reviews.length !== 0) {
-        return reviews;
-      }
-      // Otherwise serve them
-      // reviews = DBHelper.serveReviewsById(id)
+      if (reviews.length !== 0) { return reviews; }
     }
     catch(error) {
       console.error("Error while fetching reviews from DB: ", error);
     }
   }
 
-
-
-  /**********    Add served restaurants to DB    **********/
+  /**********    Add served reviews to DB    **********/
   static async addReviews(reviews) {
     try {
       // Create transaction to put reviews into db
@@ -337,46 +333,101 @@ class DBHelper {
       const tx = db.transaction('reviews-store', 'readwrite');
       const store = tx.objectStore('reviews-store');
       console.log("Reviews to add: ", reviews.length);
-      reviews.forEach(review => {
-        store.put(review);
-        return tx.complete;
-      });
+      for (let i = 0; i < reviews.length; i++) {
+        store.put(reviews[i]);
+      }
+      return tx.complete;
     }
     catch(error) {
       console.error("Error while adding reviews to DB:", error);
     }
   }
 
-  /**********    Add review to review store    **********/
+  /**********    Add review to server    **********/
   static async addReview(review) {
     try {
-      console.log("Adding review to server")
-      await fetch(DBHelper.REVIEWS_URL, {
+      console.log("Adding review to server: ", review.comments);
+      const status = await fetch(DBHelper.REVIEWS_URL, {
         method: 'POST',
         body: JSON.stringify(review)
-      }).then(response => {
-        if (!response.ok) {
-          console.error("Failed to post to server");
-          return;
-        }
       });
+      if (status.ok) {
+        console.log("Fetching offline reviews");
+        await DBHelper.fetchOfflineStore();
+      } else {
+        console.log("Sending review to store");
+        DBHelper.storeReview(review);
+      }
+      window.location.href = `/restaurant.html?id=${review.restaurant_id}`;
     }
     catch(error) {
       console.error("Error while adding review", error);
     }
   }
-  // static async addReview(review) {
-  //   try {
-  //     const db = await dbPromise;
-  //     const tx = db.transaction('reviews-store', 'readwrite');
-  //     const store = tx.objectStore('reviews-store');
-  //     store.put(review);
-  //     return tx.complete;
-  //   }
-  //   catch(error) {
-  //     console.error("Error while adding review", error);
-  //   }
-  // }
+
+  /**********    If offline, save review in offline store    **********/
+  static async storeReview(review) {
+    try {
+      console.log("Review to store: ", review.comments);
+      const db = await dbPromise;
+      const tx = db.transaction('offline-store', 'readwrite');
+      const store = tx.objectStore('offline-store');
+      store.put(review);
+      return tx.complete;
+    }
+    catch(error) {
+      console.error("Error while storing Review: ", error);
+    }
+  }
+
+  /**********    Fetch offline reviews and post to server    **********/
+  static async fetchOfflineStore() {
+    try {
+      // Get reviews from offline store
+      const db = await dbPromise;
+      const tx = db.transaction('offline-store', 'readwrite');
+      const store = tx.objectStore('offline-store');
+      let reviews = await store.getAll();
+      console.log("Offline reviews to save: ", reviews.length);
+      // Save reviews to server
+      for (let i = 0; i < reviews.length; i++) {
+        const review = reviews[i];
+        await fetch(DBHelper.REVIEWS_URL, {
+          method: 'POST',
+          body: JSON.stringify(review)
+        }).then(response => {
+          if (response.ok) {
+            // If successfully added to server, delete review from offline store
+            console.log("deleting review")
+            DBHelper.deleteReview(review.id, review.num);
+          }
+        });
+      }
+    }
+    catch(error) {
+      console.error("Error while fetching from offline store", error);
+    }
+  }
+
+  /**********    Delete reviews from DB    **********/
+  static async deleteReview(id, num) {
+    console.log("ID/NUM: ", id, num);
+    const db = await dbPromise;
+    if (id) {
+      console.log("This restaurant has ID: ", id);
+      const tx = db.transaction('reviews-store', 'readwrite');
+      const store = tx.objectStore('reviews-store');
+      store.delete(id);
+      return tx.complete;
+    }
+    if (num) {
+      console.log("This restaurant has num:", num);
+      const tx = db.transaction('offline-store', 'readwrite');
+      const store = tx.objectStore('offline-store');
+      store.delete(num);
+      return tx.complete;
+    }
+  }
 
   // The very end
 }

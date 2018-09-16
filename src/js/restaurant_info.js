@@ -413,11 +413,9 @@ function handleClickForm(restaurant) {
   const close = document.getElementById('close');
   close.onmouseover = () => {  // TODO find right version
     close.className = 'close-hover';
-    console.log("being hovered");
   };
   close.onmouseout = () => {  // TODO find right version
     close.className = '';
-    console.log("not being hovered");
   };
   close.onclick = () => {
     console.log("being clicked");
@@ -436,12 +434,10 @@ function clearForm() {
   form.remove();
 }
 
-/**********    Save review to the server    **********/
-function saveReview(id) {
+function reviewData(id) {
   const name = document.getElementById('name').value;
   const rating = document.querySelector('input[name="rating"]:checked').value;
   const comments = document.getElementById('comments').value;
-
   const review = {
     'restaurant_id': id,
     'name': name,
@@ -450,17 +446,69 @@ function saveReview(id) {
     'createdAt': Date.now(),
     'updatedAt': Date.now()
   };
-  DBHelper.addReview(review);
-
-  // const form = new FormData(document.getElementById('form'));
-  // const request = new XMLHttpRequest();
-  // request.open('POST', DBHelper.REVIEWS_URL);
-  // form.append('restaurant_id', id);
-  // request.send(form);
-
-  // DBHelper.addReview(form);
-  // Prevent window from changing location and reload page
   event.preventDefault();
-  window.location.href = `/restaurant.html?id=${id}`;
+  return review;
+}
 
+/**********    Save review to the server    **********/
+async function saveReview(id) {
+  try {
+    console.log("running saveReview()");
+    const review = reviewData(id);
+    const ping = await pingServer();
+    if (ping == true) { DBHelper.addReview(review); }
+    else { DBHelper.storeReview(review); }
+    // window.location.href = `/restaurant.html?id=${id}`;
+  }
+  catch(error) {
+    console.error("Error while saving review: ", error);
+  }
+}
+
+async function pingServer() {
+  try {
+    const status = await fetch(DBHelper.REVIEWS_URL).then(response => {
+      if (response.ok) { return true; }
+    });
+    console.log("Server status: ", status);
+    return status;
+  }
+  catch(error) {
+    console.error("Error while pinging server: ", error);
+    return false;
+  }
+}
+
+async function testPing() {
+  try {
+    const status = await pingServer();
+    console.log("Status is: ", status);
+  }
+  catch(error) {
+    console.error("Error while testing ping: ", error);
+  }
+}
+
+/**********    Save review to the server    **********/
+function testOffline() {
+  console.log("running test offline");
+  let x = 11;
+  for (let i = x; i < (x+2); i++) {
+    const review = {
+      'restaurant_id': 1,
+      'name': 'Offline Test',
+      'rating': i,
+      'comments': `Offline ${i}`,
+      'createdAt': Date.now(),
+      'updatedAt': Date.now()
+    };
+    DBHelper.storeReview(review);
+  }
+
+  console.log("Test ran");
+}
+
+function testStore() {
+  console.log("Running test store");
+  DBHelper.fetchOfflineStore();
 }
