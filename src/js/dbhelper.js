@@ -283,6 +283,27 @@ class DBHelper {
     }
   }
 
+  /**********    Update server with current favorite status    **********/
+  static async updateFavoritesStatus() {
+    try {
+      const restaurants = await DBHelper.fetchRestaurants();
+      console.log("Restaurants HERE: ", restaurants.length);
+      restaurants.forEach(restaurant => {
+        fetch(`${DBHelper.DATABASE_URL}/${restaurant.id}/?is_favorite=${restaurant.is_favorite}`, {
+          method: 'PUT'
+        }).then(response => {
+          if (!response.ok) {
+            console.error("Failed to update favorite status");
+            return;
+          }
+        });
+      });
+    }
+    catch(error) {
+      console.error("Error while updating favorite status", error);
+    }
+  }
+
   /**************************************************************************/
   /*                            Reviews Functions                           */
   /**************************************************************************/
@@ -352,7 +373,8 @@ class DBHelper {
         body: JSON.stringify(review)
       });
       if (status.ok) {
-        console.log("Fetching offline reviews");
+        // Handle updating tasks
+        DBHelper.updateFavoritesStatus();
         await DBHelper.fetchOfflineStore();
       } else {
         console.log("Sending review to store");

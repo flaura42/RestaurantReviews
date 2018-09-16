@@ -492,7 +492,7 @@ async function testPing() {
 /**********    Save review to the server    **********/
 function testOffline() {
   console.log("running test offline");
-  let x = 11;
+  let x = 1;
   for (let i = x; i < (x+2); i++) {
     const review = {
       'restaurant_id': 1,
