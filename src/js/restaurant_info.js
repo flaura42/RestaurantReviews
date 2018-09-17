@@ -4,7 +4,7 @@
 
 /**********    Initialize map as soon as the page is loaded    **********/
 document.addEventListener('DOMContentLoaded', () => {
-  initMap();
+  initPage();
   setFavoriteIcon();
 });
 
@@ -24,14 +24,15 @@ document.getElementById('review-icon').addEventListener('click', () => {
 
 // Toggle map for easier testing with internet issues
 const nomap = true;
+const pingLocal = DBHelper.pingServer(DBHelper.LOCAL_URL);
 
-/**********    Initialize leaflet map    **********/
-async function initMap() {
+/**********    Check online status, send image or initMap()    **********/
+async function initPage() {
   try {
-    const restaurant = await fetchRestaurantFromURL();
-
-    // Checks if online and send image map if not.
-    if (!navigator.onLine || (nomap == true)) {
+    // Checks if online and sends map image if not
+    if (!navigator.onLine || !pingLocal || (nomap == true)) {
+      console.log("Bypassing map");
+      const restaurant = await fetchRestaurantFromURL(); // Needed for fBc
       fillBreadcrumb();
       const div = document.getElementById('map');
       const image = document.createElement('img');
@@ -41,8 +42,18 @@ async function initMap() {
       div.append(image);
       return div;
     }
+    console.log("Initializing map");
+    initMap();
+  }
+  catch(error) {
+    console.error('Error while initializing page: ', error);
+  }
+}
 
-    // If online, produces map.
+/**********    Initialize leaflet map    **********/
+async function initMap() {
+  try {
+    const restaurant = await fetchRestaurantFromURL();
     self.newMap = L.map('map', {
       center: [restaurant.latlng.lat, restaurant.latlng.lng],
       zoom: 16,
@@ -455,7 +466,7 @@ async function saveReview(id) {
   try {
     console.log("running saveReview()");
     const review = reviewData(id);
-    const ping = await pingServer();
+    const ping = await DBHelper.pingServer(DBHelper.REVIEWS_URL);
     if (ping == true) { DBHelper.addReview(review); }
     else { DBHelper.storeReview(review); }
     // window.location.href = `/restaurant.html?id=${id}`;
@@ -465,31 +476,22 @@ async function saveReview(id) {
   }
 }
 
-async function pingServer() {
-  try {
-    const status = await fetch(DBHelper.REVIEWS_URL).then(response => {
-      if (response.ok) { return true; }
-    });
-    console.log("Server status: ", status);
-    return status;
-  }
-  catch(error) {
-    console.error("Error while pinging server: ", error);
-    return false;
-  }
-}
+/******************************************************************************/
+/*                            Test Functions                             */
+/******************************************************************************/
 
 async function testPing() {
   try {
-    const status = await pingServer();
-    console.log("Status is: ", status);
+    const server = DBHelper.REVIEWS_URL;
+    // const server = DBHelper.LOCAL_URL;
+    const status = await DBHelper.pingServer(server);
+    console.log("Results are: ", status);
   }
   catch(error) {
     console.error("Error while testing ping: ", error);
   }
 }
 
-/**********    Save review to the server    **********/
 function testOffline() {
   console.log("running test offline");
   let x = 1;

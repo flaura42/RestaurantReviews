@@ -4,7 +4,7 @@
 
 /**********    Fetch restaurants as soon as the page is loaded    **********/
 document.addEventListener('DOMContentLoaded', () => {
-  initMap();
+  initPage();
   updateRestaurants();
   fetchNeighborhoods();
   fetchCuisines();
@@ -19,10 +19,31 @@ document.getElementById('faves-checkbox').addEventListener('change', () => {
 /*                             Pagewide Functions                             */
 /******************************************************************************/
 
-// TODO: figure out what is wrong with Kang Ho Dong Baekjeong favoriting
-
 // Toggle map for easier testing with internet issues
 const nomap = true;
+const pingLocal = DBHelper.pingServer(DBHelper.LOCAL_URL);
+
+/**********    Check online status, send image or initMap()    **********/
+async function initPage() {
+  try {
+    // Checks if online and sends map image if not
+    if (!navigator.onLine || !pingLocal || (nomap == true)) {
+      console.log("Bypassing map");
+      const div = document.getElementById('map');
+      const image = document.createElement('img');
+      image.src = 'img/nomap.jpg';
+      image.className = 'map-img';
+      image.alt = 'No map is available.';
+      div.append(image);
+      return div;
+    }
+    console.log("Initializing map");
+    initMap();
+  }
+  catch(error) {
+    console.error('Error while initializing page: ', error);
+  }
+}
 
 /**********    Update page and map for current restaurants    **********/
 async function updateRestaurants() {
@@ -122,18 +143,6 @@ async function fetchCuisines() {
 
 /**********    Initialize leaflet map, called from HTML    **********/
 function initMap() {
-
-  // Checks if online and send image map if not.
-  if (!navigator.onLine || (nomap == true))  {
-    const div = document.getElementById('map');
-    const image = document.createElement('img');
-    image.src = 'img/nomap.jpg';
-    image.className = 'map-img';
-    image.alt = 'No map is available.';
-    div.append(image);
-    return div;
-  }
-  // If online, produces map.
   self.newMap = L.map('map', {
     center: [40.722216, -73.987501],
     zoom: 11,
@@ -156,7 +165,7 @@ function fillRestaurantsHTML(restaurants = self.restaurants) {
     ul.append(createRestaurantHTML(restaurant));
   });
   // Only add markers if currently online.
-  if (navigator.onLine) {
+  if (!navigator.onLine || !pingLocal || (nomap == true)) {
     addMarkersToMap();
   }
 }
@@ -207,7 +216,7 @@ function createRestaurantHTML(restaurant) {
 /**********    Add markers for current restaurants to the map    **********/
 function addMarkersToMap(restaurants = self.restaurants) {
   // Only add markers if currently online.
-  if (!navigator.onLine || (nomap == true)) { return; }
+  if (!navigator.onLine || !pingLocal || (nomap == true)) { return; }
   restaurants.forEach(restaurant => {
     // Add marker to the map
     const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.newMap);

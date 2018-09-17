@@ -41,6 +41,12 @@ class DBHelper {
     return `http://localhost:${port}/reviews`;
   }
 
+  /**********    Reviews URL    **********/
+  static get LOCAL_URL() {
+    const port = 8000; // Change this to your server port
+    return `http://localhost:${port}`;
+  }
+
   /**********    Fetch all restaurants    **********/
   static async fetchRestaurants() {
     try {
@@ -219,6 +225,21 @@ class DBHelper {
       });
     marker.addTo(newMap);
     return marker;
+  }
+
+  /**********    Ping server to see if functioning    **********/
+  static async pingServer(server) {
+    try {
+      console.log("Pinging server: ", server);
+      const status = await fetch(server).then(response => {
+        if (response.ok) { return true; }
+      });
+      return status;
+    }
+    catch(error) {
+      console.error("Error while pinging server: ", error);
+      return false;
+    }
   }
 
   /**************************************************************************/
