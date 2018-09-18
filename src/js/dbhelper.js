@@ -1,14 +1,14 @@
 /**********    Register serviceWorker    **********/
-// if (navigator.serviceWorker) {
-//   window.addEventListener('load', () => {
-//     navigator.serviceWorker.register('/sw.js')
-//       .then(registration => {
-//         // console.log("ServiceWorker registered:", registration);
-//       }, error => {
-//         console.error("ServiceWorker registration failed:", error);
-//       });
-//   });
-// }
+if (navigator.serviceWorker) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        // console.log("ServiceWorker registered:", registration);
+      }, error => {
+        console.error("ServiceWorker registration failed:", error);
+      });
+  });
+}
 
 /**********    global variable for opening idb    **********/
 const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
@@ -29,8 +29,8 @@ class DBHelper {
   /*                           Pagewide Functions                           */
   /**************************************************************************/
 
-  /**********    Database URL    **********/
-  static get DATABASE_URL() {
+  /**********    Restaurants URL    **********/
+  static get RESTAURANTS_URL() {
     const port = 1337; // Change this to your server port
     return `http://localhost:${port}/restaurants`;
   }
@@ -41,7 +41,7 @@ class DBHelper {
     return `http://localhost:${port}/reviews`;
   }
 
-  /**********    Reviews URL    **********/
+  /**********    Local (app) URL    **********/
   static get LOCAL_URL() {
     const port = 8000; // Change this to your server port
     return `http://localhost:${port}`;
@@ -75,7 +75,7 @@ class DBHelper {
   /**********    Serve all restaurants    **********/
   static async serveRestaurants() {
     try {
-      const fetchAll = new Request(DBHelper.DATABASE_URL);
+      const fetchAll = new Request(DBHelper.RESTAURANTS_URL);
       const response = await fetch(fetchAll);
       if (response.ok) {
         const restaurants = await response.json();
@@ -93,14 +93,10 @@ class DBHelper {
   /**********    Add served restaurants to DB    **********/
   static async addRestaurants(restaurants) {
     try {
-      // console.log("running addR");
       // Create transaction to put restaurants into db
       const db = await dbPromise;
-      // console.log("db is: ", db);
-      // TODO: the error is here.  figure out why.
       const tx = db.transaction('restaurants-store', 'readwrite');
       const store = tx.objectStore('restaurants-store');
-      // console.log("restaurants to add: ", restaurants.length);
       for (let i = 0; i < restaurants.length; i++) {
         store.put(restaurants[i]);
       }
@@ -138,7 +134,7 @@ class DBHelper {
         // console.log("found restaurant by id: ", restaurant);
         return restaurant;
       } else {
-        console.error("Restaurant doesn't exist");
+        console.error("Restaurant id doesn't exist");
       }
     }
     catch(error) {
@@ -227,17 +223,17 @@ class DBHelper {
     return marker;
   }
 
-  /**********    Ping server to see if functioning    **********/
-  static async pingServer(server) {
+  /**********    Ping url to see if functioning    **********/
+  static async pingUrl(url) {
     try {
-      console.log("Pinging server: ", server);
-      const status = await fetch(server).then(response => {
+      console.log("Pinging URL: ", url);
+      const status = await fetch(url).then(response => {
         if (response.ok) { return true; }
       });
       return status;
     }
     catch(error) {
-      console.error("Error while pinging server: ", error);
+      console.error("Error while pinging url: ", error);
       return false;
     }
   }
@@ -270,6 +266,7 @@ class DBHelper {
     }
   }
 
+// TODO: Filtering still not working completely.  Need to be able to filter out favorites when filter selects selected.
   // NOTE: Called from updateFavorites() (main.js)
   /**********    Collect restaurants that are favorites    **********/
   static async fetchFavorites(neighborhood, cuisine) {
@@ -310,7 +307,7 @@ class DBHelper {
       const restaurants = await DBHelper.fetchRestaurants();
       console.log("Restaurants HERE: ", restaurants.length);
       restaurants.forEach(restaurant => {
-        fetch(`${DBHelper.DATABASE_URL}/${restaurant.id}/?is_favorite=${restaurant.is_favorite}`, {
+        fetch(`${DBHelper.RESTAURANTS_URL}/${restaurant.id}/?is_favorite=${restaurant.is_favorite}`, {
           method: 'PUT'
         }).then(response => {
           if (!response.ok) {

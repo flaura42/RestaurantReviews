@@ -1,32 +1,21 @@
 /******************************************************************************/
-/*                               Event Listeners                              */
-/******************************************************************************/
-
-/**********    Fetch restaurants as soon as the page is loaded    **********/
-document.addEventListener('DOMContentLoaded', () => {
-  initPage();
-  updateRestaurants();
-  fetchNeighborhoods();
-  fetchCuisines();
-});
-
-/**********    Listen for change on favorites checkbox    **********/
-document.getElementById('faves-checkbox').addEventListener('change', () => {
-  handleChangeFavorites();
-});
-
-/******************************************************************************/
 /*                             Pagewide Functions                             */
 /******************************************************************************/
 
-// Toggle map for easier testing with internet issues
-const nomap = true;
-const pingLocal = DBHelper.pingServer(DBHelper.LOCAL_URL);
+/**********    Initialize page upon page load    **********/
+document.addEventListener('DOMContentLoaded', () => { initPage(); });
 
-/**********    Check online status, send image or initMap()    **********/
+/**********    Global Variables    **********/
+const nomap = true;  // Toggle map for easier testing with internet issues
+const pingLocal = DBHelper.pingUrl(DBHelper.LOCAL_URL);
+
+/**********    Handle page load    **********/
 async function initPage() {
   try {
-    // Checks if online and sends map image if not
+    updateRestaurants();
+    fetchNeighborhoods();
+    fetchCuisines();
+    // Check online status and send image or initMap()
     if (!navigator.onLine || !pingLocal || (nomap == true)) {
       console.log("Bypassing map");
       const div = document.getElementById('map');
@@ -45,7 +34,7 @@ async function initPage() {
   }
 }
 
-/**********    Update page and map for current restaurants    **********/
+/**********    Update page for current restaurants    **********/
 async function updateRestaurants() {
   try {
     const nSelect = document.getElementById('neighborhoods-select');
@@ -86,12 +75,8 @@ function resetRestaurants(restaurants) {
   self.restaurants = restaurants;
 
   // Remove all map markers
-  if (self.markers) {
-    self.markers.forEach(marker => marker.remove());
-  }
-  if (navigator.onLine) {
-    self.markers = [];
-  }
+  if (self.markers) { self.markers.forEach(marker => marker.remove()); }
+  if (navigator.onLine) { self.markers = []; }
 }
 
 /**********    Fetch all neighborhoods and set their HTML    **********/
@@ -165,9 +150,7 @@ function fillRestaurantsHTML(restaurants = self.restaurants) {
     ul.append(createRestaurantHTML(restaurant));
   });
   // Only add markers if currently online.
-  if (!navigator.onLine || !pingLocal || (nomap == true)) {
-    addMarkersToMap();
-  }
+  if (!navigator.onLine || !pingLocal || (nomap == true)) { addMarkersToMap(); }
 }
 
 /**********    Create all restaurants HTML    **********/
@@ -238,7 +221,6 @@ async function handleChangeFavorites() {
     let checkbox = document.getElementById('faves-checkbox');
     let checkFavorites = await DBHelper.checkFavorites();
     if (checkbox.checked && checkFavorites.length == 0) {
-      // console.log("Checkbox checked and empty: ", checkbox.checked, checkFavorites.length);
       alert('No restaurants have been favorited.  Please click the favorite icon for a restaurant to do so.');
       document.getElementById('faves-checkbox').checked = false;
     }

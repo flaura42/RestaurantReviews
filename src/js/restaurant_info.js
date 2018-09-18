@@ -1,30 +1,13 @@
 /******************************************************************************/
-/*                               Event Listeners                              */
-/******************************************************************************/
-
-/**********    Initialize map as soon as the page is loaded    **********/
-document.addEventListener('DOMContentLoaded', () => {
-  initPage();
-  setFavoriteIcon();
-});
-
-/**********    Listen for clicks on favorite icon    **********/
-document.getElementById('favorite-icon').addEventListener('click', () => {
-  handleClickFavorite();
-});
-
-/**********    Listen for clicks on review icon    **********/
-document.getElementById('review-icon').addEventListener('click', () => {
-  handleClickReview();
-});
-
-/******************************************************************************/
 /*                             Pagewide Functions                             */
 /******************************************************************************/
 
-// Toggle map for easier testing with internet issues
-const nomap = true;
-const pingLocal = DBHelper.pingServer(DBHelper.LOCAL_URL);
+/**********    Initialize page upon page load    **********/
+document.addEventListener('DOMContentLoaded', () => { initPage(); });
+
+/**********    Global Variables    **********/
+const nomap = true; // Toggle map for easier testing with internet issues
+const pingLocal = DBHelper.pingUrl(DBHelper.LOCAL_URL);
 
 /**********    Check online status, send image or initMap()    **********/
 async function initPage() {
@@ -44,6 +27,7 @@ async function initPage() {
     }
     console.log("Initializing map");
     initMap();
+    setFavoriteIcon();
   }
   catch(error) {
     console.error('Error while initializing page: ', error);
@@ -288,7 +272,8 @@ async function setFavoriteIcon() {
     img.alt = 'Favorite this restaurant';
     // console.log("setting icon to: ", status);
     img.src = (status == true) ? '/img/bookmark-check.png' : '/img/bookmark-plus.png';
-    (check == true) ? favorite.appendChild(img) : favorite.replaceChild(img, favorite.childNodes[0]);
+    img.onclick = () => handleClickFavorite();
+    (check) ? favorite.appendChild(img) : favorite.replaceChild(img, favorite.childNodes[0]);
   }
   catch(error) {
     console.error("Error while setting favorite icon: ", error);
@@ -310,9 +295,7 @@ async function handleClickReview() {
     const container = document.getElementById('reviews-container');
     const form = document.getElementById('form');
     if (container.contains(form)) { return; }
-
     createForm(restaurant);
-    handleClickForm(restaurant);
   }
   catch(error) {
     console.error("Error while handling review click: ", error);
@@ -336,6 +319,9 @@ function createForm(restaurant) {
   const close = document.createElement('p');
   close.id = 'close';
   close.innerHTML = '&times;';
+  close.onmouseover = () => close.className = 'close-hover';
+  close.onmouseout = () => close.className = '';
+  close.onclick = () => clearForm();
   titleSection.append(close);
 
   // TODO: Decide if keep here or move to right of submit button
@@ -411,32 +397,13 @@ function createForm(restaurant) {
   submitButton.type = 'submit';
   submitButton.id = 'submit';
   submitButton.innerHTML = 'Submit Review';
+  submitButton.onclick = () => saveReview(restaurant.id);
   submit.append(submitButton);
   form.append(submit);
 
+// TODO: Decide if have review box fixed position
   // Have form appear above Reviews title to ensure on top/review button below
   container.insertBefore(form, header);
-}
-
-/**********    Handle actions on the close/submit buttons    **********/
-function handleClickForm(restaurant) {
-
-  const close = document.getElementById('close');
-  close.onmouseover = () => {  // TODO find right version
-    close.className = 'close-hover';
-  };
-  close.onmouseout = () => {  // TODO find right version
-    close.className = '';
-  };
-  close.onclick = () => {
-    console.log("being clicked");
-    clearForm();
-  };
-
-  const submitButton = document.getElementById('submit');
-  submitButton.addEventListener('click', () => {
-    saveReview(restaurant.id);
-  });
 }
 
 /**********    Remove the form when reviewer finished/clicks X   **********/
@@ -445,6 +412,7 @@ function clearForm() {
   form.remove();
 }
 
+/**********    Function for storing form data   **********/
 function reviewData(id) {
   const name = document.getElementById('name').value;
   const rating = document.querySelector('input[name="rating"]:checked').value;
@@ -461,15 +429,16 @@ function reviewData(id) {
   return review;
 }
 
+// TODO: Have user notified if review can't be saved.  Try again?/Save for later?/Cancel?  Ping url after click and then ask?
 /**********    Save review to the server    **********/
 async function saveReview(id) {
   try {
     console.log("running saveReview()");
     const review = reviewData(id);
-    const ping = await DBHelper.pingServer(DBHelper.REVIEWS_URL);
+    const ping = await DBHelper.pingUrl(DBHelper.REVIEWS_URL);
     if (ping == true) { DBHelper.addReview(review); }
     else { DBHelper.storeReview(review); }
-    // window.location.href = `/restaurant.html?id=${id}`;
+    // DBHelper.storeReview(review);
   }
   catch(error) {
     console.error("Error while saving review: ", error);
@@ -482,9 +451,9 @@ async function saveReview(id) {
 
 async function testPing() {
   try {
-    const server = DBHelper.REVIEWS_URL;
-    // const server = DBHelper.LOCAL_URL;
-    const status = await DBHelper.pingServer(server);
+    const url = DBHelper.REVIEWS_URL;
+    // const url = DBHelper.LOCAL_URL;
+    const status = await DBHelper.pingUrl(url);
     console.log("Results are: ", status);
   }
   catch(error) {
