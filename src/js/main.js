@@ -5,10 +5,6 @@
 /**********    Initialize page upon page load    **********/
 document.addEventListener('DOMContentLoaded', () => { initPage(); });
 
-/**********    Global Variables    **********/
-const nomap = true;  // Toggle map for easier testing with internet issues
-const pingLocal = DBHelper.pingUrl(DBHelper.LOCAL_URL);
-
 /**********    Handle page load    **********/
 async function initPage() {
   try {
@@ -16,7 +12,8 @@ async function initPage() {
     fetchNeighborhoods();
     fetchCuisines();
     // Check online status and send image or initMap()
-    if (!navigator.onLine || !pingLocal || (nomap == true)) {
+    let status = DBHelper.checkLocal();
+    if (!status) {
       console.log("Bypassing map");
       const div = document.getElementById('map');
       const image = document.createElement('img');
@@ -26,7 +23,7 @@ async function initPage() {
       div.append(image);
       return div;
     }
-    console.log("Initializing map");
+    // console.log("Initializing map");
     initMap();
   }
   catch(error) {
@@ -76,7 +73,10 @@ function resetRestaurants(restaurants) {
 
   // Remove all map markers
   if (self.markers) { self.markers.forEach(marker => marker.remove()); }
-  if (navigator.onLine) { self.markers = []; }
+
+  // Check online status and clear markers if online
+  let status = DBHelper.checkLocal();
+  if (status) { self.markers = []; }
 }
 
 /**********    Fetch all neighborhoods and set their HTML    **********/
@@ -150,7 +150,8 @@ function fillRestaurantsHTML(restaurants = self.restaurants) {
     ul.append(createRestaurantHTML(restaurant));
   });
   // Only add markers if currently online.
-  if (!navigator.onLine || !pingLocal || (nomap == true)) { addMarkersToMap(); }
+  let status = DBHelper.checkLocal();
+  if (status) { addMarkersToMap(); }
 }
 
 /**********    Create all restaurants HTML    **********/
@@ -199,7 +200,8 @@ function createRestaurantHTML(restaurant) {
 /**********    Add markers for current restaurants to the map    **********/
 function addMarkersToMap(restaurants = self.restaurants) {
   // Only add markers if currently online.
-  if (!navigator.onLine || !pingLocal || (nomap == true)) { return; }
+  let status = DBHelper.checkLocal();
+  if (!status) { return; }
   restaurants.forEach(restaurant => {
     // Add marker to the map
     const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.newMap);
@@ -216,7 +218,7 @@ function addMarkersToMap(restaurants = self.restaurants) {
 /******************************************************************************/
 
 /**********    Handle Favorites checkbox event     **********/
-async function handleChangeFavorites() {
+async function handleChangeFavorites() {  // Called from favorites checkbox
   try {
     let checkbox = document.getElementById('faves-checkbox');
     let checkFavorites = await DBHelper.checkFavorites();

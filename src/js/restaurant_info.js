@@ -5,16 +5,13 @@
 /**********    Initialize page upon page load    **********/
 document.addEventListener('DOMContentLoaded', () => { initPage(); });
 
-/**********    Global Variables    **********/
-const nomap = true; // Toggle map for easier testing with internet issues
-const pingLocal = DBHelper.pingUrl(DBHelper.LOCAL_URL);
-
 /**********    Check online status, send image or initMap()    **********/
 async function initPage() {
   try {
-    // Checks if online and sends map image if not
-    if (!navigator.onLine || !pingLocal || (nomap == true)) {
-      console.log("Bypassing map");
+    // Check online status and send image or initMap()
+    let status = DBHelper.checkLocal();
+    if (!status) {
+      // console.log("Bypassing map");
       const restaurant = await fetchRestaurantFromURL(); // Needed for fBc
       fillBreadcrumb();
       const div = document.getElementById('map');
@@ -25,7 +22,7 @@ async function initPage() {
       div.append(image);
       return div;
     }
-    console.log("Initializing map");
+    // console.log("Initializing map");
     initMap();
     setFavoriteIcon();
   }
@@ -79,7 +76,7 @@ async function fetchRestaurantFromURL() {
 
       // fill reviews
       const reviews = await DBHelper.serveReviewsById(id);
-      console.log("Reviews being sent: ", reviews.length);
+      // console.log("Reviews being sent: ", reviews.length);
       fillReviewsHTML(reviews);
 
       return restaurant;
@@ -221,7 +218,7 @@ async function handleClickFavorite() {
         setFavoriteIcon();
 
       } else {
-        console.log("favorite cancelled");
+        // console.log("favorite cancelled");
       }
       break;
     case true:
@@ -229,7 +226,7 @@ async function handleClickFavorite() {
         await DBHelper.toggleFavorite(id);
         setFavoriteIcon();
       } else {
-        console.log("favorite cancelled");
+        // console.log("favorite cancelled");
       }
       break;
     default:
@@ -285,11 +282,11 @@ async function setFavoriteIcon() {
 /******************************************************************************/
 
 /**********    Handle click on Reviews button    **********/
-async function handleClickReview() {
+async function handleClickReview() {  // Called from review icon
   try {
     const id = getParameterByName('id');
     const restaurant = await DBHelper.fetchRestaurantById(id);
-    console.log("Review restaurant: ", restaurant.name);
+    // console.log("Review restaurant: ", restaurant.name);
 
     // To prevent opening of multiple forms
     const container = document.getElementById('reviews-container');
@@ -433,7 +430,7 @@ function reviewData(id) {
 /**********    Save review to the server    **********/
 async function saveReview(id) {
   try {
-    console.log("running saveReview()");
+    // console.log("running saveReview()");
     const review = reviewData(id);
     const ping = await DBHelper.pingUrl(DBHelper.REVIEWS_URL);
     if (ping == true) { DBHelper.addReview(review); }
@@ -454,7 +451,7 @@ async function testPing() {
     const url = DBHelper.REVIEWS_URL;
     // const url = DBHelper.LOCAL_URL;
     const status = await DBHelper.pingUrl(url);
-    console.log("Results are: ", status);
+    // console.log("Results are: ", status);
   }
   catch(error) {
     console.error("Error while testing ping: ", error);
@@ -462,7 +459,7 @@ async function testPing() {
 }
 
 function testOffline() {
-  console.log("running test offline");
+  // console.log("running test offline");
   let x = 1;
   for (let i = x; i < (x+2); i++) {
     const review = {
@@ -476,10 +473,10 @@ function testOffline() {
     DBHelper.storeReview(review);
   }
 
-  console.log("Test ran");
+  // console.log("Test ran");
 }
 
 function testStore() {
-  console.log("Running test store");
+  // console.log("Running test store");
   DBHelper.fetchOfflineStore();
 }
