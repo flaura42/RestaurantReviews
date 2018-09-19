@@ -28,7 +28,7 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
   // If statement used to get rid of most of the annoying errors
   const requestUrl = event.request.url;
-  if (requestUrl.includes('unpkg') || requestUrl.includes('browser-sync') || requestUrl.includes('mapbox')) {
+  if (requestUrl.includes('browser-sync')|| requestUrl.includes('unpkg') || requestUrl.includes('mapbox')) {
     return;
   }
 
@@ -40,9 +40,9 @@ self.addEventListener('fetch', event => {
       }
       // Fetch request and clone it
       let fetchRequest = event.request.clone();
-      // Ensure valid/status ok/correct type
+      // Ensure valid/status ok
       return fetch(fetchRequest).then(response => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
+        if (!response || response.status !== 200) {
           return response;
         }
         // Clone response to send one to cache and return other

@@ -1,14 +1,14 @@
 /**********    Register serviceWorker    **********/
-if (navigator.serviceWorker) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(registration => {
-        // console.log("ServiceWorker registered:", registration);
-      }, error => {
-        console.error("ServiceWorker registration failed:", error);
-      });
-  });
-}
+// if (navigator.serviceWorker) {
+//   window.addEventListener('load', () => {
+//     navigator.serviceWorker.register('/sw.js')
+//       .then(registration => {
+//         // console.log("ServiceWorker registered:", registration);
+//       }, error => {
+//         console.error("ServiceWorker registration failed:", error);
+//       });
+//   });
+// }
 
 /**********    global variable for opening idb    **********/
 const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
@@ -24,7 +24,7 @@ const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
 });
 
 // Toggle map for easier testing with internet issues
-const showMap = true;
+const showMap = false;
 
 /**********    Common database helper functions    **********/
 class DBHelper {
@@ -155,7 +155,6 @@ class DBHelper {
         return null;
       }
       // console.log("Restaurants for fetchN are: ", restaurants.length);
-
       const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood);
       // Remove duplicates from neighborhoods
       const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) == i);
@@ -176,7 +175,6 @@ class DBHelper {
         return null;
       }
       // console.log("Restaurants for fetchC are: ", restaurants.length);
-
       const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type);
       // Remove duplicates from cuisines
       const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) == i);
@@ -259,7 +257,6 @@ class DBHelper {
   /*                           Favorites Functions                          */
   /**************************************************************************/
 
-  // NOTE: Called from handleClickFavorite() (ri.js)
   /**********    Add/remove favorited restaurant from DB   **********/
   static async toggleFavorite(id) {
     try {
@@ -284,7 +281,6 @@ class DBHelper {
   }
 
 // TODO: Filtering still not working completely.  Need to be able to filter out favorites when filter selects selected.
-  // NOTE: Called from updateFavorites() (main.js)
   /**********    Collect restaurants that are favorites    **********/
   static async fetchFavorites(neighborhood, cuisine) {
     try {

@@ -9,17 +9,22 @@ document.addEventListener('DOMContentLoaded', () => { initPage(); });
 async function initPage() {
   try {
     // Check online status and send image or initMap()
-    let status = DBHelper.checkLocal();
+    let status = await DBHelper.checkLocal();
     if (!status) {
-      // console.log("Bypassing map");
+      console.log("Bypassing map");
       const restaurant = await fetchRestaurantFromURL(); // Needed for fBc
       fillBreadcrumb();
       const div = document.getElementById('map');
       const image = document.createElement('img');
-      image.src = 'img/nomap.jpg';
+      const overlay = document.createElement('img');
+      image.src = 'img/map_full.jpg';
       image.className = 'map-img';
       image.alt = 'No map is available.';
       div.append(image);
+      overlay.src = `img/map_${restaurant.id}.jpg`;
+      overlay.className = 'map-overlay';
+      overlay.alt = 'Map overlay';
+      div.append(overlay);
       return div;
     }
     // console.log("Initializing map");
@@ -38,7 +43,8 @@ async function initMap() {
     self.newMap = L.map('map', {
       center: [restaurant.latlng.lat, restaurant.latlng.lng],
       zoom: 16,
-      scrollWheelZoom: false
+      scrollWheelZoom: false,
+      zoomControl: false
     });
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
       mapboxToken: 'pk.eyJ1IjoiZmxhdXJhNDIiLCJhIjoiY2ppZjg5a2s4MHU1bjNrcWxwdW1zbzFiYyJ9.ZqYGMaSHFxiPjqBxxLYhyA',

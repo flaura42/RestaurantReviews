@@ -5,6 +5,7 @@
 /**********    Initialize page upon page load    **********/
 document.addEventListener('DOMContentLoaded', () => { initPage(); });
 
+// TODO: Add map info overlay to static map for compliance
 /**********    Handle page load    **********/
 async function initPage() {
   try {
@@ -12,12 +13,12 @@ async function initPage() {
     fetchNeighborhoods();
     fetchCuisines();
     // Check online status and send image or initMap()
-    let status = DBHelper.checkLocal();
+    let status = await DBHelper.checkLocal();
     if (!status) {
       console.log("Bypassing map");
       const div = document.getElementById('map');
       const image = document.createElement('img');
-      image.src = 'img/nomap.jpg';
+      image.src = 'img/map_full.jpg';
       image.className = 'map-img';
       image.alt = 'No map is available.';
       div.append(image);
@@ -64,19 +65,25 @@ async function updateRestaurants() {
 }
 
 /**********    Clear current restaurants, HTML and map markers    **********/
-function resetRestaurants(restaurants) {
-  // Remove all restaurants
-  self.restaurants = [];
-  const ul = document.getElementById('restaurants-list');
-  ul.innerHTML = '';
-  self.restaurants = restaurants;
+async function resetRestaurants(restaurants) {
+  try {
+    // Remove all restaurants
+    self.restaurants = [];
+    const ul = document.getElementById('restaurants-list');
+    ul.innerHTML = '';
+    self.restaurants = restaurants;
 
-  // Remove all map markers
-  if (self.markers) { self.markers.forEach(marker => marker.remove()); }
+    // Remove all map markers
+    if (self.markers) { self.markers.forEach(marker => marker.remove()); }
 
-  // Check online status and clear markers if online
-  let status = DBHelper.checkLocal();
-  if (status) { self.markers = []; }
+    // Check online status and clear markers if online
+    let status = await DBHelper.checkLocal();
+    if (status) { self.markers = []; }
+  }
+  catch(error) {
+    console.error("Error while resetting restaurants: ", error);
+  }
+
 }
 
 /**********    Fetch all neighborhoods and set their HTML    **********/
@@ -126,32 +133,41 @@ async function fetchCuisines() {
   }
 }
 
-/**********    Initialize leaflet map, called from HTML    **********/
+/**********    Initialize leaflet map    **********/
 function initMap() {
   self.newMap = L.map('map', {
     center: [40.722216, -73.987501],
     zoom: 11,
-    scrollWheelZoom: false
+    scrollWheelZoom: false,
+    zoomControl: false
   });
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
     mapboxToken: 'pk.eyJ1IjoiZmxhdXJhNDIiLCJhIjoiY2ppZjg5a2s4MHU1bjNrcWxwdW1zbzFiYyJ9.ZqYGMaSHFxiPjqBxxLYhyA',
     maxZoom: 18,
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-      '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-      'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    id: 'mapbox.streets'
+    // attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+    //   '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+    //   'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    id: 'mapbox.streets',
+    attributionControl: false,
+    prefix: false
   }).addTo(newMap);
 }
 
 /**********    Add all restaurants HTML to the webpage    **********/
-function fillRestaurantsHTML(restaurants = self.restaurants) {
-  const ul = document.getElementById('restaurants-list');
-  restaurants.forEach(restaurant => {
-    ul.append(createRestaurantHTML(restaurant));
-  });
-  // Only add markers if currently online.
-  let status = DBHelper.checkLocal();
-  if (status) { addMarkersToMap(); }
+async function fillRestaurantsHTML(restaurants = self.restaurants) {
+  try {
+    const ul = document.getElementById('restaurants-list');
+    restaurants.forEach(restaurant => {
+      ul.append(createRestaurantHTML(restaurant));
+    });
+    // Only add markers if currently online.
+    let status = await DBHelper.checkLocal();
+    if (status) { addMarkersToMap(); }
+  }
+  catch(error) {
+    console.error("Error while filling restaurants HTML:", error);
+  }
+
 }
 
 /**********    Create all restaurants HTML    **********/
@@ -198,19 +214,25 @@ function createRestaurantHTML(restaurant) {
 }
 
 /**********    Add markers for current restaurants to the map    **********/
-function addMarkersToMap(restaurants = self.restaurants) {
-  // Only add markers if currently online.
-  let status = DBHelper.checkLocal();
-  if (!status) { return; }
-  restaurants.forEach(restaurant => {
-    // Add marker to the map
-    const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.newMap);
-    marker.on('click', onClick);
-    function onClick() {
-      window.location.href = marker.options.url;
-    }
-    self.markers.push(marker);
-  });
+async function addMarkersToMap(restaurants = self.restaurants) {
+  try {
+    // Only add markers if currently online.
+    let status = await DBHelper.checkLocal();
+    if (!status) { return; }
+    restaurants.forEach(restaurant => {
+      // Add marker to the map
+      const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.newMap);
+      marker.on('click', onClick);
+      function onClick() {
+        window.location.href = marker.options.url;
+      }
+      self.markers.push(marker);
+    });
+  }
+  catch(error) {
+    console.error("Error while adding markers to map: ", error);
+  }
+
 }
 
 /******************************************************************************/
@@ -249,5 +271,21 @@ function resetSelects() {
   let nMax = nSelect.length;
   for (let i = nMax; i > 0; i--) {
     document.getElementById('neighborhoods-select').remove(i);
+  }
+}
+
+/******************************************************************************/
+/*                            Test Functions                             */
+/******************************************************************************/
+
+// Test checkLocal
+async function testLocal() {
+  try {
+    let test = await DBHelper.checkLocal();
+    console.log("test local results: ", test);
+    return test;
+  }
+  catch(error) {
+    console.log("Error while testing local", error);
   }
 }
