@@ -39,7 +39,7 @@ nav {
 
 nav h1 {
   margin: auto;
-  font-size: 1.75em;
+  font-size: 2em;
   font-weight: 100;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -221,6 +221,9 @@ nav h1 a {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
+	margin: 0;
+	padding: 20px 0;
+	/* border: 1px dotted red; */
 }
 
 /* ==================== Restaurant Info Section ==================== */
@@ -230,16 +233,19 @@ nav h1 a {
   color: #33c;
   font-size: 1.75em;
   font-weight: 100;
-  margin: 10px 0 30px 0;
+  margin: 10px 0;
   text-transform: uppercase;
 }
 
 #favorite-icon {
-	padding: 5px 10px 0 0;
+	padding: 0;
+	margin: 0;
+	max-width: 10%;
 }
 
-#favorite-img:hover {
-	background-color: #269f62;
+#favorite-svg {
+	pointer-events: none;
+	max-height: 60px;
 }
 
 #restaurant-info {
@@ -286,14 +292,12 @@ nav h1 a {
 }
 
 /* ====================== Reviews Section ====================== */
-#reviews-header {
-
-}
-
 #reviews-title {
 	color: #33c;
   font-size: 1.6em;
   font-weight: 100;
+  margin: 10px 0;
+  text-transform: uppercase;
 }
 
 #review-icon {
@@ -396,8 +400,6 @@ form {
 	float: right;
 	margin: 0;
 	padding: 0;
-	font-size: 1.5em;
-	font-weight: bolder;
 }
 
 .close-hover {

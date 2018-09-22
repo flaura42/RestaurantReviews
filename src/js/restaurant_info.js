@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => { initPage(); });
 /**********    Check online status, send image or initMap()    **********/
 async function initPage() {
   try {
+    setFavoriteIcon();
     // Check online status and send image or initMap()
     let status = await DBHelper.checkLocal();
     if (!status) {
@@ -21,15 +22,14 @@ async function initPage() {
       image.className = 'map-img';
       image.alt = 'No map is available.';
       div.append(image);
-      overlay.src = `img/map_${restaurant.id}.jpg`;
-      overlay.className = 'map-overlay';
-      overlay.alt = 'Map overlay';
-      div.append(overlay);
+      // overlay.src = `img/map_${restaurant.id}.jpg`;
+      // overlay.className = 'map-overlay';
+      // overlay.alt = 'Map overlay';
+      // div.append(overlay);
       return div;
     }
     // console.log("Initializing map");
     initMap();
-    setFavoriteIcon();
   }
   catch(error) {
     console.error('Error while initializing page: ', error);
@@ -211,10 +211,55 @@ function getParameterByName(name, url) {
 /*                            Favorites Functions                             */
 /******************************************************************************/
 
+/**********    Set favorite icon    **********/
+async function setFavoriteIcon() {
+  try {
+    // Determine if/what icon is being displayed
+    const status = await getFavoriteStatus();
+    const version = (status) ? 'img/icons.svg#fave-remove' : 'img/icons.svg#fave-add';
+    const favorite = document.getElementById('favorite-icon');
+    const check = (favorite.childNodes.length == 0);
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.id = 'favorite-svg';
+    svg.setAttribute('viewBox', '-10 -8 50 50');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    use.id = 'icon';
+    use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', version);
+    svg.appendChild(use);
+
+    (check) ? favorite.appendChild(svg) : favorite.replaceChild(svg, favorite.childNodes[0]);
+  }
+  catch(error) {
+    console.error("Error while setting favorite icon: ", error);
+  }
+}
+
+/**********    Get the current favorite status    **********/
+async function getFavoriteStatus() {
+  try {
+    const id = getParameterByName('id');
+    const restaurant = await DBHelper.fetchRestaurantById(id);
+
+    // Fix for restaurants without an is_favorite key
+    if (restaurant.is_favorite == undefined) {
+      Object.defineProperty(restaurant, 'is_favorite', { value: false });
+    }
+
+    return restaurant.is_favorite;
+  }
+  catch(error) {
+    console.error("Error while getting favorite status: ", error);
+  }
+}
+
 /**********    Handle click event for favorite icon    **********/
 async function handleClickFavorite() {
   try {
-    // console.log("favorite icon clicked");
     const status = await getFavoriteStatus();
     const id = getParameterByName('id');
     switch (status) {
@@ -244,42 +289,19 @@ async function handleClickFavorite() {
   }
 }
 
-/**********    Get the current favorite status    **********/
-async function getFavoriteStatus() {
-  try {
-    const id = getParameterByName('id');
-    const restaurant = await DBHelper.fetchRestaurantById(id);
-
-    // Fix for restaurants without an is_favorite key
-    if (restaurant.is_favorite == undefined) {
-      Object.defineProperty(restaurant, 'is_favorite', { value: false });
-    }
-
-    const status = restaurant.is_favorite;
-    // console.log("Status is: ", status);
-    return status;
-  }
-  catch(error) {
-    console.error("Error while getting favorite status: ", error);
-  }
-}
-
-/**********    Set favorite icon    **********/
-async function setFavoriteIcon() {
+// TODO: Add handling for focus
+/**********    handle icon change when mouseover    **********/
+async function handleHover(hover) {
   try {
     const status = await getFavoriteStatus();
-    const favorite = document.getElementById('favorite-icon');
-    const check = (favorite.childNodes.length == 0);
-    const img = document.createElement('img');
-    img.id = 'favorite-img';
-    img.alt = 'Favorite this restaurant';
-    // console.log("setting icon to: ", status);
-    img.src = (status == true) ? '/img/bookmark-check.png' : '/img/bookmark-plus.png';
-    img.onclick = () => handleClickFavorite();
-    (check) ? favorite.appendChild(img) : favorite.replaceChild(img, favorite.childNodes[0]);
+    const currentVersion = (status) ? 'img/icons.svg#fave-remove' : 'img/icons.svg#fave-add';
+    const hoverVersion = (hover) ? '-hover' : '';
+    const version = `${currentVersion}${hoverVersion}`;
+    const icon = document.getElementById('icon');
+    icon.href.baseVal = version;
   }
   catch(error) {
-    console.error("Error while setting favorite icon: ", error);
+    console.error("Error while handling hover", error);
   }
 }
 

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+  <p>All icons are modified versions of <a href="https://www.iconfinder.com/firststyles">First Styles</a> icons and and have color and minor shape modifications.</p>
+<!-- viewBox="0 0 38 32" enable-background="new 0 0 38 32" xml:space="preserve" -->
+  <defs>
+    <path id="star" d="m20.70154,21.7841c0,-5.34708 4.34792,-9.695 9.695,-9.695c0.64788,0 1.28017,0.06245 1.89684,0.18734c-0.03902,-0.64008 -0.49958,-1.23333 -1.22553,-1.35043l-8.58655,-1.35043c-0.47617,-0.07806 -0.88207,-0.37468 -1.08503,-0.81182l-3.75467,-7.83717c-0.523,-1.08503 -2.06857,-1.10845 -2.61499,-0.03122l-3.9342,7.75131c-0.21857,0.42933 -0.63228,0.71814 -1.10844,0.78059l-8.61777,1.14747c-1.19431,0.15612 -1.6939,1.62364 -0.83524,2.47449l6.15109,6.14329c0.33566,0.33566 0.49178,0.81963 0.40591,1.29579l-1.56899,8.54752c-0.21857,1.18651 1.02258,2.10761 2.09199,1.56119l7.74351,-3.95762c0.42932,-0.21857 0.93671,-0.21075 1.35823,0.01561l7.64203,4.13716c0.64008,0.34346 1.46098,0.10085 1.8825,-0.35971c-3.20824,-1.58461 -5.53569,-4.83906 -5.53569,-8.64836z" fill="#ffd400"/>
+
+    <ellipse id="circle" cx="9.833333" cy="9.750002" fill="#3333cc" rx="9.61791" ry="9.61791" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="null"/>
+
+    <path id="plus" d="m28.79578,14.19387l3.01778,0.04079l0,5.95659l5.98556,0.01842l0.01842,3.00857l-6.03556,-0.01842l0.01315,5.99084l-2.99014,0.03158l-0.03158,-6.01186l-5.99344,-0.01056l0,-2.99014l6.02501,0.01842l-0.00921,-6.03423l0.00001,0z" fill="#ffffff" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="null"/>
+
+    <path id="plus-hover" d="m28.79578,14.19387l3.01778,0.04079l0,5.95659l5.98556,0.01842l0.01842,3.00857l-6.03556,-0.01842l0.01315,5.99084l-2.99014,0.03158l-0.03158,-6.01186l-5.99344,-0.01056l0,-2.99014l6.02501,0.01842l-0.00921,-6.03423l0.00001,0z" fill="#ff0044" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="null"/>
+
+    <rect id="minus" fill="#ffffff" height="3" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="null" width="15" x="22.79876" y="20.21266"/>
+
+    <rect id="minus-hover" fill="#ff0044" height="3" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="null" width="15" x="22.79876" y="20.21266"/>
+
+    <symbol id="fave-add">
+      <use href="#star" x="0" y="0"/>
+      <use href="#circle" x="20.75" y="12"/>
+      <use href="#plus" x="0" y="0"/>
+    </symbol>
+
+    <symbol id="fave-add-hover" >
+      <use href="#star" x="0" y="0"/>
+      <use href="#circle" x="20.75" y="12"/>
+      <use href="#plus-hover" x="0" y="0"/>
+    </symbol>
+
+    <symbol id="fave-remove">
+      <use href="#star" x="0" y="0"/>
+      <use href="#circle" x="20.75" y="12"/>
+      <use href="#minus" x="0" y="0"/>
+    </symbol>
+
+    <symbol id="fave-remove-hover">
+      <use href="#star" x="0" y="0"/>
+      <use href="#circle" x="20.75" y="12"/>
+      <use href="#minus-hover" x="0" y="0"/>
+    </symbol>
+  </defs>
+</svg>
