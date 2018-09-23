@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => { initPage(); });
 async function initPage() {
   try {
     setFavoriteIcon();
+    setReviewIcon();
     // Check online status and send image or initMap()
     let status = await DBHelper.checkLocal();
     if (!status) {
@@ -160,8 +161,9 @@ function createReviewHTML(review) {
   const li = document.createElement('li');
 
   const div = document.createElement('div');
-  div.className = 'review-top';
+  div.className = 'review-top header';
   const name = document.createElement('p');
+  name.className = 'reviewer-name';
   name.innerHTML = review.name;
   div.appendChild(name);
 
@@ -169,12 +171,14 @@ function createReviewHTML(review) {
   const dateMilli = review.createdAt;
   const dateValue = new Intl.DateTimeFormat('en-US').format(new Date(dateMilli));
   const date = document.createElement('p');
+  date.className = 'review-date';
   date.innerHTML = dateValue;
   div.appendChild(date);
 
   li.appendChild(div);
 
   const rating = document.createElement('p');
+  rating.className = 'rating';
   rating.innerHTML = `Rating: ${review.rating}`;
   li.appendChild(rating);
 
@@ -217,18 +221,23 @@ async function setFavoriteIcon() {
     // Determine if/what icon is being displayed
     const status = await getFavoriteStatus();
     const version = (status) ? 'img/icons.svg#fave-remove' : 'img/icons.svg#fave-add';
-    const favorite = document.getElementById('favorite-icon');
+    const favorite = document.getElementById('favorite-div');
     const check = (favorite.childNodes.length == 0);
+
+    // Set favorite icon handlers
+    favorite.onmouseover = () => handleHoverFavorite(true);
+    favorite.onmouseout = () => handleHoverFavorite(false);
+    favorite.onclick = () => handleClickFavorite();
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.id = 'favorite-svg';
-    svg.setAttribute('viewBox', '-10 -8 50 50');
+    svg.setAttribute('viewBox', '0 -6 40 40');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
-    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    // svg.setAttribute('preserveAspectRatio', 'xMaxYMax meet');
 
     const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-    use.id = 'icon';
+    use.id = 'favorite-icon';
     use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', version);
     svg.appendChild(use);
 
@@ -258,7 +267,7 @@ async function getFavoriteStatus() {
 }
 
 /**********    Handle click event for favorite icon    **********/
-async function handleClickFavorite() {
+async function handleClickFavorite() {  // Called from favorite icon
   try {
     const status = await getFavoriteStatus();
     const id = getParameterByName('id');
@@ -290,24 +299,54 @@ async function handleClickFavorite() {
 }
 
 // TODO: Add handling for focus
-/**********    handle icon change when mouseover    **********/
-async function handleHover(hover) {
+/**********    Handle icon change when mouseover    **********/
+async function handleHoverFavorite(hover) {  // Called from favorite icon
   try {
     const status = await getFavoriteStatus();
     const currentVersion = (status) ? 'img/icons.svg#fave-remove' : 'img/icons.svg#fave-add';
     const hoverVersion = (hover) ? '-hover' : '';
     const version = `${currentVersion}${hoverVersion}`;
-    const icon = document.getElementById('icon');
+    const icon = document.getElementById('favorite-icon');
     icon.href.baseVal = version;
   }
   catch(error) {
-    console.error("Error while handling hover", error);
+    console.error("Error while handling favorite hover", error);
   }
 }
 
 /******************************************************************************/
 /*                            Reviews Functions                             */
 /******************************************************************************/
+
+/**********    Set review icon    **********/
+async function setReviewIcon() {
+  try {
+    // Determine if icon is being displayed
+    const review = document.getElementById('review-div');
+    const check = (review.childNodes.length == 0);
+
+    // Set review icon handlers
+    review.onmouseover = () => handleHover('review', true);
+    review.onmouseout = () => handleHover('review', false);
+    review.onclick = () => handleClickReview();
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.id = 'review-svg';
+    svg.setAttribute('viewBox', '0 -5 40 40');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+
+    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    use.id = 'review-icon';
+    use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', 'img/icons.svg#review-add');
+    svg.appendChild(use);
+
+    (check) ? review.appendChild(svg) : review.replaceChild(svg, review.childNodes[0]);
+  }
+  catch(error) {
+    console.error("Error while setting review icon: ", error);
+  }
+}
 
 /**********    Handle click on Reviews button    **********/
 async function handleClickReview() {  // Called from review icon
@@ -316,44 +355,78 @@ async function handleClickReview() {  // Called from review icon
     const restaurant = await DBHelper.fetchRestaurantById(id);
     // console.log("Review restaurant: ", restaurant.name);
 
-    // To prevent opening of multiple forms
-    const container = document.getElementById('reviews-container');
-    const form = document.getElementById('form');
-    if (container.contains(form)) { return; }
     createForm(restaurant);
+    // To prevent opening of multiple forms
+    const div = document.getElementById('review-div');
+    div.removeChild(div.childNodes[0]);
+
+    // const container = document.getElementById('reviews-container');
+    // const form = document.getElementById('form');
+    // if (container.contains(form)) { return; }
+    // createForm(restaurant);
   }
   catch(error) {
     console.error("Error while handling review click: ", error);
   }
 }
 
+// TODO: Add handling for focus
+/**********    Handle icon change when mouseover    **********/
+async function handleHover(iconVersion, hoverVersion) {
+  try {
+    const icon = (iconVersion == 'review') ? document.getElementById('review-icon') : document.getElementById('close-icon');
+    const version = (iconVersion == 'review') ? 'review-add' : 'close';
+    const hover = (hoverVersion) ? '-hover' : '';
+    const newVal = `img/icons.svg#${version}${hover}`;
+    icon.href.baseVal = newVal;
+  }
+  catch(error) {
+    console.error("Error while handling review hover", error);
+  }
+}
+
+// TODO: Add delete review functionality
 /**********    Create the form when needed using JavaScript!    **********/
 function createForm(restaurant) {
   const container = document.getElementById('reviews-container');
-  const header = document.getElementById('reviews-header');
+  const list = document.getElementById('reviews-list');
   const form = document.createElement('form');
   form.id = 'form';
 
   // Title section
-  const titleSection = document.createElement('div');
-  titleSection.id = 'title';
+  const header = document.createElement('div');
+  header.id = 'form-header';
+  header.className = 'header';
   const title = document.createElement('h3');
   title.innerHTML = `Review ${restaurant.name}`;
-  titleSection.append(title);
+  header.append(title);
 
-  const close = document.createElement('p');
-  close.id = 'close';
-  close.innerHTML = '&times;';
-  close.onmouseover = () => close.className = 'close-hover';
-  close.onmouseout = () => close.className = '';
+  // Close icon
+  const close = document.createElement('div');
+  close.id = 'close-div';
+  close.className = 'icon-div';
+  close.onmouseover = () => handleHover('close', true);
+  close.onmouseout = () => handleHover('close', false);
   close.onclick = () => clearForm();
-  titleSection.append(close);
 
-  // TODO: Decide if keep here or move to right of submit button
-  const subtitle = document.createElement('p');
-  subtitle.innerHTML = '(All fields are required)';
-  titleSection.append(subtitle);
-  form.append(titleSection);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.id = 'close-svg';
+  svg.setAttribute('viewBox', '-15 -10 35 35');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  use.id = 'close-icon';
+  use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', 'img/icons.svg#close');
+  svg.appendChild(use);
+
+  close.append(svg);
+  header.append(close);
+
+  form.append(header);
+
+  const contents = document.createElement('div');
+  contents.id = 'form-contents';
 
   // Name field
   const name = document.createElement('div');
@@ -373,10 +446,11 @@ function createForm(restaurant) {
   input.required = true;
   name.append(input);
 
-  form.append(name);
+  contents.append(name);
 
   // Rating radio buttons
   let radio = document.createElement('div');
+  radio.id = 'radio-buttons';
   let legend = document.createElement('legend');
   legend.innerHTML = 'Rating:';
   radio.append(legend);
@@ -386,17 +460,19 @@ function createForm(restaurant) {
     let label = document.createElement('label');
     label.setAttribute('for', name);
     label.className = 'radio-label';
+    label.innerHTML = i;
     radio.append(label);
 
     let input = document.createElement('input');
     input.type = 'radio';
     input.id = name;
+    input.className = 'radio-button';
     input.name = 'rating';
     input.value = i;
     input.required = true;
     radio.append(input);
   }
-  form.append(radio);
+  contents.append(radio);
 
   // Comments field
   const comments = document.createElement('div');
@@ -414,9 +490,12 @@ function createForm(restaurant) {
   text.rows = '10';
   input.required = true;
   comments.append(text);
-  form.append(comments);
+  contents.append(comments);
 
   // Submit button
+  const footer = document.createElement('div');
+  footer.id = 'submit-section';
+
   const submit = document.createElement('div');
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
@@ -424,15 +503,26 @@ function createForm(restaurant) {
   submitButton.innerHTML = 'Submit Review';
   submitButton.onclick = () => saveReview(restaurant.id);
   submit.append(submitButton);
-  form.append(submit);
+  footer.append(submit);
+
+  const subtitle = document.createElement('p');
+  subtitle.innerHTML = '*All fields are required';
+  footer.append(subtitle);
+
+  contents.append(footer);
+  form.append(contents);
 
 // TODO: Decide if have review box fixed position
-  // Have form appear above Reviews title to ensure on top/review button below
-  container.insertBefore(form, header);
+  // Have form appear above reviews list
+  container.insertBefore(form, list);
 }
+
 
 /**********    Remove the form when reviewer finished/clicks X   **********/
 function clearForm() {
+  // Make review icon reappear
+  setReviewIcon();
+  // Make form disappear
   const form = document.getElementById('form');
   form.remove();
 }
@@ -458,6 +548,8 @@ function reviewData(id) {
 /**********    Save review to the server    **********/
 async function saveReview(id) {
   try {
+    // Make review icon reappear
+    setReviewIcon();
     // console.log("running saveReview()");
     const review = reviewData(id);
     const ping = await DBHelper.pingUrl(DBHelper.REVIEWS_URL);

@@ -52,9 +52,13 @@
     <!-- End map -->
     <!-- Begin restaurant -->
     <section id="restaurant-container">
-      <div id="restaurant-header">
+      <div id="restaurant-header" class="header">
         <h2 id="restaurant-name" tabindex="-1"></h1>
-        <div id="favorite-icon" onclick="handleClickFavorite()" onmouseover="handleHover(true)" onmouseout="handleHover(false)"></div>
+        <div id="favorite-div" class="icon-div"
+          onclick="handleClickFavorite()"
+          onmouseover="handleHoverFavorite(true)"
+          onmouseout="handleHoverFavorite(false)">
+         </div>
       </div>
       <div id="restaurant-info">
         <img id="restaurant-img">
@@ -66,11 +70,9 @@
     <!-- End restaurant -->
     <!-- Begin reviews -->
     <section id="reviews-container">
-      <div id="reviews-header">
+      <div id="reviews-header" class="header">
         <h3 id="reviews-title" tabindex="-1">Reviews</h3>
-        <div id="review-icon">
-          <img id="review-img" onclick="handleClickReview()" src="/img/bookmark-plus.png" alt="Review this restaurant">
-        </div>
+        <div id="review-div" class="icon-div"></div>
       </div>
       <ul id="reviews-list" tabindex="-1"></ul>
     </section>
