@@ -253,6 +253,13 @@ class DBHelper {
     }
   }
 
+  /**********    Handle button change when mouseover    **********/
+  static handleHover(iconVersion, hoverVersion) {
+    const icon = document.getElementById(`${iconVersion}-icon`);
+    const hover = (hoverVersion) ? 'icon-hover' : 'icon';
+    icon.className.baseVal = hover;
+  }
+
   /**************************************************************************/
   /*                           Favorites Functions                          */
   /**************************************************************************/
