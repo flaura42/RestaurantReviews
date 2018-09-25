@@ -5,6 +5,7 @@
 /**********    Initialize page upon page load    **********/
 document.addEventListener('DOMContentLoaded', () => { initPage(); });
 
+// TODO: Get map overlay to display nicely on small screens (or only display overlay)
 /**********    Check online status, send image or initMap()    **********/
 async function initPage() {
   try {
@@ -83,8 +84,9 @@ async function fetchRestaurantFromURL() {
 
       // fill reviews
       const reviews = await DBHelper.serveReviewsById(id);
+      self.reviews = reviews;
       // console.log("Reviews being sent: ", reviews.length);
-      fillReviewsHTML(reviews);
+      fillReviewsHTML();
 
       return restaurant;
     }
@@ -214,7 +216,7 @@ function getParameterByName(name, url) {
 /******************************************************************************/
 /*                            Favorites Functions                             */
 /******************************************************************************/
-
+// TODO: Add focus functionality to buttons
 // favorite.onfocusin = () => DBHelper.handleHover('favorite', true);
 // favorite.onfocusout = () => DBHelper.handleHover('favorite', false);
 
@@ -232,12 +234,11 @@ async function setFavoriteIcon() {
     button.onmouseout = () => DBHelper.handleHover('favorite', false);
     button.onclick = () => handleClickFavorite();
 
-    // setAttribute('alignment-baseline', 'middle');
-    // setAttribute('preserveAspectRatio', 'xMinYMin meet');
-
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.id = 'favorite-svg';
-    svg.setAttribute('viewBox', '0 -4 44 44');
+    svg.setAttribute('class', 'icon-svg');
+    svg.setAttribute('viewBox', '0 0 45 35');
+    svg.setAttribute('preserveAspectRatio', 'xMaxYMid meet');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
 
@@ -253,6 +254,7 @@ async function setFavoriteIcon() {
     console.error("Error while setting favorite icon: ", error);
   }
 }
+
 
 /**********    Get the current favorite status    **********/
 async function getFavoriteStatus() {
@@ -321,7 +323,9 @@ async function setReviewIcon() {
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.id = 'review-svg';
-    svg.setAttribute('viewBox', '0 -4 44 44');
+    svg.setAttribute('class', 'icon-svg');
+    svg.setAttribute('viewBox', '0 0 45 35');
+    svg.setAttribute('preserveAspectRatio', 'xMaxYMid meet');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
 
