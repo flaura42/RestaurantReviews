@@ -406,30 +406,37 @@ nav h1 a {
 	padding: 10px 0;
 }
 
-.form-label, legend {
+.form-label {
+	display: block;
 	width: 100%;
 	font-size: 1.15em;
 }
 
-input, textarea {
+#contents-top {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	margin: 0;
+	padding: 20px 0;
+}
+
+#name-div {
+	width: 80%;
+	margin-right: 20px;
+}
+
+.form-box {
 	width: 100%;
 	box-sizing: border-box;
 	border: 2px ridge threedface;
 	border-radius: 5px;
-	padding: 5px;
+	background-color: rgb(248, 248, 248);
+	font-size: 1.15em;
 }
 
-.radio-label {
-	width: auto;
-	padding: 0 5px 0 15px;
-}
-
-.radio-buttons {
-	display: inline;
-}
-
-input[type=radio] {
-	width: auto;
+textarea {
+	resize: none;
 }
 
 #submit-section {
@@ -447,11 +454,12 @@ input[type=radio] {
 	color: #fff;
 	font-size: 1.15em;
 	text-transform: uppercase;
-	/* letter-spacing: 0.12em; */
+	letter-spacing: 0.1em;
 }
 
 #submit:hover, #submit:focus {
 	color: #f04;
+	border: 3px inset threedface;
 }
 
 #submit-section p {

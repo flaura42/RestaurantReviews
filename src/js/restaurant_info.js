@@ -382,7 +382,9 @@ function createForm(restaurant) {
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'close-svg';
+  svg.setAttribute('class', 'icon-svg');
   svg.setAttribute('viewBox', '0 0 45 45');
+  svg.setAttribute('preserveAspectRatio', 'xMaxYMid meet');
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
 
@@ -401,64 +403,71 @@ function createForm(restaurant) {
   const contents = document.createElement('div');
   contents.id = 'form-contents';
 
+  // Name/Rating section
+  const top = document.createElement('div');
+  top.id = 'contents-top';
+
   // Name field
   const name = document.createElement('div');
+  name.id = 'name-div';
   const label = document.createElement('label');
   const input = document.createElement('input');
   label.setAttribute('for', 'name');
   label.setAttribute('class', 'form-label');
-  label.innerHTML = 'Name: ';
+  label.innerHTML = 'Name:<span style="color: red;">*</span>';
   name.append(label);
 
   input.type = 'text';
   input.id = 'name';
+  input.className = 'form-box';
   input.name = 'name';
   input.autofocus = true;
-  input.minlength = '2';
-  input.maxlength = '30';
+  input.setAttribute('minlength', '2'); // doesn't work
+  input.setAttribute('maxlength', '30');
   input.required = true;
   name.append(input);
+  top.append(name);
 
-  contents.append(name);
+  // Rating Select box
+  const select = document.createElement('div');
+  select.id = 'selects';
+  const selectLabel = document.createElement('label');
+  const selectSection = document.createElement('select');
+  selectLabel.setAttribute('for', 'rating');
+  selectLabel.setAttribute('class', 'form-label');
+  selectLabel.innerHTML = 'Rating:<span style="color: red;">*</span>'
+  select.append(selectLabel);
 
-  // Rating radio buttons
-  let radio = document.createElement('div');
-  radio.id = 'radio-buttons';
-  let legend = document.createElement('legend');
-  legend.innerHTML = 'Rating:';
-  radio.append(legend);
+  selectSection.id = 'rating';
+  selectSection.className = 'form-box';
 
   for (let i = 1; i < 6; i++) {
-    let name = `rating-${i}`;
-    let label = document.createElement('label');
-    label.setAttribute('for', name);
-    label.className = 'radio-label';
-    label.innerHTML = i;
-    radio.append(label);
-
-    let input = document.createElement('input');
-    input.type = 'radio';
-    input.id = name;
-    input.className = 'radio-button';
-    input.name = 'rating';
-    input.value = i;
-    input.required = true;
-    radio.append(input);
+    let option = document.createElement('option');
+    option.name = 'rating';
+    option.value = i;
+    option.innerHTML = i;
+    if (i == 5) {
+      option.selected = true;
+    }
+    selectSection.append(option);
   }
-  contents.append(radio);
+  select.append(selectSection);
+  top.append(select);
+  contents.append(top);
 
   // Comments field
   const comments = document.createElement('div');
   const label1 = document.createElement('label');
   label1.setAttribute('for', 'comments');
   label1.className = 'form-label';
-  label1.innerHTML = 'Comments:';
+  label1.innerHTML = 'Comments:<span style="color: red;">*</span>';
   comments.append(label1);
 
   const text = document.createElement('textarea');
   text.id = 'comments';
+  text.className = 'form-box';
   text.name = 'comments';
-  text.maxlength = '200';
+  text.setAttribute('maxlength', '800');
   text.cols = '10';
   text.rows = '10';
   input.required = true;
@@ -479,7 +488,7 @@ function createForm(restaurant) {
   footer.append(submit);
 
   const subtitle = document.createElement('p');
-  subtitle.innerHTML = '*All fields are required';
+  subtitle.innerHTML = '<span style="color: red;">*</span>All fields are required';
   footer.append(subtitle);
 
   contents.append(footer);
@@ -501,7 +510,7 @@ function clearForm() {
 /**********    Function for storing form data   **********/
 function reviewData(id) {
   const name = document.getElementById('name').value;
-  const rating = document.querySelector('input[name="rating"]:checked').value;
+  const rating = document.getElementById('rating').value;
   const comments = document.getElementById('comments').value;
   const review = {
     'restaurant_id': id,
