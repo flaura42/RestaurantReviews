@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="45px" height="35px" viewBox="0 0 45 35" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
 <!-- All icons are modified versions of First Styles (https://www.iconfinder.com/firststyles) icons and and have color and minor shape modifications. -->
-
+<!-- width="45px" height="35px" viewBox="0 0 45 35" -->
   <defs>
     <path id="star" d="M7.624 33.871 C6.702 33.837 5.903 32.971 6.093 31.917 L7.829 22.2 C7.924 21.659 7.751 21.11 7.38 20.728 L0.573 13.745 C-0.373 12.778 0.176 11.109 1.497 10.931 L11.034 9.628 C11.561 9.557 12.019 9.228 12.261 8.74 L16.614 -0.07 C16.703 -0.25 17.398 -0.247 17.485 -0.07 L21.839 8.74 C22.081 9.228 22.538 9.557 23.065 9.628 L32.602 10.931 C33.924 11.109 34.473 12.778 33.526 13.745 L26.72 20.728 C26.348 21.11 26.175 21.659 26.27 22.2 L28.007 31.917 C28.249 33.266 26.876 34.309 25.692 33.691 L17.122 29.192 C17.093 29.177 16.996 29.182 16.977 29.192 L8.409 33.691 C8.15 33.826 7.882 33.881 7.624 33.871 Z" fill="#ffd400" fill-opacity="1" stroke="none"/>
 
     <path id="review-bkgd" d="M40 16.176 C40 24.889 31.145 31.953 20.217 31.953 17.787 31.953 15.453 31.602 13.301 30.965 9.17 35.719 4.311 34.398 4.311 34.398 6.891 32.853 7.999 30.647 8.473 28.879 3.599 26.004 0.434 21.385 0.434 16.176 0.434 7.464 9.288 0.4 20.217 0.4 31.145 0.4 40 7.464 40 16.176 Z M9.415 10.1 L31.018 10.1 31.018 8.531 9.407 8.531 9.407 10.1 Z M13.617 12.911 L9.407 12.911 9.407 14.48 13.617 14.48 13.617 12.911 Z M9.415 17.283 L9.415 18.852 23.287 18.852 23.287 17.283 9.415 17.283 Z M31.018 21.663 L9.407 21.663 9.407 23.232 31.018 23.232 31.018 21.663 Z M31.018 17.283 L25.558 17.283 25.558 18.852 31.018 18.852 31.018 17.283 Z M31.018 12.911 L15.888 12.911 15.888 14.48 31.018 14.48 31.018 12.911 Z" fill="#000" fill-opacity="1" stroke="none"/>
 
-    <circle id="circle" cx="34" cy="24" fill="#33c" r="10" stroke="none"/>
+    <circle id="circle" cx="34" cy="24" r="10"/>
 
     <path id="plus" d="M35.996 17.004 L35.996 22.004 40.998 22.002 40.999 26.001 35.999 26.001 36 31 32 31 31.999 26.001 27 26 27 22 31.998 22.002 31.998 17.002 Z" fill-opacity="1" stroke="none"/>
 
@@ -17,26 +17,38 @@
 
     <path id="check" d="M42.357 21.465 L33.167 30.661 30.339 27.833 27.707 25.293 30.493 22.506 33.458 24.542 36.248 21.922 39.031 18.968 Z" fill-opacity="1" stroke="none"/>
 
+    <symbol id="show-favorites-true">
+      <use href="#star"/>
+      <use href="#circle" fill="#000" stroke="#000" stroke-width="2" stroke-opacity="1" stroke-linejoin="round" />
+      <use href="#check"/>
+    </symbol>
+
+    <symbol id="show-favorites-false">
+      <use href="#star"/>
+      <use href="#circle" stroke="#000" stroke-width="2" stroke-opacity="1" stroke-linejoin="round" />
+      <!-- <use href="#minus"/> -->
+    </symbol>
+
     <symbol id="favorite-add">
       <use href="#star"/>
-      <use href="#circle"/>
+      <use href="#circle" fill="#33c" stroke="none"/>
       <use href="#plus"/>
     </symbol>
 
     <symbol id="favorite-remove">
       <use href="#star"/>
-      <use href="#circle"/>
+      <use href="#circle" fill="#33c" stroke="none"/>
       <use href="#minus"/>
     </symbol>
 
     <symbol id ="review">
-      <use href="#review-bkgd"/>
-      <use href="#circle"/>
+      <use href="#review-bkgd" />
+      <use href="#circle" fill="#33c" stroke="none"/>
       <use href="#plus"/>
     </symbol>
 
     <symbol id = "close">
-      <use href="#circle"/>
+      <use href="#circle" fill="#33c" stroke="none"/>
       <use href="#x"/>
     </symbol>
   </defs>

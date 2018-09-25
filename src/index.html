@@ -46,12 +46,13 @@
             <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
               <option value="all">All Cuisines</option>
             </select>
-        </div>
-          <div id="favorite-checkbox">
-            <input type="checkbox" id="faves-checkbox" name="Favorites Checkbox" value="Favorites Only" onchange="handleChangeFavorites()"/>
-            <label for="faves-checkbox">Favorites Only</label>
+          </div>
+          <div id="filter-favorites">
+            <h3>Filter Favorites</h3>
+            <button id="show-favorites-button"></button>
           </div>
         </div>
+
       </div>
       <ul id="restaurants-list"></ul>
     </section>

@@ -5,10 +5,11 @@
 /**********    Initialize page upon page load    **********/
 document.addEventListener('DOMContentLoaded', () => { initPage(); });
 
-// TODO: Add map info overlay to static map for compliance
+// TODO: Add click alert to static map
 /**********    Handle page load    **********/
 async function initPage() {
   try {
+    setFavoritesIcon(false);
     updateRestaurants();
     fetchNeighborhoods();
     fetchCuisines();
@@ -44,8 +45,8 @@ async function updateRestaurants() {
     const neighborhood = nSelect[nIndex].value;
     const cuisine = cSelect[cIndex].value;
 
-    let checkbox = document.getElementById('faves-checkbox');
-    if (checkbox.checked == true) {
+    let status = document.getElementById('show-favorites-icon').href.baseVal;
+    if (status == 'img/icons.svg#show-favorites-true') {
       // console.log("Updating favorites:", neighborhood, cuisine);
       const restaurants = await DBHelper.fetchFavorites(neighborhood, cuisine);
       if (restaurants == null) { return; }
@@ -54,7 +55,6 @@ async function updateRestaurants() {
     } else {
       // console.log("Updating restaurants");
       const restaurants = await DBHelper.fetchRestaurantsByFilter(neighborhood, cuisine);
-
       resetRestaurants(restaurants);
       fillRestaurantsHTML();
     }
@@ -144,9 +144,9 @@ function initMap() {
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
     mapboxToken: 'pk.eyJ1IjoiZmxhdXJhNDIiLCJhIjoiY2ppZjg5a2s4MHU1bjNrcWxwdW1zbzFiYyJ9.ZqYGMaSHFxiPjqBxxLYhyA',
     maxZoom: 18,
-    // attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-    //   '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-    //   'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+      '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+      'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     id: 'mapbox.streets',
     attributionControl: false,
     prefix: false
@@ -239,14 +239,52 @@ async function addMarkersToMap(restaurants = self.restaurants) {
 /*                            Favorites Functions                             */
 /******************************************************************************/
 
-/**********    Handle Favorites checkbox event     **********/
-async function handleChangeFavorites() {  // Called from favorites checkbox
+/**********    Set favorites icon    **********/
+function setFavoritesIcon(value) {
+  const button = document.getElementById('show-favorites-button');
+  const check = (button.childNodes.length == 0);
+
+  // Set button icon handlers
+  button.onmouseover = () => DBHelper.handleHover('show-favorites', true);
+  button.onmouseout = () => DBHelper.handleHover('show-favorites', false);
+  button.onclick = () => handleClickFavorites();
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.id = 'show-favorites-svg';
+  svg.setAttribute('class', 'icon-svg');
+  svg.setAttribute('viewBox', '0 0 45 35');
+  svg.setAttribute('preserveAspectRatio', 'xMinYMid meet');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  use.id = 'show-favorites-icon';
+  use.className.baseVal = 'icon';
+  use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `img/icons.svg#show-favorites-${value}`);
+  svg.appendChild(use);
+
+  (check) ? button.appendChild(svg) : button.replaceChild(svg, button.childNodes[0]);
+}
+
+/**********    Handle click event for favorites icon    **********/
+async function handleClickFavorites() {
   try {
-    let checkbox = document.getElementById('faves-checkbox');
+    let status = document.getElementById('show-favorites-icon').href.baseVal;
     let checkFavorites = await DBHelper.checkFavorites();
-    if (checkbox.checked && checkFavorites.length == 0) {
-      alert('No restaurants have been favorited.  Please click the favorite icon for a restaurant to do so.');
-      document.getElementById('faves-checkbox').checked = false;
+
+    switch (status) {
+    case 'img/icons.svg#show-favorites-false':
+      if (checkFavorites.length == 0) {
+        alert('No restaurants have been favorited.  Please click the favorite icon for a restaurant to do so.');
+      } else {
+        setFavoritesIcon(true);
+      }
+      break;
+    case 'img/icons.svg#show-favorites-true':
+      setFavoritesIcon(false);
+      break;
+    default:
+      setFavoritesIcon(false);
     }
     resetSelects();
     updateRestaurants();

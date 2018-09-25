@@ -148,8 +148,8 @@ class DBHelper {
   /**********    Fetch all neighborhoods    **********/
   static async fetchNeighborhoods() {
     try {
-      let checkbox = document.getElementById('faves-checkbox');
-      const restaurants = (checkbox.checked == true) ? await DBHelper.checkFavorites() : await DBHelper.fetchRestaurants();
+      let status = document.getElementById('show-favorites-icon').href.baseVal;
+      const restaurants = (status == 'img/icons.svg#show-favorites-true') ? await DBHelper.checkFavorites() : await DBHelper.fetchRestaurants();
       if (restaurants == null) {
         console.error("No restaurants found");
         return null;
@@ -168,8 +168,8 @@ class DBHelper {
   /**********    Fetch all cuisines    **********/
   static async fetchCuisines() {
     try {
-      let checkbox = document.getElementById('faves-checkbox');
-      const restaurants = (checkbox.checked == true) ? await DBHelper.checkFavorites() : await DBHelper.fetchRestaurants();
+      let status = document.getElementById('show-favorites-icon').href.baseVal;
+      const restaurants = (status == 'img/icons.svg#show-favorites-true') ? await DBHelper.checkFavorites() : await DBHelper.fetchRestaurants();
       if (restaurants == null) {
         console.error("No restaurants found");
         return null;

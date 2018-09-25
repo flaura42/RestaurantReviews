@@ -136,27 +136,40 @@ nav h1 a {
 
 #filter-content {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	justify-content: space-between;
-	align-items: center;
+	margin: 10px;
 }
 
-.filter-options select {
+#filter-selects select {
   background-color: #fff;
   font-size: 1.15em;
-  margin: 10px 0 10px 10px;
-  padding: 10px 0 10px 10px;;
+  margin-right: 10px;
   width: 185px;
 }
 
-#favorite-checkbox {
-	padding-right: 15px;
-	color: #eee;
+#filter-favorites {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin: 10px;
 }
 
-#faves-checkbox {
-	color: #111;
+#filter-favorites h3 {
+	color: #fff;
+	font-size: 1.35em;
+  font-weight: normal;
+  margin-right: 5px;
 }
+
+#show-favorites-button {
+	max-width: 15%;
+	max-height: 45px;  /* NOTE:change for media queries? */
+	border: none;
+	background-color: transparent;
+	/* border: 1px dotted red; */
+}
+
 
 /* ====================== Restaurant List ====================== */
 #restaurants-list {
