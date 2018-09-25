@@ -30,6 +30,26 @@ a:focus,
 	color: #f04;
 }
 
+
+.button {
+	background-color: #33c;
+	box-sizing: border-box;
+	border-radius: 10px;
+	border: 3px outset threedface;
+	margin: 20px;
+	padding: 10px 20px;
+	color: #fff;
+	font-size: 1.15em;
+	text-align: center;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+}
+
+.button:hover, .button:focus {
+	color: #f04;
+	border: 3px inset threedface;
+}
+
 /* ======================== Header stuff ======================== */
 
 /* ====================== Main Navigation ====================== */
@@ -240,7 +260,7 @@ nav h1 a {
 	/* border: 1px dotted red; */
 }
 
-.button {
+.icon-button {
 	max-width: 15%;
 	max-height: 50px;  /* NOTE:change for media queries? */
 	border: none;
@@ -368,7 +388,6 @@ nav h1 a {
 
 #reviews-list .rating {
 	background-color: #33c;
-	border-radius: 7px;
 	padding: 5px 10px;
 	display: inline-block;
 	color: #fff;
@@ -459,20 +478,10 @@ textarea {
 	align-items: center;
 }
 
-#submit {
-	background-color: #33c;
-	border-radius: 7px;
-	border: 3px outset threedface;
+#submit-section .button {
 	padding: 5px;
-	color: #fff;
-	font-size: 1.15em;
-	text-transform: uppercase;
+	margin: 0;
 	letter-spacing: 0.1em;
-}
-
-#submit:hover, #submit:focus {
-	color: #f04;
-	border: 3px inset threedface;
 }
 
 #submit-section p {

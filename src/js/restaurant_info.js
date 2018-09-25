@@ -375,7 +375,7 @@ function createForm(restaurant) {
 
   // Close icon
   const close = document.createElement('button');
-  close.className = 'button';
+  close.className = 'icon-button';
   close.onmouseover = () => DBHelper.handleHover('close', true);
   close.onmouseout = () => DBHelper.handleHover('close', false);
   close.onclick = () => clearForm();
@@ -478,13 +478,13 @@ function createForm(restaurant) {
   const footer = document.createElement('div');
   footer.id = 'submit-section';
 
-  const submit = document.createElement('div');
-  const submitButton = document.createElement('button');
-  submitButton.type = 'submit';
-  submitButton.id = 'submit';
-  submitButton.innerHTML = 'Submit Review';
-  submitButton.onclick = () => saveReview(restaurant.id);
-  submit.append(submitButton);
+
+  const submit = document.createElement('button');
+  submit.type = 'submit';
+  submit.id = 'submit';
+  submit.className = 'button';
+  submit.innerHTML = 'Submit Review';
+  submit.onclick = () => saveReview(restaurant.id);
   footer.append(submit);
 
   const subtitle = document.createElement('p');
