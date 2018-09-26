@@ -11,18 +11,20 @@ async function initPage() {
   try {
     setFavoriteIcon();
     setReviewIcon();
+    let container = document.getElementById('restaurant-container');
     // Check online status and send image or initMap()
     let status = await DBHelper.checkLocal();
     if (!status) {
       console.log("Bypassing map");
       const restaurant = await fetchRestaurantFromURL(); // Needed for fBc
+      container.setAttribute('aria-label', `Restaurant Details: ${restaurant.name}`);
       fillBreadcrumb();
       const div = document.getElementById('map');
       const image = document.createElement('img');
       // const overlay = document.createElement('img');
       image.src = 'img/map_full.jpg';
       image.className = 'map-img';
-      image.alt = 'No map is available.';
+      image.alt = 'Displaying offline map';
       div.append(image);
       // overlay.src = `img/map_${restaurant.id}.jpg`;
       // overlay.className = 'map-overlay';
@@ -195,6 +197,7 @@ function createReviewHTML(review) {
 function fillBreadcrumb(restaurant = self.restaurant) {
   const breadcrumb = document.getElementById('breadcrumb-list');
   const li = document.createElement('li');
+  li.setAttribute('aria-current', 'page');
   li.innerHTML = restaurant.name;
   breadcrumb.appendChild(li);
 }
@@ -216,9 +219,6 @@ function getParameterByName(name, url) {
 /******************************************************************************/
 /*                            Favorites Functions                             */
 /******************************************************************************/
-// TODO: Add focus functionality to buttons
-// favorite.onfocusin = () => DBHelper.handleHover('favorite', true);
-// favorite.onfocusout = () => DBHelper.handleHover('favorite', false);
 
 /**********    Set favorite icon    **********/
 async function setFavoriteIcon() {
@@ -232,7 +232,14 @@ async function setFavoriteIcon() {
     // Set button icon handlers
     button.onmouseover = () => DBHelper.handleHover('favorite', true);
     button.onmouseout = () => DBHelper.handleHover('favorite', false);
+    button.onfocus = () => DBHelper.handleHover('favorite', true);
+    button.onfocusout = () => DBHelper.handleHover('favorite', false);
     button.onclick = () => handleClickFavorite();
+
+    // Make button more aria-friendly
+    button.setAttribute('aria-label', 'Add  to favorites');
+    button.setAttribute('role', 'button');
+    button.setAttribute('aria-checked', status);
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.id = 'favorite-svg';
@@ -242,6 +249,9 @@ async function setFavoriteIcon() {
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
 
+    // To improve a11y
+    svg.innerHTML = '<title>Add to favorites button</title>';
+
     const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
     use.id = 'favorite-icon';
     use.className.baseVal = 'icon';
@@ -249,6 +259,11 @@ async function setFavoriteIcon() {
     svg.appendChild(use);
 
     (check) ? button.appendChild(svg) : button.replaceChild(svg, button.childNodes[0]);
+
+    // Event handler for browsers that don't support DOM 'onfocusout' method
+    button.addEventListener('focusout', () => {
+      DBHelper.handleHover('favorite', false);
+    });
   }
   catch(error) {
     console.error("Error while setting favorite icon: ", error);
@@ -274,6 +289,7 @@ async function getFavoriteStatus() {
   }
 }
 
+// TODO: Add a11y for alert
 /**********    Handle click event for favorite icon    **********/
 async function handleClickFavorite() {  // Called from favorite icon
   try {
@@ -319,7 +335,13 @@ async function setReviewIcon() {
     // Set button handlers
     button.onmouseover = () => DBHelper.handleHover('review', true);
     button.onmouseout = () => DBHelper.handleHover('review', false);
+    button.onfocus = () => DBHelper.handleHover('review', true);
+    button.onfocusout = () => DBHelper.handleHover('review', false);
     button.onclick = () => handleClickReview();
+
+    // Make button more aria-friendly
+    button.setAttribute('aria-label', 'Add  review');
+    button.setAttribute('role', 'button');
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.id = 'review-svg';
@@ -329,13 +351,22 @@ async function setReviewIcon() {
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
 
+    // To improve a11y
+    svg.innerHTML = '<title>Add review button</title>';
+
     const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
     use.id = 'review-icon';
     use.className.baseVal = 'icon';
     use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', 'img/icons.svg#review');
+
     svg.appendChild(use);
 
     (check) ? button.appendChild(svg) : button.replaceChild(svg, button.childNodes[0]);
+
+    // Event handler for browsers that don't support DOM 'onfocusout' method
+    button.addEventListener('focusout', () => {
+      DBHelper.handleHover('review', false);
+    });
   }
   catch(error) {
     console.error("Error while setting review icon: ", error);
@@ -364,6 +395,8 @@ function createForm(restaurant) {
   const list = document.getElementById('reviews-list');
   const form = document.createElement('form');
   form.id = 'form';
+  form.role = 'form';
+  form.setAttribute('aria-label', `Review ${restaurant.name}`);
 
   // Title section
   const header = document.createElement('div');
@@ -375,10 +408,17 @@ function createForm(restaurant) {
 
   // Close icon
   const close = document.createElement('button');
+  close.id = 'close-button';
   close.className = 'icon-button';
   close.onmouseover = () => DBHelper.handleHover('close', true);
   close.onmouseout = () => DBHelper.handleHover('close', false);
+  close.onfocus = () => DBHelper.handleHover('close', true);
+  close.onfocusout = () => DBHelper.handleHover('close', false);
   close.onclick = () => clearForm();
+
+  // Make button more aria-friendly
+  close.setAttribute('aria-label', 'Close form');
+  close.setAttribute('role', 'button');
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'close-svg';
@@ -387,6 +427,9 @@ function createForm(restaurant) {
   svg.setAttribute('preserveAspectRatio', 'xMaxYMid meet');
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
+
+  // To improve a11y
+  svg.innerHTML = '<title>Close form button</title>';
 
   const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
   use.id = 'close-icon';
@@ -425,6 +468,7 @@ function createForm(restaurant) {
   input.setAttribute('minlength', '2'); // doesn't work
   input.setAttribute('maxlength', '30');
   input.required = true;
+  input.setAttribute('aria-required', true);
   name.append(input);
   top.append(name);
 
@@ -432,12 +476,12 @@ function createForm(restaurant) {
   const select = document.createElement('div');
   select.id = 'selects';
   const selectLabel = document.createElement('label');
-  const selectSection = document.createElement('select');
   selectLabel.setAttribute('for', 'rating');
   selectLabel.setAttribute('class', 'form-label');
-  selectLabel.innerHTML = 'Rating:<span style="color: red;">*</span>'
+  selectLabel.innerHTML = 'Rating:';
   select.append(selectLabel);
 
+  const selectSection = document.createElement('select');
   selectSection.id = 'rating';
   selectSection.className = 'form-box';
 
@@ -470,7 +514,8 @@ function createForm(restaurant) {
   text.setAttribute('maxlength', '800');
   text.cols = '10';
   text.rows = '10';
-  input.required = true;
+  text.required = true;
+  text.setAttribute('aria-required', true);
   comments.append(text);
   contents.append(comments);
 
@@ -488,7 +533,7 @@ function createForm(restaurant) {
   footer.append(submit);
 
   const subtitle = document.createElement('p');
-  subtitle.innerHTML = '<span style="color: red;">*</span>All fields are required';
+  subtitle.innerHTML = '<span style="color: red;">*</span>Fields are required';
   footer.append(subtitle);
 
   contents.append(footer);
@@ -496,6 +541,11 @@ function createForm(restaurant) {
 
   // Have form appear above reviews list
   container.insertBefore(form, list);
+
+  // Event handler for browsers that don't support DOM 'onfocusout' method
+  close.addEventListener('focusout', () => {
+    DBHelper.handleHover('close', false);
+  });
 }
 
 /**********    Remove the form when reviewer finished/clicks X   **********/
@@ -579,4 +629,26 @@ function testOffline() {
 function testStore() {
   // console.log("Running test store");
   DBHelper.fetchOfflineStore();
+}
+
+function testStatus() {
+  getFavoriteStatus();
+}
+
+// Tester function for sommer
+async function testFav() {
+  try {
+    const id=1
+    const restaurant = await DBHelper.fetchRestaurantById(id);
+    console.log("fave status before:", restaurant.is_favorite);
+    // restaurant.is_favorite = !restaurant.is_favorite;
+    // console.log("fave status after:", restaurant.is_favorite);
+    const status = !restaurant.is_favorite;
+    console.log('And with variable: ', status);
+    const urltoPUT = DBHelper.RESTAURANTS_URL + id + `/?is_favorite=` + status;
+    console.log("URL: ", urltoPUT);
+  }
+  catch(error) {
+    console.error("Error during test:", error);
+  }
 }

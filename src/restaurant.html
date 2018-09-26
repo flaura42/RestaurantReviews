@@ -24,7 +24,7 @@
 </head>
 
 <body class="inside">
-  <a class="skip-link" href="#restaurant-name">Skip to Restaurant Info Section</a>
+  <a class="skip-link" href="#restaurant-container">Skip to Restaurant Details Section</a>
   <!-- Begin header -->
   <header>
     <!-- Begin nav -->
@@ -32,7 +32,7 @@
       <h1><a href="/">Restaurant Reviews</a></h1>
       <!-- Begin breadcrumb -->
       <div id="breadcrumb">
-        <ul  aria-label="breadcrumb" role="navigation" id="breadcrumb-list">
+        <ul id="breadcrumb-list" aria-label="breadcrumb" role="navigation">
           <li><a  href="/">Home</a></li>
         </ul>
       </div>
@@ -51,9 +51,9 @@
     </section>
     <!-- End map -->
     <!-- Begin restaurant -->
-    <section id="restaurant-container">
+    <section id="restaurant-container" aria-label="Restaurant Details" tabindex="0">
       <div id="restaurant-header" class="header">
-        <h2 id="restaurant-name" tabindex="-1"></h1>
+        <h2 id="restaurant-name"></h1>
         <button id="favorite-button" class="icon-button"></button>
       </div>
       <div id="restaurant-info">
@@ -65,9 +65,9 @@
     </section>
     <!-- End restaurant -->
     <!-- Begin reviews -->
-    <section id="reviews-container">
+    <section id="reviews-container" aria-label="Reviews List" tabindex="0">
       <div id="reviews-header" class="header">
-        <h3 id="reviews-title" tabindex="-1">Reviews</h3>
+        <h3 id="reviews-title">Reviews</h3>
         <button id="review-button" class="icon-button"></button>
       </div>
       <ul id="reviews-list" tabindex="-1"></ul>
@@ -77,7 +77,7 @@
   <!-- End main -->
 
   <!-- Begin footer -->
-  <footer id="footer">
+  <footer id="footer" tabindex="-1">
     Copyright (c) 2018 <a href="/"><strong>Restaurant Reviews</strong></a> All Rights Reserved.
   </footer>
   <!-- End footer -->

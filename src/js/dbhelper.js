@@ -253,7 +253,7 @@ class DBHelper {
     }
   }
 
-  /**********    Handle button change when mouseover    **********/
+  /**********    Handle button change for mouseover/focus    **********/
   static handleHover(iconVersion, hoverVersion) {
     const icon = document.getElementById(`${iconVersion}-icon`);
     const hover = (hoverVersion) ? 'icon-hover' : 'icon';

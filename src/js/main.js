@@ -21,7 +21,7 @@ async function initPage() {
       const image = document.createElement('img');
       image.src = 'img/map_full.jpg';
       image.className = 'map-img';
-      image.alt = 'No map is available.';
+      image.alt = 'Displaying offline map';
       div.append(image);
       return div;
     }
@@ -209,6 +209,7 @@ function createRestaurantHTML(restaurant) {
   more.href = DBHelper.urlForRestaurant(restaurant);
   more.setAttribute('aria-label', `View Details for ${restaurant.name}`);
   more.setAttribute('role', 'button');
+  more.setAttribute('onkeypress', 'checkKey(event)');
   li.append(more);
 
   return li;
@@ -233,7 +234,13 @@ async function addMarkersToMap(restaurants = self.restaurants) {
   catch(error) {
     console.error("Error while adding markers to map: ", error);
   }
+}
 
+/**********    Allow <a> buttons to use spacebar    **********/
+function checkKey(event) {
+  if (event.keyCode == 32) {
+    window.location.href = event.target.href;
+  }
 }
 
 /******************************************************************************/
@@ -248,7 +255,14 @@ function setFavoritesIcon(value) {
   // Set button icon handlers
   button.onmouseover = () => DBHelper.handleHover('show-favorites', true);
   button.onmouseout = () => DBHelper.handleHover('show-favorites', false);
+  button.onfocus = () => DBHelper.handleHover('show-favorites', true);
+  button.onfocusout = () => DBHelper.handleHover('show-favorites', false);
   button.onclick = () => handleClickFavorites();
+
+  // Make button more aria-friendly
+  button.setAttribute('aria-label', 'View favorites only');
+  button.setAttribute('role', 'button');
+  button.setAttribute('aria-checked', value);
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'show-favorites-svg';
@@ -258,6 +272,9 @@ function setFavoritesIcon(value) {
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
 
+  // To improve a11y
+  svg.innerHTML = '<title>Filter favorites button</title>';
+
   const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
   use.id = 'show-favorites-icon';
   use.className.baseVal = 'icon';
@@ -265,13 +282,20 @@ function setFavoritesIcon(value) {
   svg.appendChild(use);
 
   (check) ? button.appendChild(svg) : button.replaceChild(svg, button.childNodes[0]);
+
+  // Event handler for browsers that don't support DOM 'onfocusout' method
+  document.getElementById('show-favorites-button').addEventListener('focusout', () => {
+    DBHelper.handleHover('show-favorites', false);
+  });
 }
 
+// TODO: Add a11y for alert
 /**********    Handle click event for favorites icon    **********/
 async function handleClickFavorites() {
   try {
     let status = document.getElementById('show-favorites-icon').href.baseVal;
     let checkFavorites = await DBHelper.checkFavorites();
+    let button = document.getElementById('show-favorites-button');
 
     switch (status) {
     case 'img/icons.svg#show-favorites-false':
