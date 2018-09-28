@@ -19,18 +19,21 @@ async function initPage() {
       const restaurant = await fetchRestaurantFromURL(); // Needed for fBc
       container.setAttribute('aria-label', `Restaurant Details: ${restaurant.name}`);
       fillBreadcrumb();
-      const div = document.getElementById('map');
+      const map = document.getElementById('map');
+      const div = document.createElement('div');
       const image = document.createElement('img');
-      // const overlay = document.createElement('img');
+      const overlay = document.createElement('img');
+      div.id = 'info-map';
       image.src = 'img/map_full.jpg';
       image.className = 'map-img';
       image.alt = 'Displaying offline map';
-      div.append(image);
-      // overlay.src = `img/map_${restaurant.id}.jpg`;
-      // overlay.className = 'map-overlay';
-      // overlay.alt = 'Map overlay';
-      // div.append(overlay);
-      return div;
+      map.append(image);
+      overlay.src = `img/map_${restaurant.id}.jpg`;
+      overlay.className = 'map-overlay';
+      overlay.alt = 'Map overlay';
+      div.append(overlay);
+      map.append(div);
+      return map;
     }
     // console.log("Initializing map");
     initMap();

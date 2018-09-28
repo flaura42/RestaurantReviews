@@ -6,6 +6,14 @@
     font-size: 1.75em;  /* fallback */
     font-size: 11vw;
   }
+
+  #info-map {
+  	right: 20px;
+  }
+
+  .map-overlay {
+    width: 150px;
+  }
 }
 
 @media screen and (min-width: 500px) {

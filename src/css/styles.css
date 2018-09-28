@@ -155,22 +155,25 @@ nav h1 a {
 
 /* ========================== Map ========================== */
 #map {
+	position: relative;
   height: 300px;
   width: 100%;
 }
 
-#map .map-img {
-	position: relative;
+.map-img {
 	height: 300px;
   max-width: 100%;
 	vertical-align: middle;
 	object-fit: cover;
 }
 
-#map .map-overlay {
+#info-map {
 	position: absolute;
-	top: 30%;
-	left: 60%;
+	top: 50px;
+	right: 50px;
+}
+
+.map-overlay {
 	border: 1px solid #444;
 	box-shadow: .5em .5em .5em rgba(0, 0, 0, 0.2);
 }
