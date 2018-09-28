@@ -167,7 +167,7 @@ function createReviewHTML(review) {
   const div = document.createElement('div');
   div.className = 'review-top header';
   const name = document.createElement('p');
-  name.className = 'reviewer-name';
+  name.className = 'reviewer-name large';
   name.innerHTML = review.name;
   div.appendChild(name);
 
@@ -198,6 +198,7 @@ function fillBreadcrumb(restaurant = self.restaurant) {
   const breadcrumb = document.getElementById('breadcrumb-list');
   const li = document.createElement('li');
   li.setAttribute('aria-current', 'page');
+  li.className = 'huge';
   li.innerHTML = restaurant.name;
   breadcrumb.appendChild(li);
 }
@@ -403,6 +404,7 @@ function createForm(restaurant) {
   header.id = 'form-header';
   header.className = 'header';
   const title = document.createElement('h3');
+  title.className = 'huge';
   title.innerHTML = `Review ${restaurant.name}`;
   header.append(title);
 
@@ -456,13 +458,13 @@ function createForm(restaurant) {
   const label = document.createElement('label');
   const input = document.createElement('input');
   label.setAttribute('for', 'name');
-  label.setAttribute('class', 'form-label');
+  label.setAttribute('class', 'form-label medium');
   label.innerHTML = 'Name:<span style="color: red;">*</span>';
   name.append(label);
 
   input.type = 'text';
   input.id = 'name';
-  input.className = 'form-box';
+  input.className = 'form-box medium';
   input.name = 'name';
   input.autofocus = true;
   input.setAttribute('minlength', '2'); // doesn't work
@@ -477,13 +479,13 @@ function createForm(restaurant) {
   select.id = 'selects';
   const selectLabel = document.createElement('label');
   selectLabel.setAttribute('for', 'rating');
-  selectLabel.setAttribute('class', 'form-label');
+  selectLabel.setAttribute('class', 'form-label medium');
   selectLabel.innerHTML = 'Rating:';
   select.append(selectLabel);
 
   const selectSection = document.createElement('select');
   selectSection.id = 'rating';
-  selectSection.className = 'form-box';
+  selectSection.className = 'form-box medium';
 
   for (let i = 1; i < 6; i++) {
     let option = document.createElement('option');
@@ -503,13 +505,13 @@ function createForm(restaurant) {
   const comments = document.createElement('div');
   const label1 = document.createElement('label');
   label1.setAttribute('for', 'comments');
-  label1.className = 'form-label';
+  label1.className = 'form-label medium';
   label1.innerHTML = 'Comments:<span style="color: red;">*</span>';
   comments.append(label1);
 
   const text = document.createElement('textarea');
   text.id = 'comments';
-  text.className = 'form-box';
+  text.className = 'form-box medium';
   text.name = 'comments';
   text.setAttribute('maxlength', '800');
   text.cols = '10';
@@ -526,13 +528,14 @@ function createForm(restaurant) {
 
   const submit = document.createElement('button');
   submit.type = 'submit';
-  submit.id = 'submit';
-  submit.className = 'button';
+  submit.id = 'submit-button';
+  submit.className = 'button medium';
   submit.innerHTML = 'Submit Review';
   submit.onclick = () => saveReview(restaurant.id);
   footer.append(submit);
 
   const subtitle = document.createElement('p');
+  subtitle.className = 'small';
   subtitle.innerHTML = '<span style="color: red;">*</span>Fields are required';
   footer.append(subtitle);
 

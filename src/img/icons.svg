@@ -38,7 +38,7 @@
     <symbol id="favorite-remove">
       <use href="#star"/>
       <use href="#circle" fill="#33c" stroke="none"/>
-      <use href="#minus"/>
+      <use href="#check"/>
     </symbol>
 
     <symbol id ="review">

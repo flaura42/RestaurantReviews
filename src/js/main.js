@@ -21,7 +21,7 @@ async function initPage() {
       const image = document.createElement('img');
       image.src = 'img/map_full.jpg';
       image.className = 'map-img';
-      image.alt = 'Displaying offline map';
+      image.alt = 'Offline map';
       div.append(image);
       return div;
     }
@@ -99,8 +99,8 @@ async function fetchNeighborhoods() {
     select.setAttribute('aria-label', 'filter by neighborhood');
     neighborhoods.forEach(neighborhood => {
       const option = document.createElement('option');
-      option.innerHTML = neighborhood;
       option.value = neighborhood;
+      option.innerHTML = neighborhood;
       select.append(option);
     });
   }
@@ -123,8 +123,8 @@ async function fetchCuisines() {
     select.setAttribute('aria-label', 'filter by cuisine');
     cuisines.forEach(cuisine => {
       const option = document.createElement('option');
-      option.innerHTML = cuisine;
       option.value = cuisine;
+      option.innerHTML = cuisine;
       select.append(option);
     });
   }
@@ -190,21 +190,24 @@ function createRestaurantHTML(restaurant) {
   div.className = 'restaurant-info';
 
   const name = document.createElement('h2');
+  name.className = 'huge';
   name.innerHTML = restaurant.name;
   div.append(name);
 
   const neighborhood = document.createElement('p');
+  neighborhood.className = 'large';
   neighborhood.innerHTML = restaurant.neighborhood;
   div.append(neighborhood);
 
   const address = document.createElement('p');
+  address.className = 'large';
   address.innerHTML = restaurant.address;
   div.append(address);
 
   li.append(div);
 
   const more = document.createElement('a');
-  more.className = 'button';
+  more.className = 'button small';
   more.innerHTML = 'View Details';
   more.href = DBHelper.urlForRestaurant(restaurant);
   more.setAttribute('aria-label', `View Details for ${restaurant.name}`);
@@ -295,7 +298,6 @@ async function handleClickFavorites() {
   try {
     let status = document.getElementById('show-favorites-icon').href.baseVal;
     let checkFavorites = await DBHelper.checkFavorites();
-    let button = document.getElementById('show-favorites-button');
 
     switch (status) {
     case 'img/icons.svg#show-favorites-false':

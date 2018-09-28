@@ -36,20 +36,20 @@
       <div id="map" aria-label="map" role="application"></div>
     </section>
     <section>
-      <div class="filter-options" id="filter" aria-label="Filter results" tabindex="0">
-        <h2>Filter Results</h2>
+      <div id="filter-options" aria-label="Filter results" tabindex="0">
+        <h2 class="huge">Filter Results</h2>
         <div id="filter-content">
-          <div id = "filter-selects">
-            <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
+          <div id="filter-selects">
+            <select id="neighborhoods-select" class="small"  name="neighborhoods" onchange="updateRestaurants()">
               <option value="all">All Neighborhoods</option>
             </select>
-            <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
+            <select id="cuisines-select" class="small" name="cuisines" onchange="updateRestaurants()">
               <option value="all">All Cuisines</option>
             </select>
           </div>
           <div id="filter-favorites">
-            <h3>Filter Favorites</h3>
-            <button id="show-favorites-button"></button>
+            <h3 class="large">Filter Favorites</h3>
+            <button id="show-favorites-button" class="icon-button"></button>
           </div>
         </div>
 
