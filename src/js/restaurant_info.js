@@ -392,7 +392,7 @@ async function handleClickReview() {
   }
 }
 
-// TODO: Decide if have review box fixed position. Add delete review functionality
+// TODO: Add delete review functionality
 /**********    Create the form when needed using JavaScript!    **********/
 function createForm(restaurant) {
   const container = document.getElementById('reviews-container');
@@ -471,7 +471,7 @@ function createForm(restaurant) {
   input.name = 'name';
   input.autofocus = true;
   input.setAttribute('minlength', '2'); // doesn't work
-  input.setAttribute('maxlength', '30');
+  input.setAttribute('maxlength', '15');
   input.required = true;
   input.setAttribute('aria-required', true);
   name.append(input);
