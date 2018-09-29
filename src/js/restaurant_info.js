@@ -5,7 +5,6 @@
 /**********    Initialize page upon page load    **********/
 document.addEventListener('DOMContentLoaded', () => { initPage(); });
 
-// TODO: Get map overlay to display nicely on small screens (or only display overlay)
 /**********    Check online status, send image or initMap()    **********/
 async function initPage() {
   try {
@@ -158,6 +157,7 @@ function fillReviewsHTML(reviews = self.reviews) {
   }
   const ul = document.getElementById('reviews-list');
   reviews.forEach(review => {
+    console.log("Old review: ", review);
     ul.appendChild(createReviewHTML(review));
   });
   container.appendChild(ul);
@@ -165,6 +165,8 @@ function fillReviewsHTML(reviews = self.reviews) {
 
 /**********    Create and add review HTML    **********/
 function createReviewHTML(review) {
+
+  console.log("Review being created: ", review);
   const li = document.createElement('li');
 
   const div = document.createElement('div');
@@ -181,7 +183,7 @@ function createReviewHTML(review) {
   date.className = 'review-date';
   date.innerHTML = dateValue;
   div.appendChild(date);
-
+  console.log("div top: ", div);
   li.appendChild(div);
 
   const rating = document.createElement('p');
@@ -192,7 +194,7 @@ function createReviewHTML(review) {
   const comments = document.createElement('p');
   comments.innerHTML = review.comments;
   li.appendChild(comments);
-
+  console.log("li contents: ", li);
   return li;
 }
 
@@ -274,7 +276,6 @@ async function setFavoriteIcon() {
   }
 }
 
-
 /**********    Get the current favorite status    **********/
 async function getFavoriteStatus() {
   try {
@@ -293,33 +294,12 @@ async function getFavoriteStatus() {
   }
 }
 
-// TODO: Add a11y for alert
 /**********    Handle click event for favorite icon    **********/
 async function handleClickFavorite() {  // Called from favorite icon
   try {
-    const status = await getFavoriteStatus();
     const id = getParameterByName('id');
-    switch (status) {
-    case false:
-      if (confirm('Add this restaurant to favorites?')) {
-        await DBHelper.toggleFavorite(id);
-        setFavoriteIcon();
-
-      } else {
-        // console.log("favorite cancelled");
-      }
-      break;
-    case true:
-      if (confirm('Remove favorite?')) {
-        await DBHelper.toggleFavorite(id);
-        setFavoriteIcon();
-      } else {
-        // console.log("favorite cancelled");
-      }
-      break;
-    default:
-      alert('Sorry, error saving favorite.  Please try again.');
-    }
+    await DBHelper.toggleFavorite(id);
+    setFavoriteIcon();
   }
   catch(error) {
     console.error("Error while handling the favorite click: ", error);
@@ -392,7 +372,6 @@ async function handleClickReview() {
   }
 }
 
-// TODO: Add delete review functionality
 /**********    Create the form when needed using JavaScript!    **********/
 function createForm(restaurant) {
   const container = document.getElementById('reviews-container');
@@ -544,8 +523,6 @@ function createForm(restaurant) {
 
   contents.append(footer);
   form.append(contents);
-
-  // Have form appear above reviews list
   container.insertBefore(form, list);
 
   // Event handler for browsers that don't support DOM 'onfocusout' method
@@ -582,20 +559,24 @@ function reviewData(id) {
 
 // TODO: Have user notified if review can't be saved.  Try again?/Save for later?/Cancel?  Ping url after click and then ask?
 /**********    Save review to the server    **********/
-async function saveReview(id) {
-  try {
-    // Make review icon reappear
-    setReviewIcon();
-    // console.log("running saveReview()");
-    const review = reviewData(id);
-    const ping = await DBHelper.pingUrl(DBHelper.REVIEWS_URL);
-    if (ping == true) { DBHelper.addReview(review); }
-    else { DBHelper.storeReview(review); }
-    // DBHelper.storeReview(review);
+function saveReview(id) {
+  // Make review icon reappear
+  setReviewIcon();
+
+  // console.log("running saveReview()");
+  const review = reviewData(id);
+  // const ping = await DBHelper.pingUrl(DBHelper.REVIEWS_URL);
+  const ping = false;
+  if (ping == true) {
+    DBHelper.addReview(review);
+  } else {
+    console.log("New Review: ", review);
+    const ul = document.getElementById('reviews-list');
+    ul.appendChild(createReviewHTML(review));
+    DBHelper.storeReview(review);
   }
-  catch(error) {
-    console.error("Error while saving review: ", error);
-  }
+  // DBHelper.storeReview(review);
+
 }
 
 /******************************************************************************/
