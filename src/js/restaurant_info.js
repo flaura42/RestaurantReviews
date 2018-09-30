@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', () => { initPage(); });
 /**********    Check online status, send image or initMap()    **********/
 async function initPage() {
   try {
+    // Store offline map overlay for later use
+    let id = getParameterByName('id');
+    caches.open('reviews-v1').then(cache => {
+      return cache.add(`img/map_${id}.jpg`);
+    });
+
     setFavoriteIcon();
     setReviewIcon();
     let container = document.getElementById('restaurant-container');
@@ -87,7 +93,8 @@ async function fetchRestaurantFromURL() {
       fillRestaurantHTML();
 
       // fill reviews
-      const reviews = await DBHelper.serveReviewsById(id);
+      // const reviews = await DBHelper.serveReviewsById(id);
+      const reviews = await DBHelper.collectReviews(id);
       self.reviews = reviews;
       // console.log("Reviews being sent: ", reviews.length);
       fillReviewsHTML();
@@ -157,7 +164,6 @@ function fillReviewsHTML(reviews = self.reviews) {
   }
   const ul = document.getElementById('reviews-list');
   reviews.forEach(review => {
-    console.log("Old review: ", review);
     ul.appendChild(createReviewHTML(review));
   });
   container.appendChild(ul);
@@ -165,8 +171,6 @@ function fillReviewsHTML(reviews = self.reviews) {
 
 /**********    Create and add review HTML    **********/
 function createReviewHTML(review) {
-
-  console.log("Review being created: ", review);
   const li = document.createElement('li');
 
   const div = document.createElement('div');
@@ -183,7 +187,6 @@ function createReviewHTML(review) {
   date.className = 'review-date';
   date.innerHTML = dateValue;
   div.appendChild(date);
-  console.log("div top: ", div);
   li.appendChild(div);
 
   const rating = document.createElement('p');
@@ -194,7 +197,6 @@ function createReviewHTML(review) {
   const comments = document.createElement('p');
   comments.innerHTML = review.comments;
   li.appendChild(comments);
-  console.log("li contents: ", li);
   return li;
 }
 
@@ -554,29 +556,32 @@ function reviewData(id) {
     'updatedAt': Date.now()
   };
   event.preventDefault();
+  clearForm();
   return review;
 }
 
-// TODO: Have user notified if review can't be saved.  Try again?/Save for later?/Cancel?  Ping url after click and then ask?
 /**********    Save review to the server    **********/
-function saveReview(id) {
-  // Make review icon reappear
-  setReviewIcon();
-
-  // console.log("running saveReview()");
-  const review = reviewData(id);
-  // const ping = await DBHelper.pingUrl(DBHelper.REVIEWS_URL);
-  const ping = false;
-  if (ping == true) {
-    DBHelper.addReview(review);
-  } else {
-    console.log("New Review: ", review);
-    const ul = document.getElementById('reviews-list');
-    ul.appendChild(createReviewHTML(review));
-    DBHelper.storeReview(review);
+async function saveReview(id) {
+  try {
+    // Make review icon reappear
+    setReviewIcon();
+    // collect review data and check if online
+    const review = reviewData(id);
+    const pingReviews = await DBHelper.pingUrl(DBHelper.REVIEWS_URL);
+    const pingLocal = await DBHelper.checkLocal();
+    if (pingReviews == true && pingLocal == true) {
+      console.log("Adding review");
+      DBHelper.addReview(review);
+    } else {
+      console.log("Storing review");
+      const ul = document.getElementById('reviews-list');
+      ul.appendChild(createReviewHTML(review));
+      DBHelper.storeReview(review);
+    }
   }
-  // DBHelper.storeReview(review);
-
+  catch(error) {
+    console.error("Error while saving review: ", error);
+  }
 }
 
 /******************************************************************************/

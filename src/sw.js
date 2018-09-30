@@ -10,7 +10,7 @@ const urlsToCache = [
   '/js/main.js',
   '/js/restaurant_info.js',
   '/js/dbhelper.js',
-  '/img/nomap.jpg',
+  '/img/map_full.jpg',
   '/img/icons-192.jpg',
   '/img/icons-512.jpg'
 ];
@@ -25,37 +25,98 @@ self.addEventListener('install', event => {
 });
 
 /**********    Fetch returned cache responses cumulatively    **********/
+// self.addEventListener('fetch', event => {
+//   // If statement used to get rid of most of the annoying errors
+//   const requestUrl = event.request.url;
+//   if (requestUrl.includes('browser-sync')|| requestUrl.includes('unpkg') || requestUrl.includes('mapbox')) {
+//     return;
+//   }
+//
+//   if (event.request.method == 'PUT') {
+//     console.log("Put attempt: ", event.request);
+//     event.respondWith( fetch(event.request) );
+//     return;
+//   }
+//
+//   // if (event.request.method == 'POST') {
+//   //   console.log("Post attempt: ", event.request);
+//   //   fetch(event.request);
+//   // }
+//
+//   // Check for match in cache
+//   event.respondWith(
+//     caches.match(event.request).then(response => {
+//       if (response) {
+//         return response;
+//       }
+//       // Fetch request and clone it
+//       let fetchRequest = event.request.clone();
+//       // Ensure valid/status ok
+//       return fetch(fetchRequest).then(response => {
+//         if (!response || response.status !== 200) {
+//           return response;
+//         }
+//         // Clone response to send one to cache and return other
+//         let responseToCache = response.clone();
+//         caches.open(cache_name).then(cache => {
+//           cache.put(event.request, responseToCache);
+//         });
+//         return response;
+//       });
+//     }).catch(error => {
+//       console.log("Fetch event failed:", event.request, error);
+//       return new Response("This ain't working for me");
+//     })
+//   );
+// });
+
 self.addEventListener('fetch', event => {
-  // If statement used to get rid of most of the annoying errors
   const requestUrl = event.request.url;
+
+  // If statement used to get rid of most of the annoying errors
   if (requestUrl.includes('browser-sync')|| requestUrl.includes('unpkg') || requestUrl.includes('mapbox')) {
     return;
   }
 
-  // Check for match in cache
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      if (response) {
-        return response;
-      }
-      // Fetch request and clone it
-      let fetchRequest = event.request.clone();
-      // Ensure valid/status ok
-      return fetch(fetchRequest).then(response => {
-        if (!response || response.status !== 200) {
+  if (event.request.method === 'GET') {
+
+    // To force SW to update reviews instead of collecting from cache
+    if (requestUrl.startsWith('http://localhost:1337/reviews')) {
+      caches.open(cache_name).then(cache => {
+        return fetch(event.request).then(response => {
+          cache.put(event.request, response.clone());
+          return response;
+        });
+      });
+    }
+
+    event.respondWith(
+      caches.match(event.request).then(response => {
+        if (response) {
           return response;
         }
-        // Clone response to send one to cache and return other
-        let responseToCache = response.clone();
-        caches.open(cache_name).then(cache => {
-          cache.put(event.request, responseToCache);
+        // Fetch request and clone it
+        let fetchRequest = event.request.clone();
+        // Ensure valid/status ok
+        return fetch(fetchRequest).then(response => {
+          if (!response || response.status !== 200) {
+            return response;
+          }
+          // Clone response to send one to cache and return other
+          let responseToCache = response.clone();
+          caches.open(cache_name).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+          return response;
         });
-        return response;
-      });
-    }).catch(error => {
-      console.log("Fetch event failed", error);
-    })
-  );
+      }).catch(error => {
+        console.error("Fetch event failed:", event.request, error);
+      })
+    );
+  }
+  else {
+    event.respondWith( fetch(event.request) );
+  }
 });
 
 /**********    Tidy up the SW cache storage with loop deleting old caches.

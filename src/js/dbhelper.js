@@ -1,14 +1,14 @@
 /**********    Register serviceWorker    **********/
-// if (navigator.serviceWorker) {
-//   window.addEventListener('load', () => {
-//     navigator.serviceWorker.register('/sw.js')
-//       .then(registration => {
-//         // console.log("ServiceWorker registered:", registration);
-//       }, error => {
-//         console.error("ServiceWorker registration failed:", error);
-//       });
-//   });
-// }
+if (navigator.serviceWorker) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        // console.log("ServiceWorker registered:", registration);
+      }, error => {
+        console.error("ServiceWorker registration failed:", error);
+      });
+  });
+}
 
 /**********    global variable for opening idb    **********/
 const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
@@ -223,7 +223,7 @@ class DBHelper {
   /**********    Ping url to see if functioning    **********/
   static async pingUrl(url) {
     try {
-      // console.log("Pinging URL: ", url);
+      console.log("Pinging URL: ", url);
       const status = await fetch(url).then(response => {
         if (response.ok) { return true; }
       });
@@ -243,12 +243,13 @@ class DBHelper {
         if (response.ok) { return true; }
       });
       let onlineStatus = navigator.onLine;
-      let killStatus = showMap;
+      // let killStatus = showMap;
+      let killStatus = true;
       if (urlStatus && onlineStatus && killStatus) { return true; }
       else { return false; }
     }
     catch(error) {
-      console.error("Error while pinging url: ", error);
+      console.error("Error while checking local.  Appear to be offline: ", error);
       return false;
     }
   }
@@ -346,23 +347,37 @@ class DBHelper {
   /*                            Reviews Functions                           */
   /**************************************************************************/
 
+  /**********    Collect reviews by restaurant id    **********/
+  static async collectReviews(id) {
+    try {
+      const ping = await DBHelper.checkLocal();
+      if (ping == true) { return DBHelper.serveReviewsById(id); }
+      else { return DBHelper.fetchReviewsById(id); }
+    }
+    catch(error) {
+      console.error("Error while collecting reviews: ", error);
+    }
+  }
+
   /**********    Serve reviews by restaurant id    **********/
   static async serveReviewsById(id) {
     try {
+      await DBHelper.fetchOfflineStore();
       const fetchReviews = new Request(`${DBHelper.REVIEWS_URL}?restaurant_id=${id}`);
       const response = await fetch(fetchReviews);
       if (response.ok) {
         const reviews = await response.json();
-        DBHelper.addReviews(reviews);
+        // console.log("reviews from server: ", reviews);
+        DBHelper.updateReviewsDB(reviews);
         return reviews;
       } else {
         console.error("Failed to fetch reviews from server");
-        let reviews = await DBHelper.fetchReviewsById(id);
-        return reviews;
+        return DBHelper.fetchReviewsById(id);
       }
     }
     catch(error) {
       console.error("Error while fetching reviews by id: ", error);
+      return DBHelper.fetchReviewsById(id);
     }
   }
 
@@ -385,9 +400,10 @@ class DBHelper {
   }
 
   /**********    Add served reviews to DB    **********/
-  static async addReviews(reviews) {
+  static async updateReviewsDB(reviews) {
     try {
       // Create transaction to put reviews into db
+      // console.log("Updating reviews in DB: ", reviews);
       const db = await dbPromise;
       const tx = db.transaction('reviews-store', 'readwrite');
       const store = tx.objectStore('reviews-store');
