@@ -542,6 +542,22 @@ function clearForm() {
   form.remove();
 }
 
+function validateForm() {
+  console.log("validating form");
+  let name = document.getElementById('name').value;
+  if (name == '') {
+    alert("Name is required");
+    return false;
+  }
+
+  let comments = document.getElementById('comments').value;
+  if (comments == '') {
+    alert("Comments are required");
+    return false;
+  }
+  return true;
+}
+
 /**********    Function for storing form data   **********/
 function reviewData(id) {
   const name = document.getElementById('name').value;
@@ -563,20 +579,23 @@ function reviewData(id) {
 /**********    Save review to the server    **********/
 async function saveReview(id) {
   try {
-    // Make review icon reappear
-    setReviewIcon();
-    // collect review data and check if online
-    const review = reviewData(id);
-    const pingReviews = await DBHelper.pingUrl(DBHelper.REVIEWS_URL);
-    const pingLocal = await DBHelper.checkLocal();
-    if (pingReviews == true && pingLocal == true) {
-      console.log("Adding review");
-      DBHelper.addReview(review);
-    } else {
-      console.log("Storing review");
-      const ul = document.getElementById('reviews-list');
-      ul.appendChild(createReviewHTML(review));
-      DBHelper.storeReview(review);
+    const validated = await validateForm();
+    if (validated) {
+      // Make review icon reappear
+      setReviewIcon();
+      // collect review data and check if online
+      const review = reviewData(id);
+      const pingReviews = await DBHelper.pingUrl(DBHelper.REVIEWS_URL);
+      const pingLocal = await DBHelper.checkLocal();
+      if (pingReviews == true && pingLocal == true) {
+        console.log("Adding review");
+        DBHelper.addReview(review);
+      } else {
+        console.log("Storing review");
+        const ul = document.getElementById('reviews-list');
+        ul.appendChild(createReviewHTML(review));
+        DBHelper.storeReview(review);
+      }
     }
   }
   catch(error) {
