@@ -23,9 +23,6 @@ const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {
   }
 });
 
-// Toggle map for easier testing with internet issues
-const showMap = false;
-
 /**********    Common database helper functions    **********/
 class DBHelper {
   /**************************************************************************/
@@ -59,9 +56,7 @@ class DBHelper {
       const store = tx.objectStore('restaurants-store');
       // Use getAll method to return array of objects in store
       let restaurants = await store.getAll();
-      // console.log("fetchR restaurants: ", restaurants);
       if (restaurants.length !== 0) {
-        // console.log("Fetched from DB: ", restaurantsDB.length);
         return restaurants;
       } else {
         let restaurants = await DBHelper.serveRestaurants();
@@ -80,7 +75,6 @@ class DBHelper {
       const response = await fetch(fetchAll);
       if (response.ok) {
         const restaurants = await response.json();
-        // console.log("restaurants served: ", restaurants);
         DBHelper.addRestaurants(restaurants);
         return restaurants;
       }
@@ -132,7 +126,6 @@ class DBHelper {
       const restaurants = await DBHelper.fetchRestaurants();
       const restaurant = restaurants.find(r => r.id == id);
       if (restaurant) {
-        // console.log("found restaurant by id: ", restaurant);
         return restaurant;
       } else {
         console.error("Restaurant id doesn't exist");
@@ -152,7 +145,6 @@ class DBHelper {
         console.error("No restaurants found");
         return null;
       }
-      // console.log("Restaurants for fetchN are: ", restaurants.length);
       const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood);
       // Remove duplicates from neighborhoods
       const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) == i);
@@ -172,7 +164,6 @@ class DBHelper {
         console.error("No restaurants found");
         return null;
       }
-      // console.log("Restaurants for fetchC are: ", restaurants.length);
       const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type);
       // Remove duplicates from cuisines
       const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) == i);
@@ -241,9 +232,7 @@ class DBHelper {
         if (response.ok) { return true; }
       });
       let onlineStatus = navigator.onLine;
-      // let killStatus = showMap;
-      let killStatus = true;
-      if (urlStatus && onlineStatus && killStatus) { return true; }
+      if (urlStatus && onlineStatus) { return true; }
       else { return false; }
     }
     catch(error) {
@@ -266,13 +255,10 @@ class DBHelper {
   /**********    Add/remove favorited restaurant from DB   **********/
   static async toggleFavorite(id) {
     try {
-      console.log("Toggling favorite status");
       // Determine current status of is_favorite
       const restaurant = await DBHelper.fetchRestaurantById(id);
-      console.log("current status: ", restaurant.is_favorite);
       // Toggle status of is_favorite
       let status = (restaurant.is_favorite == true) ? false : true;
-      console.log("Toggling status to: ", status);
       restaurant.is_favorite = status;
       // Update the DB with the current status
       const db = await dbPromise;
@@ -316,8 +302,6 @@ class DBHelper {
       if (cuisine !== 'all') { // filter by cuisine
         favorites = favorites.filter(r => r.cuisine_type == cuisine);
       }
-      // console.log("Favorites", favorites.length, neighborhood, cuisine);
-      // if (favorites.length == 0) { return null; }
       return favorites;
     }
     catch(error) {
@@ -330,7 +314,6 @@ class DBHelper {
     try {
       let restaurants = await DBHelper.fetchRestaurants();
       let favorites = restaurants.filter(r => r.is_favorite == true);
-      // console.log("Favorites check: ", favorites.length);
       return favorites;
     }
     catch(error) {
@@ -368,14 +351,12 @@ class DBHelper {
     try {
       const ping = await DBHelper.checkLocal();
       if (ping == true) {
-        // console.log("Preparing to serve reviews");
         // Handle updating tasks
         DBHelper.updateFavoriteStatus(id);
         await DBHelper.fetchOfflineStore();
         // Return them thar reviews
         return DBHelper.serveReviewsById(id);
       } else {
-        // console.log("Fetching reviews from DB");
         return DBHelper.fetchReviewsById(id);
       }
     }
@@ -387,16 +368,13 @@ class DBHelper {
   /**********    Serve reviews by restaurant id    **********/
   static async serveReviewsById(id) {
     try {
-      // console.log("Serving reviews");
       const fetchReviews = new Request(`${DBHelper.REVIEWS_URL}?restaurant_id=${id}`);
       const response = await fetch(fetchReviews);
       if (response.ok) {
         const reviews = await response.json();
-        // console.log("reviews from server: ", reviews.length);
         DBHelper.updateReviewsDB(reviews);
         return reviews;
       } else {
-        // console.error("Failed to fetch reviews from server");
         return DBHelper.fetchReviewsById(id);
       }
     }
@@ -410,7 +388,6 @@ class DBHelper {
   static async fetchReviewsById(id) {
     try {
       // Create transaction to get restaurants from db
-      // console.log("Fetching reviews from DB");
       const db = await dbPromise;
       const tx = db.transaction('reviews-store', 'readonly');
       const store = tx.objectStore('reviews-store');
@@ -429,11 +406,9 @@ class DBHelper {
   static async updateReviewsDB(reviews) {
     try {
       // Create transaction to put reviews into db
-      // console.log("Updating reviews in DB: ", reviews.length);
       const db = await dbPromise;
       const tx = db.transaction('reviews-store', 'readwrite');
       const store = tx.objectStore('reviews-store');
-      // console.log("Reviews to add: ", reviews.length);
       for (let i = 0; i < reviews.length; i++) {
         store.put(reviews[i]);
       }
@@ -447,7 +422,6 @@ class DBHelper {
   /**********    Add review to server    **********/
   static async addReview(review) {
     try {
-      // console.log("Adding review to server: ", review.comments);
       const status = await fetch(DBHelper.REVIEWS_URL, {
         method: 'POST',
         body: JSON.stringify(review)
@@ -456,12 +430,6 @@ class DBHelper {
         console.log("Review not added.  Sending review to offline store");
         DBHelper.storeReview(review);
       }
-      // if (status.ok) {
-      //   console.log("Review added");
-      // } else {
-      //   console.log("Review not added.  Sending review to offline store");
-      //   DBHelper.storeReview(review);
-      // }
     }
     catch(error) {
       console.error("Error while adding review", error);
@@ -471,7 +439,6 @@ class DBHelper {
   /**********    If offline, save review in offline store    **********/
   static async storeReview(review) {
     try {
-      // console.log("Review sent to offline store: ", review.comments);
       const db = await dbPromise;
       const tx = db.transaction('offline-store', 'readwrite');
       const store = tx.objectStore('offline-store');
@@ -486,19 +453,14 @@ class DBHelper {
   /**********    Fetch offline reviews and post to server    **********/
   static async fetchOfflineStore() {
     try {
-      // console.log("Fetching offline store");
       // Get reviews from offline store
       const db = await dbPromise;
       const tx = db.transaction('offline-store', 'readwrite');
       const store = tx.objectStore('offline-store');
       let reviews = await store.getAll();
 
-      if (reviews.length == 0) {
-        // console.log("No offline reviews to POST");
-        return;
-      }
+      if (reviews.length == 0) { return; }
 
-      // console.log("Offline reviews to POST: ", reviews.length);
       // Save reviews to server
       for (let i = 0; i < reviews.length; i++) {
         const review = reviews[i];
@@ -508,11 +470,10 @@ class DBHelper {
         }).then(response => {
           if (response.ok) {
             // If successfully added to server, delete review from offline store
-            console.log("Deleting review")
             DBHelper.deleteReview(review.id, review.num);
             return;
           }
-          console.log("Didn't post review to server");
+          console.error("Didn't post review to server");
         });
       }
     }
@@ -523,23 +484,18 @@ class DBHelper {
 
   /**********    Delete reviews from DB    **********/
   static async deleteReview(id, num) {
-    // console.log("ID/NUM: ", id, num);
     const db = await dbPromise;
     if (id) {
-      // console.log("This restaurant has ID: ", id);
       const tx = db.transaction('reviews-store', 'readwrite');
       const store = tx.objectStore('reviews-store');
       store.delete(id);
       return tx.complete;
     }
     if (num) {
-      // console.log("This restaurant has num:", num);
       const tx = db.transaction('offline-store', 'readwrite');
       const store = tx.objectStore('offline-store');
       store.delete(num);
       return tx.complete;
     }
   }
-
-  // The very end
 }

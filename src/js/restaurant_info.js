@@ -20,7 +20,6 @@ async function initPage() {
     // Check online status and send image or initMap()
     let status = await DBHelper.checkLocal();
     if (!status) {
-      console.log("Bypassing map");
       const restaurant = await fetchRestaurantFromURL(); // Needed for fBc
       container.setAttribute('aria-label', `Restaurant Details: ${restaurant.name}`);
       fillBreadcrumb();
@@ -40,7 +39,6 @@ async function initPage() {
       map.append(div);
       return map;
     }
-    // console.log("Initializing map");
     initMap();
   }
   catch(error) {
@@ -91,12 +89,8 @@ async function fetchRestaurantFromURL() {
         return;
       }
       fillRestaurantHTML();
-
-      // fill reviews
-      // const reviews = await DBHelper.serveReviewsById(id);
       const reviews = await DBHelper.collectReviews(id);
       self.reviews = reviews;
-      // console.log("Reviews being sent: ", reviews.length);
       fillReviewsHTML();
 
       return restaurant;
@@ -115,7 +109,6 @@ function fillRestaurantHTML(restaurant = self.restaurant) {
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img lazyload';
   image.alt = `View of ${restaurant.name}`;
-  // image.src = DBHelper.imageUrlForRestaurant(restaurant);
 
   // Added for lazy loading
   image.setAttribute('data-sizes', 'auto');
@@ -232,7 +225,6 @@ async function setFavoriteIcon() {
   try {
     // Determine if/what icon is being displayed
     const status = await getFavoriteStatus();
-    console.log("Favorite status results are: ", status);
     const version = (status == true) ? 'img/icons.svg#favorite-remove' : 'img/icons.svg#favorite-add';
     const button = document.getElementById('favorite-button');
     const check = (button.childNodes.length == 0);
@@ -283,13 +275,12 @@ async function getFavoriteStatus() {
   try {
     const id = getParameterByName('id');
     const restaurant = await DBHelper.fetchRestaurantById(id);
-    console.log("Restaurant favorite status from get status: ", restaurant.is_favorite);
+
     // Fix for restaurants without an is_favorite key
     if (restaurant.is_favorite == 'undefined') {
       DBHelper.fixFavorite(id);
       return false;
     }
-    console.log("Restaurant status gotted: ", restaurant.is_favorite);
     return restaurant.is_favorite;
   }
   catch(error) {
@@ -510,7 +501,6 @@ function createForm(restaurant) {
   const footer = document.createElement('div');
   footer.id = 'submit-section';
 
-
   const submit = document.createElement('button');
   submit.type = 'submit';
   submit.id = 'submit-button';
@@ -543,7 +533,6 @@ function clearForm() {
   form.remove();
 }
 
-// TODO: Maybe require at least 2 characters for name?
 /**********    Validate form fields before sending    **********/
 function validateForm() {
   // console.log("validating form");
@@ -591,7 +580,6 @@ async function saveReview(id) {
       const pingReviews = await DBHelper.pingUrl(DBHelper.REVIEWS_URL);
       const pingLocal = await DBHelper.checkLocal();
       if (pingReviews == true && pingLocal == true) {
-        // console.log("Adding review");
         await DBHelper.addReview(review);
         await DBHelper.collectReviews(id);
         window.location.href = `/restaurant.html?id=${id}`;
@@ -601,11 +589,9 @@ async function saveReview(id) {
         console.log("Back online!");
         handleOnline(id);
       });
-      // console.log("Storing review");
       const ul = document.getElementById('reviews-list');
       ul.appendChild(createReviewHTML(review));
       DBHelper.storeReview(review);
-
     }
   }
   catch(error) {
@@ -621,66 +607,5 @@ async function handleOnline(id) {
   }
   catch(error) {
     console.error("Error while handling online status:", error);
-  }
-}
-
-/******************************************************************************/
-/*                            Test Functions                             */
-/******************************************************************************/
-
-async function testPing() {
-  try {
-    const url = DBHelper.REVIEWS_URL;
-    // const url = DBHelper.LOCAL_URL;
-    const status = await DBHelper.pingUrl(url);
-    // console.log("Results are: ", status);
-  }
-  catch(error) {
-    console.error("Error while testing ping: ", error);
-  }
-}
-
-function testOffline() {
-  // console.log("running test offline");
-  let x = 1;
-  for (let i = x; i < (x+2); i++) {
-    const review = {
-      'restaurant_id': 1,
-      'name': 'Offline Test',
-      'rating': i,
-      'comments': `Offline ${i}`,
-      'createdAt': Date.now(),
-      'updatedAt': Date.now()
-    };
-    DBHelper.storeReview(review);
-  }
-
-  // console.log("Test ran");
-}
-
-function testStore() {
-  // console.log("Running test store");
-  DBHelper.fetchOfflineStore();
-}
-
-function testStatus() {
-  getFavoriteStatus();
-}
-
-// Tester function for sommer
-async function testFav() {
-  try {
-    const id=1
-    const restaurant = await DBHelper.fetchRestaurantById(id);
-    console.log("fave status before:", restaurant.is_favorite);
-    // restaurant.is_favorite = !restaurant.is_favorite;
-    // console.log("fave status after:", restaurant.is_favorite);
-    const status = !restaurant.is_favorite;
-    console.log('And with variable: ', status);
-    const urltoPUT = DBHelper.RESTAURANTS_URL + id + `/?is_favorite=` + status;
-    console.log("URL: ", urltoPUT);
-  }
-  catch(error) {
-    console.error("Error during test:", error);
   }
 }

@@ -15,7 +15,6 @@ async function initPage() {
     // Check online status and send image or initMap()
     let status = await DBHelper.checkLocal();
     if (!status) {
-      console.log("Bypassing map");
       const div = document.getElementById('map');
       const image = document.createElement('img');
       image.src = 'img/map_full.jpg';
@@ -24,7 +23,6 @@ async function initPage() {
       div.append(image);
       return div;
     }
-    // console.log("Initializing map");
     initMap();
   }
   catch(error) {
@@ -35,7 +33,6 @@ async function initPage() {
 /**********    Update page for current restaurants    **********/
 async function updateRestaurants() {
   try {
-    console.log("running updateRestaurants()");
     const nSelect = document.getElementById('neighborhoods-select');
     const cSelect = document.getElementById('cuisines-select');
 
@@ -49,9 +46,7 @@ async function updateRestaurants() {
     let restaurants;
     switch (status) {
     case 'img/icons.svg#show-favorites-true':
-      console.log("Updating favorites:", neighborhood, cuisine);
       restaurants = await DBHelper.fetchFavorites(neighborhood, cuisine);
-      console.log("Restaurants found: ", restaurants);
       if (restaurants == 0) {
         resetRestaurants(restaurants);
         const ul = document.getElementById('restaurants-list');
@@ -65,7 +60,6 @@ async function updateRestaurants() {
       fillRestaurantsHTML();
       break;
     case 'img/icons.svg#show-favorites-false':
-      console.log("Updating restaurants");
       restaurants = await DBHelper.fetchRestaurantsByFilter(neighborhood, cuisine);
       if (restaurants == 0) {
         resetRestaurants(restaurants);
@@ -199,7 +193,6 @@ function createRestaurantHTML(restaurant) {
   const image = document.createElement('img');
   image.className = 'restaurant-img lazyload';
   image.alt = `View of ${restaurant.name}`;
-  // image.src = DBHelper.imageUrlForRestaurant(restaurant);
 
   // Added for lazy loading
   image.setAttribute('data-sizes', 'auto');
@@ -357,21 +350,5 @@ function resetSelects() {
   let nMax = nSelect.length;
   for (let i = nMax; i > 0; i--) {
     document.getElementById('neighborhoods-select').remove(i);
-  }
-}
-
-/******************************************************************************/
-/*                            Test Functions                             */
-/******************************************************************************/
-
-// Test checkLocal
-async function testLocal() {
-  try {
-    let test = await DBHelper.checkLocal();
-    console.log("test local results: ", test);
-    return test;
-  }
-  catch(error) {
-    console.log("Error while testing local", error);
   }
 }
