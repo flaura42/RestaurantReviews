@@ -53,21 +53,19 @@ class DBHelper {
   /**********    Fetch all restaurants    **********/
   static async fetchRestaurants() {
     try {
-      const restaurants = await DBHelper.serveRestaurants();
-      if (restaurants.length !== 0) {
-        // console.log("Fetched from server: ", restaurants.length);
-        return restaurants;
-      }
       // Create transaction to get restaurants from db
       const db = await dbPromise;
       const tx = db.transaction('restaurants-store', 'readonly');
       const store = tx.objectStore('restaurants-store');
       // Use getAll method to return array of objects in store
-      let restaurantsDB = await store.getAll();
+      let restaurants = await store.getAll();
       // console.log("fetchR restaurants: ", restaurants);
-      if (restaurantsDB.length !== 0) {
+      if (restaurants.length !== 0) {
         // console.log("Fetched from DB: ", restaurantsDB.length);
-        return restaurantsDB;
+        return restaurants;
+      } else {
+        let restaurants = await DBHelper.serveRestaurants();
+        return restaurants;
       }
     }
     catch(error) {
@@ -288,7 +286,25 @@ class DBHelper {
     }
   }
 
-// TODO: Filtering still not working completely.  Need to be able to filter out favorites when filter selects selected.
+  /**********    Fixes restaurant without 'is_favorite' value   **********/
+  static async fixFavorite(id) {
+    try {
+      // Fetch restaurant data
+      const restaurant = await DBHelper.fetchRestaurantById(id);
+      // Change status of is_favorite to false
+      restaurant.is_favorite = false;
+      // Update the DB with the current status
+      const db = await dbPromise;
+      const tx = db.transaction('restaurants-store', 'readwrite');
+      const store = tx.objectStore('restaurants-store');
+      store.put(restaurant);
+      return tx.complete;
+    }
+    catch(error) {
+      console.error("Error while toggling favorite: ", error);
+    }
+  }
+
   /**********    Collect restaurants that are favorites    **********/
   static async fetchFavorites(neighborhood, cuisine) {
     try {
@@ -301,7 +317,7 @@ class DBHelper {
         favorites = favorites.filter(r => r.cuisine_type == cuisine);
       }
       // console.log("Favorites", favorites.length, neighborhood, cuisine);
-      if (favorites.length == 0) { return null; }
+      // if (favorites.length == 0) { return null; }
       return favorites;
     }
     catch(error) {
@@ -321,27 +337,6 @@ class DBHelper {
       console.error("Error while checking favorites", error);
     }
   }
-
-  // /**********    Update server with current favorite status    **********/
-  // static async updateFavoritesStatus() {
-  //   try {
-  //     const restaurants = await DBHelper.fetchRestaurants();
-  //     // console.log("Restaurants HERE: ", restaurants.length);
-  //     restaurants.forEach(restaurant => {
-  //       fetch(`${DBHelper.RESTAURANTS_URL}/${restaurant.id}/?is_favorite=${restaurant.is_favorite}`, {
-  //         method: 'PUT'
-  //       }).then(response => {
-  //         if (!response.ok) {
-  //           console.error("Failed to update favorite status");
-  //           return;
-  //         }
-  //       });
-  //     });
-  //   }
-  //   catch(error) {
-  //     console.error("Error while updating favorite status", error);
-  //   }
-  // }
 
   /**********    Update server with current favorite status    **********/
   static async updateFavoriteStatus(id) {

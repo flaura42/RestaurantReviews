@@ -5,7 +5,6 @@
 /**********    Initialize page upon page load    **********/
 document.addEventListener('DOMContentLoaded', () => { initPage(); });
 
-// TODO: Add click alert to static map
 /**********    Handle page load    **********/
 async function initPage() {
   try {
@@ -36,6 +35,7 @@ async function initPage() {
 /**********    Update page for current restaurants    **********/
 async function updateRestaurants() {
   try {
+    console.log("running updateRestaurants()");
     const nSelect = document.getElementById('neighborhoods-select');
     const cSelect = document.getElementById('cuisines-select');
 
@@ -46,17 +46,41 @@ async function updateRestaurants() {
     const cuisine = cSelect[cIndex].value;
 
     let status = document.getElementById('show-favorites-icon').href.baseVal;
-    if (status == 'img/icons.svg#show-favorites-true') {
-      // console.log("Updating favorites:", neighborhood, cuisine);
-      const restaurants = await DBHelper.fetchFavorites(neighborhood, cuisine);
-      if (restaurants == null) { return; }
+    let restaurants;
+    switch (status) {
+    case 'img/icons.svg#show-favorites-true':
+      console.log("Updating favorites:", neighborhood, cuisine);
+      restaurants = await DBHelper.fetchFavorites(neighborhood, cuisine);
+      console.log("Restaurants found: ", restaurants);
+      if (restaurants == 0) {
+        resetRestaurants(restaurants);
+        const ul = document.getElementById('restaurants-list');
+        const p = document.createElement('p');
+        p.className = 'medium';
+        p.innerHTML = 'Sorry, there are no results with those filter settings.';
+        ul.appendChild(p);
+        return;
+      }
       resetRestaurants(restaurants);
       fillRestaurantsHTML();
-    } else {
-      // console.log("Updating restaurants");
-      const restaurants = await DBHelper.fetchRestaurantsByFilter(neighborhood, cuisine);
+      break;
+    case 'img/icons.svg#show-favorites-false':
+      console.log("Updating restaurants");
+      restaurants = await DBHelper.fetchRestaurantsByFilter(neighborhood, cuisine);
+      if (restaurants == 0) {
+        resetRestaurants(restaurants);
+        const ul = document.getElementById('restaurants-list');
+        const p = document.createElement('p');
+        p.className = 'medium';
+        p.innerHTML = 'Sorry, there are no results with those filter settings.';
+        ul.appendChild(p);
+        return;
+      }
       resetRestaurants(restaurants);
       fillRestaurantsHTML();
+      break;
+    default:
+      console.error("Swich error for updateRestaurants()");
     }
   }
   catch(error) {
@@ -83,7 +107,6 @@ async function resetRestaurants(restaurants) {
   catch(error) {
     console.error("Error while resetting restaurants: ", error);
   }
-
 }
 
 /**********    Fetch all neighborhoods and set their HTML    **********/
@@ -167,7 +190,6 @@ async function fillRestaurantsHTML(restaurants = self.restaurants) {
   catch(error) {
     console.error("Error while filling restaurants HTML:", error);
   }
-
 }
 
 /**********    Create all restaurants HTML    **********/
@@ -239,7 +261,7 @@ async function addMarkersToMap(restaurants = self.restaurants) {
   }
 }
 
-/**********    Allow <a> buttons to use spacebar    **********/
+/**********    Allow <a> buttons to use spacebar for A11y    **********/
 function checkKey(event) {
   if (event.keyCode == 32) {
     window.location.href = event.target.href;
@@ -292,7 +314,6 @@ function setFavoritesIcon(value) {
   });
 }
 
-// TODO: Add a11y for alert
 /**********    Handle click event for favorites icon    **********/
 async function handleClickFavorites() {
   try {

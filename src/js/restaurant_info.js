@@ -132,7 +132,6 @@ function fillRestaurantHTML(restaurant = self.restaurant) {
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
   }
-
 }
 
 /**********    Create and add operating hours HTML table    **********/
@@ -233,8 +232,8 @@ async function setFavoriteIcon() {
   try {
     // Determine if/what icon is being displayed
     const status = await getFavoriteStatus();
-    console.log("Favorite status is: ", status);
-    const version = (status) ? 'img/icons.svg#favorite-remove' : 'img/icons.svg#favorite-add';
+    console.log("Favorite status results are: ", status);
+    const version = (status == true) ? 'img/icons.svg#favorite-remove' : 'img/icons.svg#favorite-add';
     const button = document.getElementById('favorite-button');
     const check = (button.childNodes.length == 0);
 
@@ -284,10 +283,11 @@ async function getFavoriteStatus() {
   try {
     const id = getParameterByName('id');
     const restaurant = await DBHelper.fetchRestaurantById(id);
-
+    console.log("Restaurant favorite status from get status: ", restaurant.is_favorite);
     // Fix for restaurants without an is_favorite key
-    if (restaurant.is_favorite == undefined) {
-      Object.defineProperty(restaurant, 'is_favorite', { value: false });
+    if (restaurant.is_favorite == 'undefined') {
+      DBHelper.fixFavorite(id);
+      return false;
     }
     console.log("Restaurant status gotted: ", restaurant.is_favorite);
     return restaurant.is_favorite;
@@ -543,6 +543,8 @@ function clearForm() {
   form.remove();
 }
 
+// TODO: Maybe require at least 2 characters for name?
+/**********    Validate form fields before sending    **********/
 function validateForm() {
   // console.log("validating form");
   let name = document.getElementById('name').value;
@@ -611,6 +613,7 @@ async function saveReview(id) {
   }
 }
 
+/**********    Collect reviews when back online    **********/
 async function handleOnline(id) {
   try {
     await DBHelper.collectReviews(id);
