@@ -9,10 +9,10 @@ document.addEventListener('DOMContentLoaded', () => { initPage(); });
 async function initPage() {
   try {
     // Store offline map overlay for later use
-    let id = getParameterByName('id');
-    caches.open('reviews-v1').then(cache => {
-      return cache.add(`img/map_${id}.jpg`);
-    });
+    // let id = getParameterByName('id');
+    // caches.open('reviews-v1').then(cache => {
+    //   return cache.add(`img/map_${id}.jpg`);
+    // });
 
     setFavoriteIcon();
     setReviewIcon();
@@ -233,6 +233,7 @@ async function setFavoriteIcon() {
   try {
     // Determine if/what icon is being displayed
     const status = await getFavoriteStatus();
+    console.log("Favorite status is: ", status);
     const version = (status) ? 'img/icons.svg#favorite-remove' : 'img/icons.svg#favorite-add';
     const button = document.getElementById('favorite-button');
     const check = (button.childNodes.length == 0);
@@ -288,7 +289,7 @@ async function getFavoriteStatus() {
     if (restaurant.is_favorite == undefined) {
       Object.defineProperty(restaurant, 'is_favorite', { value: false });
     }
-
+    console.log("Restaurant status gotted: ", restaurant.is_favorite);
     return restaurant.is_favorite;
   }
   catch(error) {
@@ -543,7 +544,7 @@ function clearForm() {
 }
 
 function validateForm() {
-  console.log("validating form");
+  // console.log("validating form");
   let name = document.getElementById('name').value;
   if (name == '') {
     alert("Name is required");
@@ -588,18 +589,35 @@ async function saveReview(id) {
       const pingReviews = await DBHelper.pingUrl(DBHelper.REVIEWS_URL);
       const pingLocal = await DBHelper.checkLocal();
       if (pingReviews == true && pingLocal == true) {
-        console.log("Adding review");
-        DBHelper.addReview(review);
-      } else {
-        console.log("Storing review");
-        const ul = document.getElementById('reviews-list');
-        ul.appendChild(createReviewHTML(review));
-        DBHelper.storeReview(review);
+        // console.log("Adding review");
+        await DBHelper.addReview(review);
+        await DBHelper.collectReviews(id);
+        window.location.href = `/restaurant.html?id=${id}`;
+        return;
       }
+      window.addEventListener('online', () => {
+        console.log("Back online!");
+        handleOnline(id);
+      });
+      // console.log("Storing review");
+      const ul = document.getElementById('reviews-list');
+      ul.appendChild(createReviewHTML(review));
+      DBHelper.storeReview(review);
+
     }
   }
   catch(error) {
     console.error("Error while saving review: ", error);
+  }
+}
+
+async function handleOnline(id) {
+  try {
+    await DBHelper.collectReviews(id);
+    window.location.href = `/restaurant.html?id=${id}`;
+  }
+  catch(error) {
+    console.error("Error while handling online status:", error);
   }
 }
 
