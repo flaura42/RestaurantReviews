@@ -21,6 +21,7 @@ const cleanCSS = require('gulp-clean-css');  // Minify css
 const imageResize = require('gulp-image-resize');  // Batch image resize
 const imagemin = require('gulp-imagemin');  // Minify images
 const imageminWebp = require('imagemin-webp');  // webp compression as jpeg
+const imageminSvgo = require('imagemin-svgo');  // SVG image optimizer
 
 // For starting over
 const del = require('del');  // Delete files and folders
@@ -129,7 +130,9 @@ gulp.task('images', () =>
     .pipe(imagemin([
       imageminWebp({
         quality: 70  // default 75
-      })]))
+      }),
+      imageminSvgo()
+    ]))
     .pipe(gulp.dest('build/img'))
 );
 
@@ -168,7 +171,7 @@ gulp.task('image-resize-490', () =>
 // Copy static images to src/img folder
 gulp.task('image-static', () =>
   gulp.src([
-    'src/img-static/*.jpg',
+    'src/img-static/*',
     'src/img-src/*.jpg'
   ])
     .pipe(gulp.dest('src/img'))

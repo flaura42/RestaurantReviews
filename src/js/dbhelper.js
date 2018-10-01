@@ -1,14 +1,14 @@
 /**********    Register serviceWorker    **********/
-// if (navigator.serviceWorker) {
-//   window.addEventListener('load', () => {
-//     navigator.serviceWorker.register('/sw.js')
-//       .then(registration => {
-//         // console.log("ServiceWorker registered:", registration);
-//       }, error => {
-//         console.error("ServiceWorker registration failed:", error);
-//       });
-//   });
-// }
+if (navigator.serviceWorker) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        // console.log("ServiceWorker registered:", registration);
+      }, error => {
+        console.error("ServiceWorker registration failed:", error);
+      });
+  });
+}
 
 /**********    global variable for opening idb    **********/
 const dbPromise = idb.open('restaurants-db', 1, upgradeDB => {

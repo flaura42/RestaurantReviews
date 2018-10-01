@@ -9,10 +9,10 @@ document.addEventListener('DOMContentLoaded', () => { initPage(); });
 async function initPage() {
   try {
     // Store offline map overlay for later use
-    // let id = getParameterByName('id');
-    // caches.open('reviews-v1').then(cache => {
-    //   return cache.add(`img/map_${id}.jpg`);
-    // });
+    let id = getParameterByName('id');
+    caches.open('reviews-v1').then(cache => {
+      return cache.add(`img/map_${id}.jpg`);
+    });
 
     setFavoriteIcon();
     setReviewIcon();

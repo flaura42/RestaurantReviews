@@ -462,6 +462,7 @@ textarea {
 
 #submit-section p {
 	text-align: right;
+	margin-left: 10px;
 }
 
 #submit-button {
